@@ -4,5 +4,5 @@
 ---
 deployment:
   tasks:
-    - export APP_DIR=$HOME/egofit
+    - export APP_DIR=$HOME/egofit_app
     - SKIP_PULL=1 /bin/bash $APP_DIR/deploy/deploy.sh > $HOME/egofit-deploy.log 2>&1 || (cat $HOME/egofit-deploy.log; exit 1)
