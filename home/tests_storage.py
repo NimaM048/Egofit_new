@@ -4,7 +4,7 @@ from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from django.core.files.base import ContentFile
-from django.test import RequestFactory, SimpleTestCase, override_settings
+from django.test import RequestFactory, SimpleTestCase, TestCase, override_settings
 
 from sport_shop.media_views import ResilientMediaView
 from sport_shop.storage_backends import ResilientMediaStorage
@@ -90,3 +90,48 @@ class StorageFallbackTests(SimpleTestCase):
             self.assertEqual(response.status_code, 200)
             self.assertTrue((Path(tmp_dir) / "videos" / "sample.mp4").exists())
             response.close()
+
+
+class SharedMediaDeleteGuardTests(TestCase):
+    """A file shared by several rows must survive deleting one of them (django-cleanup)."""
+
+    def setUp(self):
+        from account.models import User
+        from home.models import SeriesModel
+
+        author = User.objects.create(phone="09125550001", fullname="shared_media_author")
+        self.name = "series_courses/shared-banner.png"
+        SeriesModel.objects.bulk_create([
+            SeriesModel(title="Real course", image=self.name, author=author),
+            SeriesModel(title="Test copy", image=self.name, author=author),
+        ])
+        self.series = list(SeriesModel.objects.filter(image=self.name).order_by("pk"))
+
+    def _storage_with_file(self, tmp_dir):
+        storage = ResilientMediaStorage(location=tmp_dir, base_url="/media/")
+        storage._remote_storage = None
+        path = Path(tmp_dir) / self.name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"png")
+        return storage, path
+
+    def test_delete_is_skipped_while_another_row_references_the_file(self):
+        with TemporaryDirectory() as tmp_dir:
+            storage, path = self._storage_with_file(tmp_dir)
+            remote = Mock()
+            with patch.object(ResilientMediaStorage, "_remote_for_io", return_value=remote):
+                self.series[1].delete()          # the "test copy" row is removed ...
+                storage.delete(self.name)        # ... and django-cleanup asks to delete its file
+            self.assertTrue(path.exists())
+            remote.delete.assert_not_called()
+
+    def test_delete_happens_once_no_row_references_the_file(self):
+        with TemporaryDirectory() as tmp_dir:
+            storage, path = self._storage_with_file(tmp_dir)
+            remote = Mock()
+            with patch.object(ResilientMediaStorage, "_remote_for_io", return_value=remote):
+                for series in self.series:
+                    series.delete()
+                storage.delete(self.name)
+            self.assertFalse(path.exists())
+            remote.delete.assert_called_once_with(self.name)

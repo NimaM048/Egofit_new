@@ -100,7 +100,32 @@ class ResilientMediaStorage(FileSystemStorage):
                 return False
         return False
 
+    @staticmethod
+    def referencing_records(name):
+        """Return labels of model rows whose FileField/ImageField still points at ``name``."""
+        from django.apps import apps
+        from django.db import models
+
+        refs = []
+        for model in apps.get_models():
+            for field in model._meta.get_fields():
+                if isinstance(field, models.FileField) and not field.many_to_many:
+                    for pk in model._default_manager.filter(**{field.name: name}).values_list("pk", flat=True)[:5]:
+                        refs.append(f"{model._meta.label}.{field.name}#{pk}")
+        return refs
+
     def delete(self, name):
+        # django-cleanup deletes a file when its row is deleted or the field changes.
+        # Several rows may share one file (e.g. a course duplicated for testing), so
+        # never remove a file - locally or on Liara - while another row still uses it.
+        try:
+            still_used = self.referencing_records(name)
+        except Exception as exc:  # database unavailable: be safe and keep the file
+            logger.warning("Media delete skipped for %s; reference check failed: %s", name, exc)
+            return
+        if still_used:
+            logger.warning("Media delete skipped for %s; still referenced by %s", name, still_used)
+            return
         if super().exists(name):
             super().delete(name)
         remote_storage = self._remote_for_io()
