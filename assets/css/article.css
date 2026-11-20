@@ -258,7 +258,10 @@
 
 .ef-toc__list a {
     position: relative;
-    display: block;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
     padding: .45rem .7rem;
     border-radius: .7rem;
     font-size: .82rem;
@@ -651,6 +654,15 @@
 }
 
 .ef-takeaway__body { color: hsl(var(--foreground) / .9); }
+
+.ef-takeaway__body :is(h3, h4) {
+    margin: 0 0 .9em;
+    padding: 0;
+    border: 0;
+    font-size: 1em;
+    font-weight: 800;
+    line-height: 2.05;
+}
 .ef-takeaway__body > :last-child { margin-bottom: 0; }
 .ef-takeaway strong, .ef-takeaway b { background: none; }
 

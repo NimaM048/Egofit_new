@@ -90,8 +90,10 @@
     /* ------------------------------------------------------------------ 2. table of contents */
     var tocBox = document.querySelector("[data-toc]");
     var tocList = document.querySelector("[data-toc-list]");
+    // skip headings inside the takeaway body and "headings" that are really whole paragraphs
     var headings = Array.prototype.slice.call(prose.querySelectorAll("h2, h3")).filter(function (h) {
-        return h.textContent.trim().length > 1;
+        var len = h.textContent.replace(/\s+/g, " ").trim().length;
+        return len > 1 && len <= 110 && !h.closest(".ef-takeaway__body");
     });
     var links = [];
 

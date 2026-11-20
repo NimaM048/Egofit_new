@@ -444,3 +444,20 @@ a.ef-chip:hover {
         display: none;
     }
 }
+
+/* eNamad seal in the footer (official 125x136 image) */
+.footer-cert__badge {
+    flex: none;
+    display: grid;
+    place-items: center;
+    padding: .35rem;
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: 0 6px 18px -10px hsl(222 47% 11% / .35);
+}
+
+.footer-cert__badge img {
+    display: block;
+    width: 84px;
+    height: auto;
+}
