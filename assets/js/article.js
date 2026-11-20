@@ -42,7 +42,7 @@
 
     /* Turn a run of inline nodes separated by <br> into paragraphs / lists / dividers.
        Returns a fragment, or null when the run has no structure worth changing. */
-    function buildFrom(nodes) {
+    function buildFrom(nodes, alwaysWrap) {
         var lines = [[]], brs = [];
         nodes.forEach(function (node) {
             if (node.nodeName === "BR") { brs.push(node); lines.push([]); } else { lines[lines.length - 1].push(node); }
@@ -55,6 +55,12 @@
                 nodes.forEach(function (n) { if (n.parentNode) n.parentNode.removeChild(n); });
                 return single;
             }
+            if (alwaysWrap && lineText(nodes).trim()) {
+                var wrap = document.createElement("p");
+                nodes.forEach(function (n) { wrap.appendChild(n); });
+                var f1 = document.createDocumentFragment(); f1.appendChild(wrap);
+                return f1;
+            }
             return null;
         }
         var kinds = lines.map(function (ln) {
@@ -64,7 +70,7 @@
             return t.trim() === "" ? "blank" : "text";
         });
         var listLines = kinds.filter(function (k) { return k === "ul" || k === "ol"; }).length;
-        if (listLines < 2 && kinds.indexOf("rule") === -1 && kinds.indexOf("blank") === -1) return null;
+        if (!alwaysWrap && listLines < 2 && kinds.indexOf("rule") === -1 && kinds.indexOf("blank") === -1) return null;
 
         var frag = document.createDocumentFragment();
         var para = null, list = null, listKind = null;
@@ -110,7 +116,7 @@
                 var anchor = nodes[0];
                 var marker = document.createComment("");
                 anchor.parentNode.insertBefore(marker, anchor);
-                var frag = buildFrom(nodes);
+                var frag = buildFrom(nodes, true);
                 if (frag) box.insertBefore(frag, marker);
                 box.removeChild(marker);
             }
