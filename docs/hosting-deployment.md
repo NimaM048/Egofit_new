@@ -112,3 +112,31 @@ After restarting the app, check the public home page, sign-in, admin access,
 and Beat logs show successful connections, and verify scheduled jobs run. Keep
 database and media backups outside the public web root and verify that a backup
 can be restored before relying on it.
+
+## Current production setup (egofit.ir, cPanel / CloudLinux)
+
+| Item | Value |
+|---|---|
+| App root | `/home/egofitir/egofit_app` (git clone of `NimaM048/Egofit_new`, branch `main`) |
+| Python | 3.11, virtualenv `/home/egofitir/virtualenv/egofit_app/3.11` (cPanel » Setup Python App, URI `/`) |
+| Database | MySQL `egofitir_EgoFit_App`, app user `egofitir_app` (credentials only in the server `.env`, mode 600) |
+| Static / media | `/home/egofitir/public_html/static` / `/home/egofitir/public_html/media` |
+| Background tasks | run inline (`DJANGO_TASKS_RUN_INLINE=true`); Celery beat jobs run from cron via `deploy/run_periodic_task.py` |
+| Backups | daily 02:15 `deploy/backup_db.sh` → `~/egofit-backups/daily` (14 days), log `~/logs/egofit-backup.log` |
+| Cron log | `~/logs/egofit-cron.log` |
+
+### Releasing a new version
+1. Push to `main` on GitHub.
+2. cPanel » **Git™ Version Control** » *EgoFit (production)* » **Manage** » **Pull or Deploy**:
+   **Update from Remote**, then **Deploy HEAD Commit**. This runs `.cpanel.yml` → `deploy/deploy.sh`
+   (pip only when `requirements.txt` changed, `check --deploy`, DB backup + `migrate` when migrations
+   are pending, `collectstatic`, Passenger restart). Output: `~/egofit-deploy.log`.
+   Alternatively, from cPanel » Terminal: `bash ~/egofit_app/deploy/deploy.sh` (pulls by itself).
+
+The host's default PyPI mirror served a package with a wrong hash; `pip` therefore uses the official index
+(`--index-url https://pypi.org/simple`) inside
+`deploy.sh` (it defaults to the official index; override with `PIP_INDEX_URL`).
+
+### Rollback
+The previous SQLite-based app is kept, stopped, at `/home/egofitir/app` (cPanel app URI `old-site-disabled`).
+Database snapshot from the cut-over: `~/egofit-backups/mysql_before_cutover_*.sql.gz`.

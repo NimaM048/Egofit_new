@@ -50,7 +50,7 @@ log "Now at $(git log -1 --format='%h %s')"
 if [[ "$OLD_REQ_HASH" != "$NEW_REQ_HASH" || "${FORCE_PIP:-0}" == "1" ]]; then
   log "Installing requirements"
   python -m pip install --upgrade pip -q
-  python -m pip install -r requirements.txt -q
+  python -m pip install --index-url "${PIP_INDEX_URL:-https://pypi.org/simple}" -r requirements.txt -q
 else
   log "requirements.txt unchanged - skipping pip"
 fi
