@@ -1,0 +1,51 @@
+{% extends 'admin_portal/_shell.html' %}
+{% load i18n %}
+
+{% block title %}{% blocktrans %}پروفایل مربی | ایگوفیت{% endblocktrans %}{% endblock %}
+
+{% block admin_content %}
+<section class="admin-screen admin-coach-portal-screen">
+    <header class="admin-screen__header admin-screen__header--split">
+        <h1 class="admin-screen__title">{% trans 'پروفایل مربی' %}</h1>
+    </header>
+
+    <p class="admin-screen__lead">
+        {% trans 'بیوگرافی، عکس آواتار و شماره تماس خود را به‌روزرسانی کنید. برای تغییر رمز عبور از لینک «تغییر رمز عبور» در منو استفاده کنید.' %}
+    </p>
+
+    <section class="admin-panel-card">
+        <form method="post" enctype="multipart/form-data" class="admin-form-grid admin-form-grid--stacked">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <div class="field-group admin-form-grid__full">
+                <label for="{{ form.biography.id_for_label }}">{{ form.biography.label }}</label>
+                {{ form.biography }}
+                {{ form.biography.errors }}
+            </div>
+
+            <div class="field-group">
+                <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
+                {{ form.phone }}
+                {{ form.phone.errors }}
+            </div>
+
+            <div class="field-group">
+                <label for="{{ form.profile_picture.id_for_label }}">{{ form.profile_picture.label }}</label>
+                {% if request.user.profile_picture %}
+                    <img src="{{ request.user.profile_picture.url }}" alt="{{ request.user.fullname }}" class="admin-avatar-preview" loading="lazy">
+                {% endif %}
+                {{ form.profile_picture }}
+                {{ form.profile_picture.errors }}
+            </div>
+
+            <button type="submit" class="admin-primary-btn">{% trans 'ذخیره تغییرات' %}</button>
+        </form>
+    </section>
+
+    <section class="admin-quick-actions">
+        <a class="admin-secondary-btn" href="{% url 'register:admin_password_change' %}">{% trans 'تغییر رمز عبور' %}</a>
+        <a class="admin-secondary-btn" href="{% url 'register:coach_dashboard' %}">{% trans 'بازگشت به داشبورد مربی' %}</a>
+    </section>
+</section>
+{% endblock %}

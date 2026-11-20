@@ -1,0 +1,106 @@
+{% extends 'account/_shell.html' %}
+{% load i18n %}
+
+{% block title %}{% blocktrans %}درخواست مربی شدن | ایگوفیت{% endblocktrans %}{% endblock %}
+
+{% block account_content %}
+<section class="profile-screen coach-application-screen">
+    <header class="profile-screen__header coach-application-screen__header">
+        <span class="coach-application-eyebrow">{% trans 'مسیر حرفه‌ای شما در ایگوفیت' %}</span>
+        <h2 class="profile-screen__title">{% trans 'درخواست مربی شدن' %}</h2>
+        <p class="profile-screen__lead">
+            {% trans 'اطلاعات و تجربه‌تان را با ما به اشتراک بگذارید تا تیم ایگوفیت درخواست شما را بررسی کند.' %}
+        </p>
+    </header>
+
+    {% if application %}
+        <article class="profile-panel-card coach-application-status coach-application-status--{{ application.status }}" aria-label="{% trans 'وضعیت درخواست مربی' %}">
+            <span class="coach-application-status__icon" aria-hidden="true">
+                {% if application.status == 'approved' %}✓{% elif application.status == 'rejected' %}×{% else %}…{% endif %}
+            </span>
+            <div class="coach-application-status__content">
+                <span class="coach-application-status__eyebrow">{% trans 'پیگیری درخواست' %}</span>
+                <div class="coach-application-status__heading">
+                    <h3>{% trans 'وضعیت آخرین درخواست شما' %}</h3>
+                    <strong class="coach-application-status__value">{{ application.get_status_display }}</strong>
+                </div>
+                {% if application.reviewed_at %}
+                    <p class="coach-application-status__date">{% trans 'آخرین به‌روزرسانی:' %} {{ application.reviewed_at|date:"Y-m-d H:i" }}</p>
+                {% endif %}
+                {% if application.status == 'rejected' and application.rejection_reason %}
+                    <div class="coach-application-status__note">
+                        <strong>{% trans 'دلیل رد درخواست' %}</strong>
+                        <p>{{ application.rejection_reason }}</p>
+                    </div>
+                {% elif application.status == 'approved' %}
+                    <p class="coach-application-status__note">{% trans 'درخواست شما تایید شده است. با ورود مجدد، پنل مربی برای شما فعال می‌شود.' %}</p>
+                {% endif %}
+            </div>
+        </article>
+    {% endif %}
+
+    <section class="profile-panel-card coach-application-form-card">
+        <header class="coach-application-form-card__header">
+            <span class="coach-application-form-card__step" aria-hidden="true">۰۱</span>
+            <div>
+                <h3>{% trans 'معرفی و اطلاعات تماس' %}</h3>
+                <p>{% trans 'فیلدهای این فرم را کامل کنید تا درخواستتان برای بررسی ارسال شود.' %}</p>
+            </div>
+        </header>
+
+        <form method="post" enctype="multipart/form-data" class="coach-request-form coach-application-form">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <div class="coach-application-fields">
+                <div class="coach-application-fields__row">
+                    <div class="field-group">
+                        <label for="{{ form.full_name.id_for_label }}">{{ form.full_name.label }}</label>
+                        {{ form.full_name }}
+                        {{ form.full_name.errors }}
+                    </div>
+
+                    <div class="field-group">
+                        <label for="{{ form.phone.id_for_label }}">{{ form.phone.label }}</label>
+                        {{ form.phone }}
+                        {{ form.phone.errors }}
+                    </div>
+                </div>
+
+                <div class="field-group coach-application-fields__biography">
+                    <label for="{{ form.biography.id_for_label }}">{{ form.biography.label }}</label>
+                    {{ form.biography }}
+                    {{ form.biography.errors }}
+                </div>
+
+                <div class="coach-application-fields__row coach-application-fields__uploads">
+                    <div class="field-group">
+                        <label for="{{ form.resume.id_for_label }}">{{ form.resume.label }}</label>
+                        {{ form.resume }}
+                        <small>{% trans 'فایل PDF رزومه خود را انتخاب کنید.' %}</small>
+                        {{ form.resume.errors }}
+                    </div>
+
+                    <div class="field-group">
+                        <label for="{{ form.photo.id_for_label }}">{{ form.photo.label }}</label>
+                        {{ form.photo }}
+                        <small>{% trans 'یک تصویر واضح و مناسب از خودتان بارگذاری کنید.' %}</small>
+                        {{ form.photo.errors }}
+                    </div>
+                </div>
+            </div>
+
+            <footer class="coach-application-form__actions">
+                <button type="submit" class="cta-primary cta-primary--strong coach-application-submit">
+                    <span>{% trans 'ارسال درخواست' %}</span>
+                    <span class="coach-application-submit__icon" aria-hidden="true">→</span>
+                </button>
+                <a href="{% url 'register:profile_coach' %}" class="coach-application-back-link">
+                    <span aria-hidden="true">↶</span>
+                    {% trans 'بازگشت به صفحه مربی' %}
+                </a>
+            </footer>
+        </form>
+    </section>
+</section>
+{% endblock %}

@@ -1,0 +1,33 @@
+{% extends 'account/_shell.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'ترجیحات تمرینی | ایگوفیت' %}{% endblock %}
+
+{% block account_content %}
+<section class="profile-screen profile-screen--wide training-preferences-screen">
+    <header class="profile-screen__header">
+        <div>
+            <span class="account-eyebrow">{% trans 'پیشنهادهای متناسب با شما' %}</span>
+            <h1 class="profile-screen__title">{% trans 'ترجیحات تمرینی' %}</h1>
+            <p>{% trans 'این اطلاعات به هماهنگی هدف، روزهای تمرین، زمان در دسترس، تجربه و تجهیزات با برنامه شما کمک می‌کند.' %}</p>
+        </div>
+        <a href="{% url 'register:profile_workout_programs' %}" class="secondary-action">{% trans 'بازگشت به برنامه‌ها' %}</a>
+    </header>
+
+    <form method="post" class="account-card training-preferences-form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="form-errors" role="alert">{{ form.non_field_errors }}</div>{% endif %}
+        <div class="training-preferences-form__grid">
+            {% for field in form %}
+                <div class="field-group {% if field.name == 'preferred_days' or field.name == 'available_equipment' %}training-preferences-form__wide{% endif %}">
+                    <label>{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+                    {{ field.errors }}
+                </div>
+            {% endfor %}
+        </div>
+        <button type="submit" class="cta-primary">{% trans 'ذخیره ترجیحات' %}</button>
+    </form>
+</section>
+{% endblock %}

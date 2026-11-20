@@ -1,0 +1,163 @@
+{% extends 'account/_shell.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% blocktrans %}{{ account_title }} | ایگوفیت{% endblocktrans %}{% endblock %}
+
+{% block account_content %}
+<section class="metric-screen metric-screen--modal">
+    <a href="{% url 'register:profile' %}" class="metric-overlay" aria-label="{% trans 'بستن' %}"></a>
+
+    <article class="metric-sheet">
+        <header class="metric-sheet__header">
+            <h1>{{ account_title }}</h1>
+            <a href="{% url 'register:profile' %}" class="metric-sheet__close" aria-label="{% trans 'بستن' %}">×</a>
+        </header>
+
+        <p class="metric-sheet__description">{{ account_description }}</p>
+
+        {% if messages %}
+            <div class="form-messages">
+                {% for message in messages %}
+                    <div class="form-message {% if message.tags %}is-{{ message.tags }}{% endif %}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post" class="metric-sheet__form">
+            {% csrf_token %}
+            {% if metric == 'birth_date' %}
+            <div class="field-group birth-date-picker" data-birth-date-picker>
+                <span class="birth-date-picker__label">{% trans 'تاریخ تولد (شمسی)' %}</span>
+                <div class="birth-date-picker__grid">
+                    <label class="birth-date-picker__control">
+                        <span>{% trans 'سال' %}</span>
+                        <select data-birth-year aria-label="{% trans 'سال تولد' %}">
+                            <option value="">—</option>
+                            {% for year in birth_year_choices %}
+                                <option value="{{ year }}" {% if birth_year == year|stringformat:'s' %}selected{% endif %}>{{ year }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label class="birth-date-picker__control">
+                        <span>{% trans 'ماه' %}</span>
+                        <select data-birth-month aria-label="{% trans 'ماه تولد' %}">
+                            <option value="">—</option>
+                            {% for month in birth_month_choices %}
+                                <option value="{{ month|stringformat:'02d' }}" {% if birth_month == month|stringformat:'02d' %}selected{% endif %}>{{ month }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label class="birth-date-picker__control">
+                        <span>{% trans 'روز' %}</span>
+                        <select data-birth-day aria-label="{% trans 'روز تولد' %}">
+                            <option value="">—</option>
+                            {% for day in birth_day_choices %}
+                                <option value="{{ day|stringformat:'02d' }}" {% if birth_day == day|stringformat:'02d' %}selected{% endif %}>{{ day }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                </div>
+                <p class="birth-date-picker__hint">{% trans 'با انتخاب سال، ماه و روز، تاریخ به‌صورت خودکار ثبت می‌شود.' %}</p>
+                <input type="hidden" name="{{ field.html_name }}" id="{{ field.id_for_label }}" value="{{ field.value|default:'' }}" data-birth-value>
+                {{ field.errors }}
+            </div>
+            {% else %}
+            <div class="field-group">
+                <label class="sr-only">{{ field_label }}</label>
+                {{ field }}
+                {{ field.errors }}
+            </div>
+            {% if metric == 'weight' or metric == 'height' %}
+                <div class="field-group"><label for="{{ form.measured_at.id_for_label }}">{{ form.measured_at.label }}</label>{{ form.measured_at }}{{ form.measured_at.errors }}</div>
+                <div class="field-group"><label for="{{ form.measurement_method.id_for_label }}">{{ form.measurement_method.label }}</label>{{ form.measurement_method }}{{ form.measurement_method.errors }}</div>
+                <div class="field-group"><label for="{{ form.protocol_version.id_for_label }}">{{ form.protocol_version.label }}</label>{{ form.protocol_version }}{{ form.protocol_version.errors }}</div>
+                <p class="metric-sheet__description">{% trans 'این مقدار به‌عنوان یک سنجش جدید در تاریخچه ذخیره می‌شود؛ مقدار فعلی پروفایل نیز به‌روز خواهد شد.' %}</p>
+            {% endif %}
+            {% endif %}
+            <button type="submit" class="metric-sheet__submit">{% trans 'تایید' %}</button>
+        </form>
+    </article>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+    {{ block.super }}
+    {% if metric == 'birth_date' %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var picker = document.querySelector("[data-birth-date-picker]");
+            if (!picker) {
+                return;
+            }
+            var year = picker.querySelector("[data-birth-year]");
+            var month = picker.querySelector("[data-birth-month]");
+            var day = picker.querySelector("[data-birth-day]");
+            var value = picker.querySelector("[data-birth-value]");
+            var form = picker.closest("form");
+
+            function daysInMonth(y, m) {
+                if (!m) {
+                    return 31;
+                }
+                if (m <= 6) {
+                    return 31;
+                }
+                if (m <= 11) {
+                    return 30;
+                }
+                // Esfand has 29 days, or 30 in a leap year.
+                if (!y) {
+                    return 30;
+                }
+                var leap = ((((y - 474) % 2820) + 474 + 38) * 682) % 2816;
+                leap = leap < 682 ? 1 : 0;
+                return leap ? 30 : 29;
+            }
+
+            function syncDays() {
+                var limit = daysInMonth(parseInt(year.value, 10), parseInt(month.value, 10));
+                Array.prototype.slice.call(day.options).forEach(function (option) {
+                    if (!option.value) {
+                        return;
+                    }
+                    option.disabled = parseInt(option.value, 10) > limit;
+                    if (option.disabled && option.selected) {
+                        day.value = "";
+                    }
+                });
+            }
+
+            function syncValue() {
+                if (year.value && month.value && day.value) {
+                    value.value = year.value + "/" + month.value + "/" + day.value;
+                } else {
+                    value.value = "";
+                }
+            }
+
+            [year, month, day].forEach(function (select) {
+                select.addEventListener("change", function () {
+                    syncDays();
+                    syncValue();
+                });
+            });
+            if (form) {
+                form.addEventListener("submit", function (event) {
+                    syncValue();
+                    if (!value.value) {
+                        event.preventDefault();
+                        var hint = picker.querySelector(".birth-date-picker__hint");
+                        if (hint) {
+                            hint.textContent = "{% trans 'لطفاً سال، ماه و روز تولد را انتخاب کنید.' %}";
+                            hint.classList.add("is-error");
+                        }
+                    }
+                });
+            }
+            syncDays();
+            syncValue();
+        });
+    </script>
+    {% endif %}
+{% endblock %}

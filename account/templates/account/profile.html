@@ -1,0 +1,181 @@
+{% extends 'account/_shell.html' %}
+{% load my_tags %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% blocktrans %}پروفایل | ایگوفیت{% endblocktrans %}{% endblock %}
+
+{% block account_content %}
+<section class="profile-screen">
+    <header class="profile-screen__header">
+        <h2 class="profile-screen__title">{% trans 'پروفایل' %}</h2>
+    </header>
+
+    {% if dashboard_feed and dashboard_feed.body %}
+        <article class="dashboard-feed-banner dashboard-feed-banner--{{ dashboard_feed.kind }}" data-dashboard-feed>
+            <span class="dashboard-feed-banner__icon" aria-hidden="true">{% if dashboard_feed.kind == 'birthday' %}🎉{% else %}📣{% endif %}</span>
+            <div class="dashboard-feed-banner__body">
+                <strong>{{ dashboard_feed.title }}</strong>
+                <p>{{ dashboard_feed.body }}</p>
+            </div>
+            <button type="button" class="dashboard-feed-banner__close" data-dashboard-feed-close aria-label="{% trans 'بستن پیام' %}">×</button>
+        </article>
+    {% endif %}
+
+    {% if mood_checkin_pending %}
+        <article class="dashboard-feed-banner dashboard-feed-banner--mood" role="status">
+            <span class="dashboard-feed-banner__icon" aria-hidden="true">📝</span>
+            <div class="dashboard-feed-banner__body">
+                <strong>{% trans 'ارزیابی امروزتان را ثبت کنید' %}</strong>
+                <p>{% trans 'فرم روحیات و ضربان قلب امروز هنوز کامل نشده است.' %}</p>
+                <a class="dashboard-feed-banner__action" href="{% url 'register:profile_mood' %}">{% trans 'رفتن به فرم خلقیات' %}<span aria-hidden="true">←</span></a>
+            </div>
+        </article>
+    {% endif %}
+
+    <article class="profile-identity-card">
+        <div class="profile-identity-card__meta">
+            <span class="profile-identity-card__label">{% trans 'نام و نام خانوادگی' %}</span>
+            <strong>{{ request.user.fullname }}</strong>
+            <span class="profile-identity-card__phone">{{ request.user.phone }}</span>
+        </div>
+        <div class="profile-identity-card__avatar" aria-hidden="true">
+            {% if request.user.profile_picture %}
+                <img src="{{ request.user.profile_picture|public_media_url }}" alt="{{ request.user.fullname }}" loading="lazy">
+            {% else %}
+                <img src="{% static 'images/avatars/download.png' %}" alt="{{ request.user.fullname }}" loading="lazy">
+            {% endif %}
+        </div>
+    </article>
+
+    {% if mood_reminder_enabled or mood_reminder_prompt_due %}
+        {% include 'account/_mood-reminder.html' %}
+    {% endif %}
+
+    <section class="profile-metric-grid">
+        {% for card in profile_overview_cards %}
+            <a href="{% url card.edit_url %}" class="profile-metric-card {% if card.full_width %}profile-metric-card--wide{% endif %} {% if card.icon == 'blood_group' %}profile-metric-card--blood{% endif %}">
+                <div class="profile-metric-card__icon" aria-hidden="true">
+                    {% include 'includes/profile_metric_icon.html' with icon=card.icon %}
+                </div>
+                <div class="profile-metric-card__content">
+                    <span class="profile-metric-card__label">{{ card.label }}</span>
+                    <strong class="profile-metric-card__value">{% if card.key == 'birth_date' %}{{ card.value|persian_digits }}{% else %}{{ card.value }}{% endif %}</strong>
+                </div>
+            </a>
+        {% endfor %}
+    </section>
+
+    <section class="dashboard-courses" aria-label="{% trans 'دوره‌های من' %}">
+        <div class="dashboard-courses__head">
+            <h2 class="dashboard-courses__title">{% trans 'دوره‌های من' %}</h2>
+            <a href="{% url 'register:profile_course' %}" class="dashboard-courses__link">{% trans 'مشاهده همه' %}</a>
+        </div>
+        {% if recent_courses %}
+            <div class="dashboard-courses__list">
+                {% for item in recent_courses %}
+                    <a href="{% url 'home:series_episodes' item.id %}" class="dashboard-course-card">
+                        <span class="dashboard-course-card__thumb">
+                            {% if item.image %}<img src="{{ item.image|public_media_url }}" alt="" loading="lazy">{% endif %}
+                        </span>
+                        <span class="dashboard-course-card__body">
+                            <strong class="dashboard-course-card__title">{{ item.title }}</strong>
+                            <span class="dashboard-course-card__meta">{{ item.author }}</span>
+                        </span>
+                    </a>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="dashboard-courses__empty">
+                <p>{% trans 'هنوز در دوره‌ای ثبت‌نام نکرده‌اید.' %}</p>
+                <a href="{% url 'home:series' %}" class="cta-primary">{% trans 'مشاهده دوره‌ها' %}</a>
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="profile-composition" aria-labelledby="profile-composition-title">
+        <header class="profile-composition__header">
+            <div>
+                <span class="profile-composition__eyebrow">{% trans 'گزارش بدن' %}</span>
+                <h2 id="profile-composition-title">{% trans 'ترکیب بدنی و روند پیشرفت' %}</h2>
+            </div>
+            <a class="profile-composition__all-link" href="{% url 'register:profile_analysis' %}">{% trans 'جزئیات آنالیز' %}<span aria-hidden="true">←</span></a>
+        </header>
+
+        <div class="profile-composition__grid">
+            <article class="profile-composition-card">
+                <div class="profile-composition-card__heading">
+                    <span class="profile-composition-card__icon profile-composition-card__icon--compare" aria-hidden="true">◉</span>
+                    <div>
+                        <h3>{% trans 'درصد چربی بدن' %}</h3>
+                        <p>{% trans 'مقایسه با میانگین کاربران هم‌جنس دارای آنالیز' %}</p>
+                    </div>
+                </div>
+                {% if profile_body_composition.comparison.available %}
+                    <div class="profile-composition-card__chart profile-composition-card__chart--compare">
+                        <canvas data-profile-comparison-chart aria-label="{% trans 'نمودار مقایسه درصد چربی بدن' %}" role="img"></canvas>
+                    </div>
+                    <p class="profile-composition-card__caption">{% blocktrans with count=profile_body_composition.comparison.users_count %}مقایسه بر پایهٔ دادهٔ {{ count }} کاربر دارای آنالیز انجام شده است.{% endblocktrans %}</p>
+                {% else %}
+                    <div class="profile-composition-empty">
+                        <p>{% trans 'برای مقایسهٔ دقیق، برنامهٔ EgoFit را دریافت کنید و برای ثبت تست ترکیب بدن به مربیان ما مراجعه کنید.' %}</p>
+                        {% if request.user.is_coach %}
+                            <a class="profile-composition-empty__action" href="{% url 'register:coach_profile' %}">{% trans 'پروفایل مربی' %}<span aria-hidden="true">←</span></a>
+                        {% else %}
+                            <a class="profile-composition-empty__action" href="{% url 'register:profile_coach' %}">{% trans 'دریافت برنامه و هماهنگی تست با مربی' %}<span aria-hidden="true">←</span></a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </article>
+
+            <article class="profile-composition-card">
+                <div class="profile-composition-card__heading">
+                    <span class="profile-composition-card__icon profile-composition-card__icon--progress" aria-hidden="true">↗</span>
+                    <div>
+                        <h3>{% trans 'روند چربی و تودهٔ عضلانی' %}</h3>
+                        <p>{% trans 'تغییرات ثبت‌شده در تست‌های شما' %}</p>
+                    </div>
+                </div>
+                {% if profile_body_composition.progress.available %}
+                    <div class="profile-composition-card__chart">
+                        <canvas data-profile-progress-chart aria-label="{% trans 'نمودار روند تغییرات چربی و تودهٔ عضلانی' %}" role="img"></canvas>
+                    </div>
+                    <p class="profile-composition-card__caption">{% trans 'تودهٔ عضلانی به‌صورت تودهٔ بدون چربی برآورد شده است.' %}</p>
+                {% else %}
+                    <div class="profile-composition-empty">
+                        <p>{% trans 'برای دیدن روند تغییر چربی و عضله، برنامهٔ EgoFit را دریافت کنید و برای انجام تست به مربیان ما مراجعه کنید.' %}</p>
+                        {% if request.user.is_coach %}
+                            <a class="profile-composition-empty__action" href="{% url 'register:coach_profile' %}">{% trans 'پروفایل مربی' %}<span aria-hidden="true">←</span></a>
+                        {% else %}
+                            <a class="profile-composition-empty__action" href="{% url 'register:profile_coach' %}">{% trans 'دریافت برنامه و مراجعه به مربیان' %}<span aria-hidden="true">←</span></a>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </article>
+        </div>
+        {{ profile_body_composition|json_script:'profile-body-composition-data' }}
+    </section>
+
+    <section class="profile-settings-hub" aria-label="{% trans 'تنظیمات حساب' %}">
+        <h2 class="profile-settings-hub__title">{% trans 'تنظیمات حساب' %}</h2>
+        <nav class="profile-settings-hub__list">
+            <a href="{% url 'register:profile_financial' %}" class="profile-settings-hub__item">{% trans 'مالی و سفارش‌ها' %}</a>
+            <a href="{% url 'register:profile_comments' %}" class="profile-settings-hub__item">{% trans 'دیدگاه‌های من' %}</a>
+            <a href="{% url 'register:profile_notifications' %}" class="profile-settings-hub__item">{% trans 'اعلان‌ها' %}</a>
+            <a href="{% url 'register:profile_useredit' %}" class="profile-settings-hub__item">{% trans 'ویرایش پروفایل' %}</a>
+            <a href="{% url 'register:profile_number_edit' %}" class="profile-settings-hub__item">{% trans 'ویرایش شماره تماس' %}</a>
+            <a href="{% url 'register:change_password' %}" class="profile-settings-hub__item">{% trans 'تغییر رمز عبور' %}</a>
+            <a href="{% url 'register:logout' %}" class="profile-settings-hub__item profile-settings-hub__item--danger">{% trans 'خروج از حساب' %}</a>
+        </nav>
+    </section>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+    {{ block.super }}
+    {% if profile_body_composition.comparison.available or profile_body_composition.progress.available %}
+        <script src="{% static 'js/vendor/chart.umd.min.js' %}"></script>
+        <script src="{% static 'js/profile-composition.js' %}"></script>
+    {% endif %}
+    {% if mood_reminder_enabled or mood_reminder_prompt_due %}<script src="{% static 'js/mood-reminder.js' %}"></script>{% endif %}
+{% endblock %}

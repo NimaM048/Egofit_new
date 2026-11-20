@@ -1,0 +1,37 @@
+{% extends 'admin_portal/_shell.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans 'اهداف حجم عضله | ایگوفیت' %}{% endblock %}
+{% block admin_content %}
+<section class="admin-screen admin-library-screen muscle-volume-screen">
+    <header class="admin-screen__header">
+        <p class="muscle-volume-eyebrow">{% trans 'کتابخانه تجویز خودکار' %}</p>
+        <h1 class="admin-screen__title">{% if item %}{% trans 'ویرایش اهداف حجم' %}{% else %}{% trans 'افزودن اهداف حجم' %}{% endif %}</h1>
+        <p>{% trans 'برای ترکیب عضله، هدف و سطح تجربه، تعداد ست‌های هفتگی را مشخص کنید.' %}</p>
+    </header>
+    <form method="post" class="admin-form-panel admin-form-grid admin-form-grid--cols2 muscle-volume-form" data-muscle-volume-form>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="admin-form-errors admin-form-grid__full">{{ form.non_field_errors }}</div>{% endif %}
+        {% for field in form %}
+            <div class="field-group{% if field.name == 'muscle' %} muscle-volume-form__muscle-field{% endif %}">
+                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+                {{ field.errors }}
+                {% if field.name == 'muscle' and not item %}<div class="muscle-volume-duplicate-notice" data-muscle-volume-notice role="status" aria-live="polite" hidden></div>{% endif %}
+            </div>
+        {% endfor %}
+        <div class="admin-form-grid__full admin-form-actions">
+            <button class="admin-primary-btn" type="submit">{% trans 'ذخیره' %}</button>
+            <a class="admin-secondary-btn" href="{% url 'register:admin_muscle_volume_landmarks' %}">{% trans 'بازگشت' %}</a>
+        </div>
+    </form>
+</section>
+{% if not item %}{{ existing_landmark_options|json_script:'muscle-volume-existing-landmarks' }}{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+{% if not item %}<script src="{% static 'js/muscle-volume-form.js' %}"></script>{% endif %}
+{% endblock %}

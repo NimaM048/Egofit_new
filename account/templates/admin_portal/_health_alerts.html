@@ -1,0 +1,54 @@
+{% load i18n %}
+<section class="admin-recent-panel admin-health-alerts" id="health-alerts" aria-labelledby="health-alerts-title">
+    <header class="admin-health-alerts__heading">
+        <div>
+            <span class="admin-health-alerts__eyebrow">{% trans 'پیگیری روندهای اخیر' %}</span>
+            <h2 id="health-alerts-title">{% trans 'اعلان‌های وضعیت روحی و سلامت شاگردان' %}</h2>
+        </div>
+        <span class="admin-health-alerts__count">{{ health_alerts|length }} {% trans 'اعلان' %}</span>
+    </header>
+    <div class="admin-result-list">
+        {% for alert in health_alerts %}
+            <article class="admin-result-card admin-health-alert {% if alert.reviewed_at %}is-reviewed{% endif %}">
+                <header class="admin-notification-card__header">
+                    <div class="admin-notification-user">
+                        <span class="admin-notification-user__avatar" aria-hidden="true">♥</span>
+                        <div class="admin-notification-user__identity">
+                            <span class="account-eyebrow">{% if alert.reviewed_at %}{% trans 'بررسی‌شده' %}{% else %}{% trans 'نیازمند بررسی' %}{% endif %}</span>
+                            <strong>{{ alert.athlete.first_name }} {{ alert.athlete.last_name }}</strong>
+                            {% if not alert.athlete.first_name and not alert.athlete.last_name %}<strong>{{ alert.athlete.fullname }}</strong>{% endif %}
+                            <a href="tel:{{ alert.athlete.phone }}" dir="ltr">{{ alert.athlete.phone }}</a>
+                        </div>
+                    </div>
+                    <time datetime="{{ alert.created_at|date:'c' }}">{{ alert.observed_date|date:'Y/m/d' }}</time>
+                </header>
+                <div class="admin-health-alert__changes">
+                    {% for change in alert.changes %}
+                        <div class="admin-health-alert__change">
+                            <span>{{ change.label }}</span>
+                            <strong>{% trans 'از' %} {{ change.before }} {% trans 'به' %} {{ change.after }} {{ change.unit }}</strong>
+                            <small>{% trans 'از' %} {{ change.before_date }} {% trans 'تا' %} {{ change.after_date }} · {{ change.direction }} {{ change.delta|cut:'-' }}</small>
+                            <small>{% trans 'نمونه‌ها' %}: {{ change.sample_counts.baseline }} {% trans 'در دوره پایه' %}، {{ change.sample_counts.current }} {% trans 'در دوره اخیر' %} · {% trans 'اطمینان' %}: {{ change.confidence }}</small>
+                        </div>
+                    {% endfor %}
+                </div>
+                <p class="admin-health-alert__note">{% trans 'این روندها بر پایه داده‌های ثبت‌شده برای پیگیری مربی هستند و تشخیص پزشکی یا پیش‌بینی آسیب محسوب نمی‌شوند.' %} {% if alert.changes.0.follow_up_recommended %}{% trans 'پیشنهاد: مربی با ورزشکار پیگیری کند.' %}{% endif %}</p>
+                <div class="admin-result-card__actions">
+                    <a href="{% url 'register:admin_user_hub' alert.athlete_id %}" class="admin-secondary-btn admin-secondary-btn--small">{% trans 'پرونده شاگرد' %}</a>
+                    <a href="{% url 'register:admin_user_analysis' alert.athlete_id %}" class="admin-secondary-btn admin-secondary-btn--small">{% trans 'مشاهده آنالیز' %}</a>
+                    {% if not alert.reviewed_at %}
+                        <form method="post" action="{% url 'register:health_alert_review' alert.pk %}">
+                            {% csrf_token %}
+                            <button type="submit" class="admin-primary-btn admin-primary-btn--small">{% trans 'بررسی شد' %}</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </article>
+        {% empty %}
+            <article class="admin-empty admin-empty--center">
+                <strong>{% trans 'در بازهٔ دو ماه گذشته تغییری نیازمند پیگیری ثبت نشده است.' %}</strong>
+                <span>{% trans 'با ثبت اطلاعات جدید، روند ضربان قلب، اضطراب، کیفیت خواب و انگیزه بررسی می‌شود.' %}</span>
+            </article>
+        {% endfor %}
+    </div>
+</section>

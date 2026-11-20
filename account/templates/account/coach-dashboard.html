@@ -1,0 +1,252 @@
+{% extends 'admin_portal/_shell.html' %}
+{% load i18n %}
+{% load static %}
+{% load my_tags %}
+
+{% block title %}{% blocktrans %}داشبورد مربی | ایگوفیت{% endblocktrans %}{% endblock %}
+
+{% block admin_content %}
+<section class="admin-screen admin-coach-portal-screen">
+    <header class="admin-screen__header admin-screen__header--split coach-dashboard__header">
+        <h1 class="admin-screen__title">{% trans 'داشبورد مربی' %}</h1>
+        <a class="admin-primary-btn coach-dashboard__add-athlete" href="{% url 'register:coach_athlete_add' %}">
+            <span aria-hidden="true">＋</span>
+            {% trans 'افزودن ورزشکار' %}
+        </a>
+    </header>
+
+    <p class="admin-screen__lead">
+        {% trans 'خلاصه‌ای از شاگردان، درخواست‌های در انتظار و پیشنهادهای حرکت شما.' %}
+    </p>
+
+    <section class="admin-stat-grid">
+        <article class="admin-stat-card">
+            <span>{% trans 'شاگردان من' %}</span>
+            <strong>{{ athlete_count }}</strong>
+        </article>
+        <article class="admin-stat-card">
+            <span>{% trans 'درخواست‌های در انتظار' %}</span>
+            <strong>{{ pending_requests }}</strong>
+        </article>
+        <article class="admin-stat-card">
+            <span>{% trans 'پیشنهادهای حرکت' %}</span>
+            <strong>{{ suggestion_count }}</strong>
+        </article>
+    </section>
+
+    <section class="admin-quick-actions">
+        <a class="admin-primary-btn" href="{% url 'register:admin_search' %}">{% trans 'مدیریت شاگردان' %}</a>
+        <a class="admin-secondary-btn" href="{% url 'register:profile_analysis' %}">{% trans 'آنالیز بدنی من' %}</a>
+        <a class="admin-secondary-btn" href="{% url 'register:coach_profile' %}">{% trans 'ویرایش پروفایل مربی' %}</a>
+        <a class="admin-secondary-btn" href="{% url 'register:coach_exercise_suggestions' %}">{% trans 'پیشنهاد حرکت جدید' %}</a>
+        <a class="admin-secondary-btn" href="{% url 'register:coach_blog' %}">{% trans 'بلاگ من' %}</a>
+    </section>
+
+    <section class="admin-coach-self-service" aria-label="{% trans 'پروفایل شخصی مربی' %}">
+        <section class="admin-panel-card admin-coach-mood-panel">
+            <div class="admin-coach-self-service__heading">
+                <div>
+                    <span class="admin-section-eyebrow">{% trans 'پایش روزانه من' %}</span>
+                    <h2 class="admin-panel-card__title">{% trans 'ثبت خلق‌وخو و ضربان قلب' %}</h2>
+                    <p>{% trans 'ارزیابی روزانه را ثبت کنید تا روند شخصی‌تان هم در نمودار و جدول نگهداری شود.' %}</p>
+                </div>
+            </div>
+            <form method="post" class="admin-coach-mood-form">
+                {% csrf_token %}
+                {% if coach_mood_form.non_field_errors %}<div class="admin-form-errors">{{ coach_mood_form.non_field_errors }}</div>{% endif %}
+                <div class="field-group admin-coach-mood-form__date">
+                    <label for="{{ coach_mood_form.entry_date.id_for_label }}">{{ coach_mood_form.entry_date.label }}</label>
+                    {{ coach_mood_form.entry_date }}
+                    {% if coach_mood_form.entry_date.help_text %}<small>{{ coach_mood_form.entry_date.help_text }}</small>{% endif %}
+                    {{ coach_mood_form.entry_date.errors }}
+                </div>
+                <div class="admin-coach-mood-form__scores">
+                    {% for field in coach_mood_form %}
+                        {% if field.name == 'anxiety_score' or field.name == 'motivation_score' or field.name == 'sleep_quality_score' or field.name == 'training_satisfaction_score' or field.name == 'training_readiness_score' or field.name == 'fatigue_score' or field.name == 'muscle_soreness_score' %}
+                            <div class="field-group">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                <small>{% trans 'امتیاز از ۰ تا ۱۰' %}</small>
+                                {{ field.errors }}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                <div class="admin-coach-mood-form__heart-rate">
+                    <div class="field-group">
+                        <label for="{{ coach_mood_form.resting_heart_rate_bpm.id_for_label }}">{{ coach_mood_form.resting_heart_rate_bpm.label }}</label>
+                        {{ coach_mood_form.resting_heart_rate_bpm }}
+                        <small>{% trans 'ضربان در دقیقه (BPM)' %}</small>
+                        {{ coach_mood_form.resting_heart_rate_bpm.errors }}
+                    </div>
+                    <div class="field-group">
+                        <label for="{{ coach_mood_form.heart_rate_measured_at.id_for_label }}">{{ coach_mood_form.heart_rate_measured_at.label }}</label>
+                        {{ coach_mood_form.heart_rate_measured_at }}
+                        <small>{{ coach_mood_form.heart_rate_measured_at.help_text }}</small>
+                        {{ coach_mood_form.heart_rate_measured_at.errors }}
+                    </div>
+                </div>
+                <button type="submit" class="admin-primary-btn">{% trans 'ثبت / به‌روزرسانی ارزیابی' %}</button>
+            </form>
+
+            {% if coach_mood_entries %}
+                <div class="admin-coach-mood-panel__charts">
+                    <div class="mood-chart-wrap"><canvas data-mood-chart></canvas></div>
+                    {% if coach_heart_rate_entries %}<div class="mood-chart-wrap mood-chart-wrap--heart-rate"><canvas data-heart-rate-chart></canvas></div>{% endif %}
+                </div>
+                <div class="admin-mood-table-wrap">
+                    <table class="admin-mood-table">
+                        <thead><tr><th>{% trans 'تاریخ' %}</th><th>{% trans 'اضطراب' %}</th><th>{% trans 'انگیزه' %}</th><th>{% trans 'خواب' %}</th><th>{% trans 'تمرین' %}</th><th>{% trans 'آمادگی' %}</th><th>{% trans 'خستگی' %}</th><th>{% trans 'کوفتگی' %}</th></tr></thead>
+                        <tbody>
+                            {% for entry in coach_mood_entries %}
+                                <tr><td dir="ltr">{{ entry.entry_date|to_jalali }}</td><td>{{ entry.anxiety_score }}/10</td><td>{{ entry.motivation_score }}/10</td><td>{{ entry.sleep_quality_score }}/10</td><td>{{ entry.training_satisfaction_score }}/10</td><td>{% if entry.training_readiness_score != None %}{{ entry.training_readiness_score }}/10{% else %}—{% endif %}</td><td>{% if entry.fatigue_score != None %}{{ entry.fatigue_score }}/10{% else %}—{% endif %}</td><td>{% if entry.muscle_soreness_score != None %}{{ entry.muscle_soreness_score }}/10{% else %}—{% endif %}</td></tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="admin-empty admin-empty--center">{% trans 'بعد از ثبت اولین ارزیابی، نمودار و تاریخچه اینجا نمایش داده می‌شود.' %}</p>
+            {% endif %}
+            {{ coach_mood_chart_data|json_script:'mood-trend-data' }}
+        </section>
+
+        <section class="admin-panel-card admin-coach-purchases">
+            <div class="admin-coach-self-service__heading">
+                <div>
+                    <span class="admin-section-eyebrow">{% trans 'یادگیری شخصی' %}</span>
+                    <h2 class="admin-panel-card__title">{% trans 'دوره‌های خریداری‌شده من' %}</h2>
+                    <p>{% trans 'دوره‌های سفارش‌های پرداخت‌شده شما در این فهرست آمده است.' %}</p>
+                </div>
+                <a class="admin-secondary-btn admin-secondary-btn--small" href="{% url 'home:series' %}">{% trans 'مشاهده دوره‌ها' %}</a>
+            </div>
+            <div class="admin-coach-purchases__list">
+                {% for order in coach_paid_orders %}
+                    <article class="admin-coach-purchase-order">
+                        <div class="admin-coach-purchase-order__meta"><span>{% trans 'سفارش پرداخت‌شده' %}</span><strong>{{ order.paid_at|default:order.created_at|to_jalali }}</strong><span>{{ order.total_price }} {% trans 'تومان' %}</span></div>
+                        <div class="admin-coach-purchase-order__courses">
+                            {% for item in order.items.all %}
+                                <a href="{% url 'home:series_episodes' item.product_id %}">{{ item.product.title }}</a>
+                            {% empty %}
+                                {% if order.course %}<a href="{% url 'home:series_episodes' order.course_id %}">{{ order.course.title }}</a>{% endif %}
+                            {% endfor %}
+                        </div>
+                    </article>
+                {% empty %}
+                    <div class="admin-empty admin-empty--center"><strong>{% trans 'هنوز دوره‌ای خریداری نکرده‌اید.' %}</strong><a href="{% url 'home:series' %}">{% trans 'رفتن به فهرست دوره‌ها' %}</a></div>
+                {% endfor %}
+            </div>
+        </section>
+    </section>
+
+    <section class="admin-panel-card admin-health-alert-settings" aria-labelledby="health-alert-settings-title">
+        <div class="admin-health-alert-settings__copy">
+            <span class="admin-health-alerts__eyebrow">{% trans 'پایش وضعیت شاگردان' %}</span>
+            <h2 class="admin-panel-card__title" id="health-alert-settings-title">{% trans 'اعلان تغییرات روحی و ضربان قلب' %}</h2>
+            <p>{% trans 'با فعال بودن این گزینه، هنگام بدتر شدن اضطراب یا خواب، افت انگیزه یا افزایش ضربان قلب شاگرد در دو ماه اخیر، اعلان اینجا برای شما ثبت می‌شود.' %}</p>
+        </div>
+        <form method="post" action="{% url 'register:coach_health_alert_settings' %}" class="admin-health-alert-settings__actions">
+            {% csrf_token %}
+            <input type="hidden" name="enabled" value="{% if coach_health_alerts_enabled %}false{% else %}true{% endif %}">
+            <span class="admin-health-alert-settings__state {% if coach_health_alerts_enabled %}is-enabled{% endif %}">
+                {% if coach_health_alerts_enabled %}{% trans 'اعلان‌ها فعال است' %}{% else %}{% trans 'اعلان‌ها غیرفعال است' %}{% endif %}
+            </span>
+            <button type="submit" class="admin-health-alert-settings__toggle {% if coach_health_alerts_enabled %}is-enabled{% endif %}" aria-pressed="{{ coach_health_alerts_enabled|yesno:'true,false' }}">
+                <span aria-hidden="true"></span>
+                <strong>{% if coach_health_alerts_enabled %}{% trans 'غیرفعال‌سازی' %}{% else %}{% trans 'فعال‌سازی' %}{% endif %}</strong>
+            </button>
+        </form>
+    </section>
+
+    <section class="admin-panel-card admin-health-alert-push" data-health-alert-push
+        data-api-url="{% url 'register:health_alert_push_api' %}"
+        data-worker-url="{% url 'register:health_alert_service_worker' %}"
+        data-public-key="{{ health_alert_vapid_public_key }}"
+        data-subscribed="{{ health_alert_push_subscribed|yesno:'true,false' }}">
+        {% csrf_token %}
+        <div>
+            <h2 class="admin-panel-card__title">{% trans 'اعلان روی مرورگر این دستگاه' %}</h2>
+            <p>{% trans 'برای دریافت فوری هشدارها حتی وقتی سایت باز نیست، اعلان مرورگر گوشی یا رایانه را فعال کنید.' %}</p>
+        </div>
+        <div class="admin-health-alert-push__actions">
+            <button type="button" data-health-alert-push-toggle {% if not health_alert_push_enabled %}disabled{% endif %}>
+                {% if health_alert_push_subscribed %}{% trans 'خاموش‌کردن اعلان مرورگر' %}{% else %}{% trans 'فعال‌سازی اعلان مرورگر' %}{% endif %}
+            </button>
+            <p data-health-alert-push-message role="status" aria-live="polite" {% if health_alert_push_enabled %}hidden{% endif %}>
+                {% if health_alert_push_enabled %}{% trans 'وضعیت اعلان مرورگر را مدیریت کنید.' %}{% else %}{% trans 'ارسال اعلان مرورگر هنوز در تنظیمات سرور فعال نشده است.' %}{% endif %}
+            </p>
+        </div>
+    </section>
+
+    {% include 'admin_portal/_health_alerts.html' %}
+
+    <section class="admin-panel-card admin-coach-portal__athletes">
+        <h2 class="admin-panel-card__title">{% trans 'شاگردان من' %}</h2>
+        <div class="admin-result-list admin-result-list--grid admin-coach-portal__athlete-list">
+            {% for athlete in athletes %}
+                <article class="admin-result-card admin-coach-portal__athlete-card">
+                    <div class="admin-result-card__meta">
+                        <div>
+                            <strong title="{{ athlete.fullname }}">{{ athlete.fullname }}</strong>
+                            <span>{{ athlete.phone }}</span>
+                        </div>
+                    </div>
+                    <div class="admin-result-card__links">
+                        <a href="{% url 'register:admin_user_hub' athlete.id %}">{% trans 'پرونده شاگرد' %}</a>
+                        <a href="{% url 'register:admin_user_analysis' athlete.id %}">{% trans 'آنالیز' %}</a>
+                    </div>
+                </article>
+            {% empty %}
+                <article class="admin-empty admin-empty--center">
+                    <strong>{% trans 'هنوز شاگردی به شما تخصیص داده نشده است.' %}</strong>
+                </article>
+            {% endfor %}
+        </div>
+    </section>
+
+    <section class="admin-panel-card">
+        <h2 class="admin-panel-card__title">{% trans 'درخواست‌های در انتظار بررسی' %}</h2>
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>{% trans 'شاگرد' %}</th>
+                        <th>{% trans 'نوع درخواست' %}</th>
+                        <th>{% trans 'تجهیزات در دسترس' %}</th>
+                        <th>{% trans 'تاریخ ثبت' %}</th>
+                        <th>{% trans 'عملیات' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for coach_request in pending_request_items %}
+                        <tr>
+                            <td>{{ coach_request.user.fullname }}</td>
+                            <td>
+                                {{ coach_request.get_sessions_per_week_display }}
+                                {% if coach_request.wants_diet %}— {% trans 'برنامه غذایی' %}{% endif %}
+                                {% if coach_request.wants_workout %}— {% trans 'برنامه تمرینی' %}{% endif %}
+                            </td>
+                            <td>{% for equipment in coach_request.available_equipment.all %}{{ equipment.name }}{% if not forloop.last %}، {% endif %}{% empty %}{% trans 'ثبت نشده' %}{% endfor %}</td>
+                            <td>{{ coach_request.created_at|date:"Y/m/d" }}</td>
+                            <td>
+                                <a class="admin-secondary-btn admin-secondary-btn--small" href="{% url 'register:admin_user_hub' coach_request.user_id %}">
+                                    {% trans 'بررسی و پاسخ' %}
+                                </a>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="5">{% trans 'درخواست در انتظاری وجود ندارد.' %}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+    {{ block.super }}
+    {% if coach_mood_entries or coach_heart_rate_entries %}
+        <script src="{% static 'js/vendor/chart.umd.min.js' %}"></script>
+        <script src="{% static 'js/mood-trends.js' %}"></script>
+    {% endif %}
+{% endblock %}

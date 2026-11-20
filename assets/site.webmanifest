@@ -1,0 +1,13 @@
+{
+  "id": "/accounts/profile/",
+  "name": "EgoFit | ایگوفیت",
+  "short_name": "ایگوفیت",
+  "description": "ثبت وضعیت روزانه و پیگیری تمرین در ایگوفیت",
+  "start_url": "/accounts/profile/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f9ff",
+  "theme_color": "#3454d1",
+  "dir": "rtl",
+  "lang": "fa-IR"
+}

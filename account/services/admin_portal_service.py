@@ -1,0 +1,585 @@
+from __future__ import annotations
+
+import jdatetime
+from datetime import datetime, time
+from django.core.files.base import ContentFile
+from django.db import transaction
+from django.db.models import Count, Q
+from django.utils import timezone
+from django.utils.translation import gettext_lazy as _
+
+from account.interfaces import PersonalizedSmsMessage
+from account.admin_forms import AdminBulkCoachAssignForm
+from account.models import (
+    BirthdaySmsLog,
+    BodyCircumferenceMeasurement,
+    CaliperMeasurement,
+    MeasurementMethod,
+    MeasurementSource,
+    ClientDocument,
+    ClientMedia,
+    CoachRequest,
+    UserHealthRecord,
+    User,
+    WorkoutBestRecord,
+    WorkoutProgram,
+)
+from account.services.coach_request_service import CoachRequestService
+from account.services.notification_service import NotificationService
+from account.services.profile_service import ProfileService
+from account.services.cardio_training_service import CardioTrainingService
+from account.services.sms_service import SmsService
+from account.services.mood_service import MoodService
+from account.utils import is_birthday_today, normalize_digits
+
+
+class AdminPortalService:
+    def __init__(
+        self,
+        profile_service: ProfileService | None = None,
+        coach_request_service: CoachRequestService | None = None,
+        sms_service: SmsService | None = None,
+    ):
+        self.profile_service = profile_service or ProfileService()
+        self.coach_request_service = coach_request_service or CoachRequestService()
+        self.sms_service = sms_service or SmsService()
+
+    def search_users(self, *, query: str) -> list[User]:
+        query = (query or "").strip()
+        if not query:
+            return []
+
+        filters = Q(fullname__icontains=query) | Q(phone__icontains=query) | Q(display_name__icontains=query)
+        if query.isdigit():
+            filters |= Q(pk=int(query))
+        return list(User.objects.filter(filters).order_by("fullname")[:20])
+
+    def get_dashboard_context(self) -> dict:
+        users = User.objects.filter(is_admin=False, is_coach=False)
+        today = jdatetime.date.today()
+        month_values = {str(today.month), f"{today.month:02d}"}
+        day_values = {str(today.day), f"{today.day:02d}"}
+        birthday_suffixes = {
+            f"{separator}{month}{separator}{day}"
+            for separator in ("/", "-")
+            for month in month_values
+            for day in day_values
+        }
+        birthday_filters = Q()
+        for suffix in birthday_suffixes:
+            birthday_filters |= Q(birth_date_jalali__endswith=suffix)
+
+        stats = users.aggregate(
+            total=Count("pk"),
+            completed=Count(
+                "pk",
+                filter=Q(height_cm__isnull=False, weight_kg__isnull=False),
+            ),
+        )
+        admin_users = list(User.objects.filter(is_admin=True).order_by("fullname"))
+        birthday_candidates = User.objects.filter(is_admin=False, is_coach=False).filter(birthday_filters)
+        return {
+            "total_users": stats["total"],
+            "completed_profiles_count": stats["completed"],
+            "recent_users": list(users.order_by("-id")[:6]),
+            "admin_users": admin_users,
+            "admin_users_count": len(admin_users),
+            "pending_coach_requests": list(self.coach_request_service.get_pending_queryset()[:10]),
+            "pending_coach_requests_count": self.coach_request_service.get_pending_count(),
+            "unread_coach_requests_count": self.coach_request_service.get_unread_pending_count(),
+            "birthday_users": [
+                user
+                for user in birthday_candidates
+                if is_birthday_today(user.birth_date_jalali)
+            ],
+        }
+
+    def get_birthday_users(self) -> list[User]:
+        today = jdatetime.date.today()
+        month_values = {str(today.month), f"{today.month:02d}"}
+        day_values = {str(today.day), f"{today.day:02d}"}
+        suffixes = {
+            f"{separator}{month}{separator}{day}"
+            for separator in ("/", "-")
+            for month in month_values
+            for day in day_values
+        }
+        birthday_filter = Q()
+        for suffix in suffixes:
+            birthday_filter |= Q(birth_date_jalali__endswith=suffix)
+
+        candidates = User.objects.filter(is_admin=False, is_coach=False).filter(birthday_filter)
+        return [user for user in candidates if is_birthday_today(user.birth_date_jalali)]
+
+    def send_pending_birthday_sms(self) -> list[User]:
+        today_jalali = jdatetime.date.today().strftime("%Y/%m/%d")
+        sent_to: list[User] = []
+        for user in self.get_birthday_users():
+            if BirthdaySmsLog.objects.filter(user=user, sent_on=today_jalali).exists():
+                continue
+            phone = (user.phone or "").strip()
+            if len(phone) != 11 or not phone.isdigit():
+                continue
+            message = f"{user.fullname} عزیز،\nتولدت مبارک! تیم ایگوفیت 🎉"
+            try:
+                is_sent = self.sms_service.send_personalized_bulk_sms(
+                    [PersonalizedSmsMessage(receptor=phone, message=message)]
+                )
+            except Exception:
+                continue
+            if not is_sent:
+                continue
+            BirthdaySmsLog.objects.create(user=user, sent_on=today_jalali)
+            sent_to.append(user)
+        return sent_to
+
+    def get_target_user(self, user_id: int) -> User:
+        return User.objects.get(pk=user_id)
+
+    def create_user(self, *, form) -> User:
+        user = form.save(commit=False)
+        user.set_password(form.cleaned_data["password"])
+        user.save()
+        return user
+
+    @transaction.atomic
+    def create_coach_athlete(self, *, form, coach: User) -> User:
+        if not coach.is_active or not coach.is_coach or coach.is_admin:
+            raise ValueError("Only an active coach can add athletes to their roster.")
+        user = form.save(commit=False)
+        user.coach = coach
+        user.is_admin = False
+        user.is_coach = False
+        user.set_password(form.cleaned_data["password"])
+        user.save()
+        return user
+
+    def delete_user(self, target: User) -> tuple[bool, str | None]:
+        if target.orders.filter(is_paid=True).exists():
+            return False, _("این کاربر سفارش پرداخت‌شده دارد و قابل حذف نیست.")
+        target.delete()
+        return True, None
+
+    def get_or_create_circumference(self, user: User) -> BodyCircumferenceMeasurement:
+        instance = BodyCircumferenceMeasurement(user=user)
+        instance.measured_at_jalali = jdatetime.date.today().strftime("%Y/%m/%d")
+        return instance
+
+    def get_or_create_caliper(self, user: User) -> CaliperMeasurement:
+        instance = CaliperMeasurement(user=user)
+        instance.measured_at_jalali = jdatetime.date.today().strftime("%Y/%m/%d")
+        return instance
+
+    @staticmethod
+    def _measurement_datetime(form):
+        raw = str(form.cleaned_data.get("measured_at_jalali") or "").strip()
+        date_value = None
+        if raw:
+            normalized = normalize_digits(raw)
+            parts = normalized.replace("-", "/").split("/")
+            try:
+                if len(parts) == 3 and parts[0].isdigit() and 1300 <= int(parts[0]) <= 1600:
+                    date_value = jdatetime.date(*(int(part) for part in parts)).togregorian()
+                else:
+                    from django.utils.dateparse import parse_date
+
+                    date_value = parse_date(normalized)
+            except (TypeError, ValueError):
+                date_value = None
+            if date_value is None:
+                from django.core.exceptions import ValidationError
+
+                raise ValidationError({"measured_at_jalali": _("تاریخ سنجش معتبر نیست.")})
+        if date_value is None:
+            return timezone.now()
+        moment = datetime.combine(date_value, time(12, 0))
+        return timezone.make_aware(moment, timezone.get_current_timezone())
+
+    def save_circumference(
+        self,
+        *,
+        user: User,
+        form,
+        actor: User | None = None,
+        source: str = MeasurementSource.ADMIN,
+    ) -> BodyCircumferenceMeasurement:
+        instance = form.save(commit=False)
+        instance.user = user
+        instance.pk = None
+        instance.measured_at = self._measurement_datetime(form)
+        instance.measurement_source = source
+        instance.measured_by = actor
+        if not instance.measurement_method:
+            instance.measurement_method = MeasurementMethod.TAPE
+        instance.save()
+        previous = (
+            BodyCircumferenceMeasurement.objects.filter(user=user)
+            .exclude(pk=instance.pk)
+            .order_by("-measured_at", "-pk")
+            .first()
+        )
+        if previous is None or instance.measured_at >= previous.measured_at:
+            update_fields = []
+            if instance.height_cm is not None:
+                user.height_cm = instance.height_cm
+                update_fields.append("height_cm")
+            if instance.weight_kg is not None:
+                user.weight_kg = instance.weight_kg
+                update_fields.append("weight_kg")
+            if update_fields:
+                user.save(update_fields=update_fields)
+        return instance
+
+    def save_caliper(
+        self,
+        *,
+        user: User,
+        form,
+        actor: User | None = None,
+        source: str = MeasurementSource.ADMIN,
+    ) -> CaliperMeasurement:
+        instance = form.save(commit=False)
+        instance.user = user
+        instance.pk = None
+        instance.measured_at = self._measurement_datetime(form)
+        instance.measurement_source = source
+        instance.measured_by = actor
+        if not instance.measurement_method:
+            instance.measurement_method = MeasurementMethod.SKINFOLD_CALIPER
+        instance.save()
+        return instance
+
+    @transaction.atomic
+    def update_circumference(self, *, form) -> BodyCircumferenceMeasurement:
+        instance = form.save(commit=False)
+        instance.measured_at = self._measurement_datetime(form)
+        instance.save()
+        latest = (
+            BodyCircumferenceMeasurement.objects.filter(user_id=instance.user_id)
+            .order_by("-measured_at", "-pk")
+            .first()
+        )
+        if latest is not None and latest.pk == instance.pk:
+            user = User.objects.get(pk=instance.user_id)
+            update_fields = []
+            for field_name in ("height_cm", "weight_kg"):
+                value = getattr(instance, field_name)
+                if value is not None:
+                    setattr(user, field_name, value)
+                    update_fields.append(field_name)
+            if update_fields:
+                user.save(update_fields=update_fields)
+        return instance
+
+    def update_caliper(self, *, form) -> CaliperMeasurement:
+        instance = form.save(commit=False)
+        instance.measured_at = self._measurement_datetime(form)
+        instance.save()
+        return instance
+
+    def save_media(self, *, user: User, uploaded_by: User, form) -> ClientMedia:
+        instance = form.save(commit=False)
+        instance.user = user
+        instance.uploaded_by = uploaded_by
+        instance.save()
+        NotificationService.schedule_media_uploaded(instance)
+        return instance
+
+    def save_document(self, *, user: User, uploaded_by: User, form) -> ClientDocument:
+        instance = form.save(commit=False)
+        instance.user = user
+        instance.uploaded_by = uploaded_by
+        instance.save()
+        NotificationService.schedule_document_uploaded(instance)
+        return instance
+
+    def get_analysis_context(
+        self,
+        user: User,
+        *,
+        metric: str | None = None,
+        start: str | None = None,
+        end: str | None = None,
+        circ_date: str | None = None,
+        body_fat_formula: str | None = None,
+        caliper_date: str | None = None,
+        use_full_chart_range: bool = False,
+    ) -> dict:
+        context = self.profile_service.get_analysis_context(
+            user,
+            metric=metric,
+            start=start,
+            end=end,
+            circ_date=circ_date,
+            body_fat_formula=body_fat_formula,
+            caliper_date=caliper_date,
+            use_full_chart_range=use_full_chart_range,
+        )
+        context.update(
+            {
+                "latest_circumference": user.circumference_records.first(),
+                "latest_caliper": user.caliper_records.first(),
+                "latest_media": list(user.client_media.all()[:4]),
+            }
+        )
+        return context
+
+    def get_analysis_dashboard_data(
+        self,
+        user: User,
+        *,
+        body_fat_formula: str | None = None,
+        start: str | None = None,
+        end: str | None = None,
+    ) -> dict:
+        return self.profile_service.get_analysis_dashboard_data(
+            user,
+            body_fat_formula=body_fat_formula,
+            start=start,
+            end=end,
+        )
+
+    def get_analysis_metric_series(
+        self,
+        user: User,
+        *,
+        body_fat_formula: str | None = None,
+        start: str | None = None,
+        end: str | None = None,
+    ) -> dict:
+        return self.profile_service.get_analysis_metric_series(
+            user,
+            body_fat_formula=body_fat_formula,
+            start=start,
+            end=end,
+        )
+
+    def get_user_summary_context(self, user: User, *, workout_record_query="") -> dict:
+        workout_record_query = " ".join(str(workout_record_query or "").split())
+        workout_records = WorkoutBestRecord.objects.filter(user=user).select_related(
+            "exercise", "program"
+        )
+        if workout_record_query:
+            workout_records = workout_records.filter(
+                Q(exercise__name__icontains=workout_record_query)
+                | Q(exercise_name_snapshot__icontains=workout_record_query)
+            )
+        return {
+            "latest_circumference": user.circumference_records.first(),
+            "latest_caliper": user.caliper_records.first(),
+            "latest_media": list(user.client_media.all()[:4]),
+            "latest_documents": list(user.client_documents.all()[:4]),
+            "latest_workout_programs": list(WorkoutProgram.objects.filter(user=user)[:4]),
+            "workout_records": list(workout_records),
+            "workout_record_query": workout_record_query,
+            "coach_requests": list(user.coach_requests.prefetch_related("attachments", "available_equipment").all()[:10]),
+            "unread_coach_requests_count": self.coach_request_service.get_unread_pending_count(user=user),
+            "cardio_training": CardioTrainingService().get_dashboard_context(user),
+        }
+
+    def delete_coach_request(self, *, coach_request: CoachRequest) -> None:
+        for attachment in coach_request.attachments.all():
+            if attachment.file:
+                attachment.file.delete(save=False)
+        coach_request.delete()
+
+    def mark_pending_coach_requests_read(self, *, user=None) -> int:
+        return self.coach_request_service.mark_pending_as_read(user=user)
+
+    def delete_client_media(self, *, media: ClientMedia) -> None:
+        for field_name in ("image", "video"):
+            field = getattr(media, field_name)
+            if field:
+                field.delete(save=False)
+        media.delete()
+
+    def delete_client_document(self, *, document: ClientDocument) -> None:
+        if document.file:
+            document.file.delete(save=False)
+        document.delete()
+
+
+    def get_user_health_context(self, user: User) -> dict:
+        mood_context = MoodService().get_dashboard_context(user)
+        return {
+            "health_records": list(user.health_records.all()),
+            **mood_context,
+        }
+
+    def save_health_record(self, *, user: User, form) -> UserHealthRecord:
+        record = form.save(commit=False)
+        record.user = user
+        record.save()
+        return record
+
+    def mark_coach_request_handled(self, coach_request) -> None:
+        self.coach_request_service.mark_handled(coach_request)
+
+    # Fields copied 1:1 from a CoachRequest into a BodyCircumferenceMeasurement.
+    COACH_REQUEST_MEASUREMENT_FIELDS = (
+        "height_cm", "weight_kg", "wrist_cm", "forearm_cm", "arm_rest_cm", "arm_flexed_cm",
+        "chest_cm", "shoulders_cm", "waist_cm", "abdomen_cm", "hips_cm", "thigh_cm", "calf_cm",
+        "thigh_left_cm", "calf_left_cm",
+    )
+
+    def push_coach_request_to_measurements(self, coach_request) -> BodyCircumferenceMeasurement | None:
+        """Copy the athlete-submitted body data from a coach request into a measurement record (once)."""
+        if coach_request.pushed_to_measurements or not coach_request.has_body_data:
+            return None
+        values = {field: getattr(coach_request, field) for field in self.COACH_REQUEST_MEASUREMENT_FIELDS}
+        measured_at = coach_request.created_at or timezone.now()
+        instance = BodyCircumferenceMeasurement.objects.create(
+            user=coach_request.user,
+            measured_at=measured_at,
+            measurement_source=MeasurementSource.SELF_REPORTED,
+            measurement_method=MeasurementMethod.SELF_REPORTED,
+            measured_by=coach_request.user,
+            measured_at_jalali=jdatetime.datetime.fromgregorian(datetime=timezone.localtime(measured_at)).strftime("%Y/%m/%d"),
+            **values,
+        )
+        coach_request.pushed_to_measurements = True
+        coach_request.save(update_fields=["pushed_to_measurements"])
+        return instance
+
+    COACH_REQUEST_CALIPER_FIELDS = (
+        "chest_armpit_men_mm", "axilla_mm", "subscapular_mm", "abdominal_mm", "suprailiac_mm",
+        "chest_mm", "biceps_mm", "triceps_mm", "thigh_mm", "calf_mm",
+    )
+
+    @transaction.atomic
+    def save_coach_request_to_database(self, *, coach_request, uploaded_by=None) -> dict:
+        """Copy submitted measurements and attachments into the user's records once."""
+        result = {"measurements": None, "caliper": None, "health": 0, "attachments": 0}
+        if not coach_request.pushed_to_measurements and coach_request.has_body_data:
+            result["measurements"] = self.push_coach_request_to_measurements(coach_request)
+        if not coach_request.pushed_to_measurements:
+            coach_request.pushed_to_measurements = True
+        if not coach_request.pushed_to_caliper and coach_request.has_caliper_data:
+            values = {field: getattr(coach_request, field) for field in self.COACH_REQUEST_CALIPER_FIELDS}
+            measured_at = coach_request.created_at or timezone.now()
+            result["caliper"] = CaliperMeasurement.objects.create(
+                user=coach_request.user,
+                measured_at=measured_at,
+                measurement_source=MeasurementSource.SELF_REPORTED,
+                measurement_method=MeasurementMethod.SELF_REPORTED,
+                measured_by=coach_request.user,
+                measured_at_jalali=jdatetime.datetime.fromgregorian(datetime=timezone.localtime(measured_at)).strftime("%Y/%m/%d"),
+                **values,
+            )
+            coach_request.pushed_to_caliper = True
+        elif not coach_request.pushed_to_caliper:
+            coach_request.pushed_to_caliper = True
+
+        if not coach_request.pushed_health_to_records:
+            if coach_request.pain_notes:
+                UserHealthRecord.objects.create(
+                    user=coach_request.user,
+                    category=UserHealthRecord.CategoryChoices.INJURY,
+                    title="درد یا آسیب ثبت‌شده از درخواست مربی",
+                    details=coach_request.pain_notes,
+                )
+                result["health"] += 1
+            if coach_request.illness_notes:
+                UserHealthRecord.objects.create(
+                    user=coach_request.user,
+                    category=UserHealthRecord.CategoryChoices.DISEASE,
+                    title="بیماری زمینه‌ای ثبت‌شده از درخواست مربی",
+                    details=coach_request.illness_notes,
+                )
+                result["health"] += 1
+            coach_request.pushed_health_to_records = True
+
+        if not coach_request.pushed_attachments_to_files:
+            for attachment in coach_request.attachments.all():
+                if not attachment.file:
+                    continue
+                filename = str(attachment.file.name or "").rsplit("/", 1)[-1]
+                with attachment.file.open("rb"):
+                    contents = ContentFile(attachment.file.read())
+                if attachment.is_image or attachment.is_video:
+                    media = ClientMedia(user=coach_request.user, uploaded_by=uploaded_by)
+                    if attachment.is_image:
+                        media.image.save(filename, contents, save=False)
+                    else:
+                        media.video.save(filename, contents, save=False)
+                    media.save()
+                    NotificationService.schedule_media_uploaded(media)
+                else:
+                    document = ClientDocument(
+                        user=coach_request.user,
+                        uploaded_by=uploaded_by,
+                        title=f"پیوست درخواست مربی - {filename}"[:120],
+                    )
+                    document.file.save(filename, contents, save=False)
+                    document.save()
+                    NotificationService.schedule_document_uploaded(document)
+                result["attachments"] += 1
+            coach_request.pushed_attachments_to_files = True
+
+        update_fields = [
+            "pushed_to_measurements", "pushed_to_caliper", "pushed_health_to_records",
+            "pushed_attachments_to_files",
+        ]
+        coach_request.save(update_fields=update_fields)
+        return result
+
+    def toggle_admin_role(self, *, actor: User, target: User, make_admin: bool) -> None:
+        if actor.pk == target.pk:
+            raise ValueError(_("نمی‌توانید نقش خودتان را تغییر دهید."))
+        if target.is_admin and not make_admin and User.objects.filter(is_admin=True).count() <= 1:
+            raise ValueError(_("حداقل یک ادمین باید در سیستم باقی بماند."))
+        target.is_admin = make_admin
+        target.save(update_fields=["is_admin"])
+
+    def toggle_coach_role(self, *, actor: User, target: User, make_coach: bool) -> None:
+        if actor.pk == target.pk:
+            raise ValueError(_("نمی‌توانید نقش خودتان را تغییر دهید."))
+        # Coach is an independent capability, so an administrator can also
+        # manage a roster (the seeded owner account already holds both roles).
+        target.is_coach = make_coach
+        update_fields = ["is_coach"]
+        if not make_coach and target.can_use_automatic_programming:
+            target.can_use_automatic_programming = False
+            update_fields.append("can_use_automatic_programming")
+        target.save(update_fields=update_fields)
+        if not make_coach:
+            # Removing coach access frees every athlete assigned to them so no
+            # account keeps pointing at a user who can no longer view them.
+            User.objects.filter(coach=target).update(coach=None)
+
+    def assign_coach_to_all(self, coach: User) -> int:
+        return User.objects.filter(is_admin=False, is_coach=False).update(coach=coach)
+
+    def assign_coach_to_user(self, user: User, coach: User | None) -> None:
+        if coach is not None and (not coach.is_active or not (coach.is_admin or coach.is_coach)):
+            raise ValueError("Only an active admin or coach can be assigned to an athlete.")
+        user.coach = coach
+        user.save(update_fields=["coach"])
+
+    def get_coach_management_context(self, query: str = "") -> dict:
+        query = " ".join(str(query or "").split())
+        coaches = list(User.objects.filter(Q(is_admin=True) | Q(is_coach=True), is_active=True).order_by("fullname"))
+        for coach in coaches:
+            coach.latest_application = coach.coach_applications.order_by("-created_at").first()
+            coach.active_athlete_count = User.objects.filter(
+                coach=coach,
+                is_active=True,
+                is_admin=False,
+                is_coach=False,
+            ).count()
+        clients = User.objects.none()
+        if query:
+            clients = (
+                User.objects.filter(is_admin=False, is_coach=False)
+                .select_related("coach")
+                .filter(Q(fullname__icontains=query) | Q(phone__icontains=query))
+            )
+        matching_clients = list(clients.order_by("fullname", "pk")[:2])
+        search_has_multiple_matches = len(matching_clients) > 1
+        return {
+            "coaches": coaches,
+            "clients": [] if search_has_multiple_matches else matching_clients,
+            "search_has_multiple_matches": search_has_multiple_matches,
+            "search_query": query,
+            "bulk_form": AdminBulkCoachAssignForm(),
+        }

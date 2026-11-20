@@ -1,0 +1,68 @@
+{% extends 'admin_portal/_shell.html' %}
+{% load i18n %}
+{% load static %}
+{% block title %}{% trans 'قالب برنامه خودکار | ایگوفیت' %}{% endblock %}
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/automatic-programming.css' %}">
+{% endblock %}
+{% block admin_content %}
+<section class="admin-screen admin-library-screen admin-program-template-form">
+    <header class="admin-screen__header">
+        <p class="muscle-volume-eyebrow">{% trans 'کتابخانه تجویز خودکار' %}</p>
+        <h1 class="admin-screen__title">{% if item %}{% trans 'ویرایش قالب برنامه' %}{% else %}{% trans 'ساخت قالب برنامه' %}{% endif %}</h1>
+        <p>{% trans 'قالب، هدف و تقسیم جلسه‌ها را نگه می‌دارد؛ انتخاب حرکت نهایی هنگام تجویز با توجه به ورزشکار انجام می‌شود.' %}</p>
+    </header>
+    <form method="post" class="admin-form-panel admin-form-grid admin-form-grid--cols2 program-template-form" data-program-template-form>
+        {% csrf_token %}
+        {% if form.non_field_errors %}<div class="admin-form-errors admin-form-grid__full">{{ form.non_field_errors }}</div>{% endif %}
+        {% for field in form %}
+            {% if field.name == 'payload' %}
+                <div class="field-group admin-form-grid__full program-template-payload-field">
+                    <div class="program-template-payload-field__heading">
+                        <h2>{% trans 'تقسیم هدف حرکت در جلسه‌ها' %}</h2>
+                        <p>{% trans 'برای هر روز، بخش‌های هدف و تعداد حرکت موردنظر را انتخاب کنید. می‌توانید الگوی حرکتی مثل فشار یا کشش را هم به عنوان راهنمای تکمیلی اضافه کنید.' %}</p>
+                    </div>
+                    {{ field.as_hidden }}
+                    {{ field.errors }}
+                    <div id="program-template-payload-editor" class="program-template-payload-editor"
+                         data-day-prefix="{% trans 'روز' %}"
+                         data-session-name-label="{% trans 'نام جلسه' %}"
+                         data-section-label="{% trans 'بخش هدف' %}"
+                         data-count-label="{% trans 'تعداد حرکت' %}"
+                         data-pattern-label="{% trans 'الگوی حرکتی' %}"
+                         data-add-section-label="{% trans 'افزودن بخش' %}"
+                         data-add-pattern-label="{% trans 'افزودن الگو' %}"
+                         data-remove-label="{% trans 'حذف' %}"
+                         data-empty-section-label="{% trans 'انتخاب بخش هدف' %}"
+                         data-empty-pattern-label="{% trans 'انتخاب الگو' %}"
+                         data-empty-note="{% trans 'تعداد حرکت را صفر بگذارید تا آن بخش در این جلسه استفاده نشود.' %}">
+                        <div class="program-template-session-list" data-template-session-list></div>
+                        <button type="button" class="admin-secondary-btn" data-template-add-session>+ {% trans 'افزودن جلسه' %}</button>
+                        <p class="program-template-payload-status" data-template-payload-status role="status" aria-live="polite"></p>
+                    </div>
+                    {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+                </div>
+            {% elif field.field.widget.input_type == 'hidden' %}
+                {{ field }}
+            {% else %}
+                <div class="field-group {% if field.name == 'shared_with' %}admin-form-grid__full{% endif %} {% if field.field.widget.input_type == 'checkbox' %}admin-checkbox-field{% endif %}">
+                    {% if field.field.widget.input_type == 'checkbox' %}<label>{{ field }}<span>{{ field.label }}</span></label>{% else %}<label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}{% endif %}
+                    {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}{{ field.errors }}
+                </div>
+            {% endif %}
+        {% endfor %}
+        <div class="admin-form-grid__full admin-form-actions">
+            <button class="admin-primary-btn" type="submit">{% trans 'ذخیره قالب' %}</button>
+            <a class="admin-secondary-btn" href="{% url 'register:admin_program_templates' %}">{% trans 'بازگشت' %}</a>
+        </div>
+    </form>
+    {{ payload_initial|json_script:'program-template-initial-payload' }}
+    {{ movement_type_catalog|json_script:'program-template-movement-types' }}
+    {{ movement_pattern_catalog|json_script:'program-template-movement-patterns' }}
+</section>
+{% endblock %}
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'js/program-template-editor.js' %}"></script>
+{% endblock %}

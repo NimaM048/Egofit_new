@@ -1,0 +1,4711 @@
+/*
+ * Dashboard polish layer.
+ * Loaded only by account/admin shells to add a real glass header and improve
+ * dashboard responsiveness without changing public-site assets.
+ */
+
+.account-dashboard,
+.admin-dashboard {
+    background:
+        radial-gradient(circle at 86% 8%, rgba(52, 84, 209, 0.13), transparent 30%),
+        radial-gradient(circle at 10% 22%, rgba(20, 184, 166, 0.09), transparent 26%),
+        linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
+}
+
+.account-dashboard .site-shell,
+.admin-dashboard .site-shell {
+    background: transparent;
+    overflow: visible;
+}
+
+/* Dashboard pages must grow with their content so the browser viewport keeps
+   ownership of vertical scrolling, including long gym-library lists. */
+.account-dashboard .site-content,
+.admin-dashboard .site-content,
+.account-dashboard .account-app,
+.admin-dashboard .admin-app,
+.account-dashboard .account-app__layout,
+.admin-dashboard .admin-app__layout,
+.account-dashboard .account-app__content,
+.admin-dashboard .admin-app__content {
+    min-height: 0;
+    overflow-y: visible;
+}
+
+.dashboard-glass-header {
+    position: sticky;
+    top: 0;
+    z-index: 80;
+    padding: 14px 0 10px;
+}
+
+.dashboard-glass-header__inner {
+    width: min(1440px, calc(100% - 32px));
+    min-height: 68px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: minmax(190px, 0.8fr) minmax(0, 1.2fr) minmax(160px, 0.8fr);
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    border-radius: 26px;
+    border: 1px solid rgba(255, 255, 255, 0.72);
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.42), transparent 42%),
+        rgba(255, 255, 255, 0.76);
+    box-shadow:
+        0 18px 46px rgba(15, 23, 42, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    backdrop-filter: blur(24px) saturate(150%);
+    -webkit-backdrop-filter: blur(24px) saturate(150%);
+}
+
+.dashboard-glass-header__brand,
+.dashboard-glass-header__actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.dashboard-glass-header__brand {
+    min-width: 0;
+    color: #111827;
+}
+
+.dashboard-glass-header__logo {
+    width: 44px;
+    height: 44px;
+    flex: 0 0 auto;
+    overflow: hidden;
+    border-radius: 16px;
+    box-shadow: 0 12px 24px rgba(52, 84, 209, 0.16);
+}
+
+.dashboard-glass-header__logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.dashboard-glass-header__brand-copy,
+.dashboard-glass-header__title {
+    min-width: 0;
+    display: grid;
+    gap: 2px;
+}
+
+.dashboard-glass-header__brand-copy span,
+.dashboard-glass-header__title span {
+    color: #64748b;
+    font-size: 0.76rem;
+    font-weight: 750;
+}
+
+.dashboard-glass-header__brand-copy strong,
+.dashboard-glass-header__title h1 {
+    margin: 0;
+    color: #0f172a;
+    font-size: clamp(0.95rem, 1.8vw, 1.18rem);
+    font-weight: 950;
+    line-height: 1.35;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dashboard-glass-header__title {
+    justify-items: center;
+    text-align: center;
+}
+
+.dashboard-glass-header__actions {
+    justify-content: flex-end;
+}
+
+.dashboard-glass-header__action,
+.dashboard-glass-header__icon-action {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 15px;
+    border: 1px solid rgba(52, 84, 209, 0.16);
+    background: rgba(255, 255, 255, 0.68);
+    color: #3454d1;
+    font-size: 0.84rem;
+    font-weight: 850;
+    transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.dashboard-glass-header__action {
+    padding: 0 15px;
+}
+
+.dashboard-glass-header__icon-action {
+    width: 42px;
+}
+
+.dashboard-glass-header__action:hover,
+.dashboard-glass-header__icon-action:hover {
+    transform: translateY(-1px);
+    border-color: rgba(52, 84, 209, 0.28);
+    background: rgba(52, 84, 209, 0.08);
+    box-shadow: 0 12px 26px rgba(52, 84, 209, 0.12);
+}
+
+.dashboard-glass-header__action:focus-visible,
+.dashboard-glass-header__icon-action:focus-visible {
+    outline: 3px solid rgba(52, 84, 209, 0.18);
+    outline-offset: 3px;
+}
+
+.account-dashboard .account-app {
+    padding-top: 0;
+}
+
+.account-dashboard .account-topbar {
+    display: none;
+}
+
+.account-dashboard .account-app__sidebar {
+    top: 96px;
+}
+
+.account-dashboard .workout-plans-shortcut__cta {
+    min-width: 190px;
+    min-height: 48px;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+}
+
+.account-dashboard .workout-plans-shortcut__cta:focus-visible {
+    outline: 3px solid rgba(204, 251, 241, 0.9);
+    outline-offset: 3px;
+}
+
+.admin-dashboard .admin-app {
+    padding-top: 0;
+    background: transparent;
+}
+
+.admin-dashboard .admin-app__content {
+    margin-top: 10px;
+}
+
+.admin-dashboard .admin-bottom-nav,
+.account-dashboard .account-bottom-nav {
+    background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.22), transparent 42%),
+        rgba(255, 255, 255, 0.82);
+    border-color: rgba(255, 255, 255, 0.62);
+    backdrop-filter: blur(20px) saturate(140%);
+    -webkit-backdrop-filter: blur(20px) saturate(140%);
+}
+
+@media (min-width: 901px) {
+    .admin-dashboard .admin-search-screen,
+    .admin-dashboard .admin-record-screen,
+    .admin-dashboard .admin-screen:not(.admin-screen--modal) {
+        background:
+            linear-gradient(145deg, rgba(255, 255, 255, 0.28), transparent 44%),
+            rgba(255, 255, 255, 0.76);
+        border-color: rgba(255, 255, 255, 0.6);
+        backdrop-filter: blur(20px) saturate(140%);
+        -webkit-backdrop-filter: blur(20px) saturate(140%);
+    }
+}
+
+@media (max-width: 900px) {
+    .dashboard-glass-header {
+        padding: 8px 0;
+    }
+
+    .dashboard-glass-header__inner {
+        width: min(100%, calc(100% - 16px));
+        min-height: 62px;
+        grid-template-columns: minmax(0, 1fr) auto;
+        border-radius: 22px;
+        padding: 10px 12px;
+    }
+
+    .dashboard-glass-header__title {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        justify-items: start;
+        text-align: right;
+        padding-top: 4px;
+    }
+
+    .dashboard-glass-header__actions {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .dashboard-glass-header__action {
+        display: none;
+    }
+
+    .dashboard-glass-header__brand-copy strong,
+    .dashboard-glass-header__title h1 {
+        font-size: 0.95rem;
+    }
+
+    .dashboard-glass-header__logo {
+        width: 40px;
+        height: 40px;
+        border-radius: 14px;
+    }
+
+    .account-dashboard .account-app {
+        padding-top: 0;
+    }
+
+    .account-dashboard .account-app__layout,
+    .admin-dashboard .admin-app__content {
+        width: min(100%, calc(100% - 16px));
+    }
+}
+
+@media (max-width: 420px) {
+    .dashboard-glass-header__brand-copy span {
+        display: none;
+    }
+
+    .dashboard-glass-header__inner {
+        gap: 8px;
+    }
+}
+
+/* Dashboard dark-mode polish. */
+.dark body.account-dashboard,
+.dark body.admin-dashboard,
+.dark .account-dashboard,
+.dark .admin-dashboard {
+    --background: 222 47% 7%;
+    --foreground: 210 40% 98%;
+    --muted: 214 28% 78%;
+    --primary: 199 95% 66%;
+    --border: 217 28% 28%;
+    background:
+        radial-gradient(circle at 86% 8%, rgba(14, 165, 233, 0.18), transparent 30%),
+        radial-gradient(circle at 10% 22%, rgba(45, 212, 191, 0.12), transparent 28%),
+        linear-gradient(180deg, #020617 0%, #07111f 52%, #0f172a 100%);
+    color: #f8fafc;
+}
+
+.dark .account-dashboard .site-shell,
+.dark .admin-dashboard .site-shell,
+.dark .account-dashboard .site-content,
+.dark .admin-dashboard .site-content {
+    background: transparent;
+    color: #f8fafc;
+}
+
+.dark .dashboard-glass-header__inner {
+    border-color: rgba(148, 163, 184, 0.3);
+    background:
+        linear-gradient(145deg, rgba(125, 211, 252, 0.14), transparent 38%),
+        rgba(15, 23, 42, 0.82);
+    box-shadow:
+        0 20px 58px rgba(0, 0, 0, 0.38),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.dark .dashboard-glass-header__brand,
+.dark .dashboard-glass-header__brand-copy strong,
+.dark .dashboard-glass-header__title h1 {
+    color: #f8fafc;
+}
+
+.dark .dashboard-glass-header__brand-copy span,
+.dark .dashboard-glass-header__title span {
+    color: #cbd5e1;
+}
+
+.dark .dashboard-glass-header__action,
+.dark .dashboard-glass-header__icon-action {
+    background: rgba(2, 6, 23, 0.48);
+    border-color: rgba(125, 211, 252, 0.24);
+    color: #7dd3fc;
+}
+
+.dark .dashboard-glass-header__action:hover,
+.dark .dashboard-glass-header__icon-action:hover {
+    background: rgba(14, 165, 233, 0.16);
+    border-color: rgba(125, 211, 252, 0.38);
+    box-shadow: 0 14px 30px rgba(14, 165, 233, 0.16);
+}
+
+.dark .admin-dashboard .admin-bottom-nav,
+.dark .account-dashboard .account-bottom-nav {
+    background:
+        linear-gradient(145deg, rgba(125, 211, 252, 0.12), transparent 38%),
+        rgba(15, 23, 42, 0.84);
+    border-color: rgba(148, 163, 184, 0.28);
+}
+
+.dark .admin-dashboard .admin-bottom-nav__group[open] .admin-bottom-nav__group-toggle:not(.is-active),
+.dark .admin-dashboard .admin-bottom-nav__submenu-item:hover,
+.dark .admin-dashboard .admin-bottom-nav__submenu-item:focus-visible {
+    background: rgba(14, 165, 233, 0.12);
+    color: #e5eefb;
+}
+
+.dark .admin-dashboard .admin-bottom-nav__submenu {
+    background: rgba(15, 23, 42, 0.95);
+    border-color: rgba(148, 163, 184, 0.28);
+}
+
+.dark .admin-dashboard .admin-bottom-nav__submenu-item {
+    color: #cbd5e1;
+}
+
+.dark .admin-dashboard .admin-bottom-nav__submenu-item.is-active {
+    background: rgba(14, 165, 233, 0.18);
+    color: #7dd3fc;
+}
+
+.dark .admin-dashboard .admin-search-screen,
+.dark .admin-dashboard .admin-record-screen,
+.dark .admin-dashboard .admin-screen:not(.admin-screen--modal),
+.dark .admin-dashboard .admin-analysis-screen,
+.dark .account-dashboard .account-app__content,
+.dark .account-dashboard .profile-identity-card,
+.dark .account-dashboard .profile-summary-card,
+.dark .account-dashboard .profile-action-card {
+    background:
+        linear-gradient(145deg, rgba(125, 211, 252, 0.12), transparent 38%),
+        rgba(15, 23, 42, 0.76);
+    border-color: rgba(148, 163, 184, 0.28);
+    color: #f8fafc;
+}
+
+.dark .account-dashboard .text-muted,
+.dark .admin-dashboard .text-muted,
+.dark .account-dashboard p,
+.dark .admin-dashboard p {
+    color: #cbd5e1;
+}
+
+.dark .admin-dashboard .admin-screen__title,
+.dark .admin-dashboard .analysis-screen__title,
+.dark .admin-dashboard .admin-back-link,
+.dark .admin-dashboard .admin-stat-grid strong,
+.dark .admin-dashboard .admin-data-preview strong,
+.dark .admin-dashboard .admin-result-card__meta strong,
+.dark .admin-dashboard .admin-recent-panel h2,
+.dark .admin-dashboard .admin-user-summary strong,
+.dark .admin-dashboard .admin-menu-item,
+.dark .account-dashboard h1,
+.dark .account-dashboard h2,
+.dark .account-dashboard h3,
+.dark .account-dashboard strong,
+.dark .account-dashboard label {
+    color: #f8fafc;
+}
+
+.dark .admin-dashboard .admin-screen__lead,
+.dark .admin-dashboard .admin-screen__note,
+.dark .admin-dashboard .admin-stat-grid span,
+.dark .admin-dashboard .admin-data-preview span,
+.dark .admin-dashboard .admin-user-summary span,
+.dark .admin-dashboard .admin-user-summary small,
+.dark .admin-dashboard .admin-mini-user small,
+.dark .admin-dashboard .admin-result-card__meta span:last-child,
+.dark .admin-dashboard .admin-form-grid--stacked .field-group label,
+.dark .account-dashboard .account-topbar__eyebrow,
+.dark .account-dashboard .profile-identity-card__label,
+.dark .account-dashboard .profile-summary-card span,
+.dark .account-dashboard small {
+    color: #cbd5e1;
+}
+
+.dark .admin-dashboard .admin-result-card,
+.dark .admin-dashboard .admin-panel-card,
+.dark .admin-dashboard .admin-menu-item,
+.dark .admin-dashboard .admin-stat-grid article,
+.dark .admin-dashboard .admin-data-preview article,
+.dark .admin-dashboard .admin-recent-panel,
+.dark .admin-dashboard .admin-mini-user,
+.dark .admin-dashboard .admin-user-summary,
+.dark .admin-dashboard .admin-body-map,
+.dark .admin-dashboard .admin-upload-field,
+.dark .account-dashboard .account-page-panel,
+.dark .account-dashboard .account-panel,
+.dark .account-dashboard .account-card,
+.dark .account-dashboard .timeline-item {
+    background:
+        linear-gradient(145deg, rgba(125, 211, 252, 0.1), transparent 38%),
+        rgba(15, 23, 42, 0.72);
+    border-color: rgba(148, 163, 184, 0.28);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.24);
+    color: #f8fafc;
+}
+
+.dark .admin-dashboard .admin-panel-card {
+    background:
+        linear-gradient(145deg, rgba(125, 211, 252, 0.1), transparent 38%),
+        rgba(15, 23, 42, 0.72);
+    border-color: rgba(148, 163, 184, 0.28);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.24);
+}
+
+.dark .admin-dashboard .admin-panel-card__title,
+.dark .admin-dashboard .admin-panel-card label {
+    color: #f8fafc;
+}
+
+.dark .admin-dashboard .admin-panel-card select,
+.dark .admin-dashboard .admin-panel-card input,
+.dark .admin-dashboard .admin-panel-card textarea {
+    background: rgba(2, 6, 23, 0.58);
+    border-color: rgba(148, 163, 184, 0.32);
+    color: #f8fafc;
+}
+
+.dark .admin-dashboard .admin-result-card__media {
+    background: rgba(2, 6, 23, 0.55);
+}
+
+.dark .admin-dashboard .admin-result-card__media--empty {
+    color: #64748b;
+}
+
+.dark .admin-dashboard .admin-result-card__tags span {
+    color: #cbd5e1;
+    background: rgba(125, 211, 252, 0.1);
+    border-color: rgba(125, 211, 252, 0.22);
+}
+
+.dark .admin-dashboard .admin-search-form .form-input,
+.dark .admin-dashboard .admin-search-form .enterprise-input,
+.dark .admin-dashboard .admin-form-grid .form-input,
+.dark .admin-dashboard .admin-form-grid .enterprise-input,
+.dark .admin-dashboard .admin-form-grid select,
+.dark .admin-dashboard .admin-upload-form .form-input,
+.dark .admin-dashboard .admin-upload-form .enterprise-input,
+.dark .account-dashboard .form-input,
+.dark .account-dashboard .enterprise-input,
+.dark .account-dashboard input,
+.dark .account-dashboard textarea,
+.dark .account-dashboard select {
+    background: rgba(2, 6, 23, 0.58);
+    border-color: rgba(148, 163, 184, 0.32);
+    color: #f8fafc;
+}
+
+.dark .admin-dashboard input::placeholder,
+.dark .account-dashboard input::placeholder,
+.dark .account-dashboard textarea::placeholder {
+    color: rgba(203, 213, 225, 0.72);
+}
+
+/* The automatic-programming search field is outside admin-form-grid. */
+.dark .admin-dashboard .admin-program-screen input.admin-input,
+.dark .admin-dashboard .admin-program-screen select.admin-input,
+.dark .admin-dashboard .admin-program-screen textarea.admin-input {
+    background: rgba(2, 6, 23, 0.58) !important;
+    border-color: rgba(148, 163, 184, 0.32) !important;
+    color: #f8fafc !important;
+}
+
+.dark .admin-dashboard .admin-secondary-btn,
+.dark .account-dashboard .secondary-action {
+    background: rgba(2, 6, 23, 0.46);
+    border-color: rgba(125, 211, 252, 0.26);
+    color: #7dd3fc;
+}
+
+.dark .admin-dashboard .blood-group-chip {
+    background: rgba(127, 29, 29, 0.18);
+    border-color: rgba(248, 113, 113, 0.35);
+    color: #fca5a5;
+}
+
+.dark .admin-dashboard .blood-group-chip.is-active,
+.dark .admin-dashboard .blood-group-chip:has(input:checked) {
+    background: rgba(248, 113, 113, 0.22);
+    color: #fee2e2;
+    border-color: rgba(248, 113, 113, 0.55);
+}
+
+.dark .account-dashboard .account-nav__item {
+    background:
+        linear-gradient(145deg, rgba(125, 211, 252, 0.1), transparent 38%),
+        rgba(2, 6, 23, 0.52);
+    border-color: rgba(148, 163, 184, 0.28);
+    color: #e5eefb;
+}
+
+.dark .account-dashboard .account-nav__item:hover,
+.dark .account-dashboard .account-nav__item.is-active {
+    background: rgba(14, 165, 233, 0.16);
+    border-color: rgba(125, 211, 252, 0.34);
+    color: #7dd3fc;
+}
+
+.dark .account-dashboard .account-nav__item.is-danger {
+    background: rgba(127, 29, 29, 0.22);
+    border-color: rgba(248, 113, 113, 0.26);
+    color: #fca5a5;
+}
+
+html:not(.dark) .admin-dashboard .admin-screen,
+html:not(.dark) .account-dashboard .account-app__content {
+    color: #111827;
+}
+
+html:not(.dark) .admin-dashboard .admin-secondary-btn,
+html:not(.dark) .account-dashboard .secondary-action {
+    color: #3454d1;
+}
+
+.account-dashboard .is-loading,
+.admin-dashboard .is-loading {
+    position: relative;
+    overflow: hidden;
+    color: transparent !important;
+    opacity: 0.9;
+    pointer-events: none;
+    cursor: wait;
+}
+
+.account-dashboard .is-loading::after,
+.admin-dashboard .is-loading::after {
+    content: "";
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: 18px;
+    height: 18px;
+    margin: -9px 0 0 -9px;
+    border-radius: 999px;
+    border: 2px solid rgba(255, 255, 255, 0.45);
+    border-top-color: #ffffff;
+    animation: dashboardButtonSpin 0.72s linear infinite;
+}
+
+@keyframes dashboardButtonSpin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.dark .admin-dashboard .admin-app {
+    background: transparent;
+}
+
+.dark .admin-dashboard .admin-screen--modal {
+    background: rgba(2, 6, 23, 0.72);
+    backdrop-filter: blur(6px);
+}
+
+.dark .admin-dashboard .admin-upload-sheet,
+.dark .admin-dashboard .admin-screen--modal .admin-upload-field {
+    background:
+        linear-gradient(145deg, rgba(125, 211, 252, 0.1), transparent 38%),
+        rgba(15, 23, 42, 0.94);
+    border-color: rgba(148, 163, 184, 0.28);
+    color: #f8fafc;
+}
+
+.dark .admin-dashboard .admin-toast,
+.dark .account-dashboard .account-toast {
+    background: rgba(15, 23, 42, 0.94);
+    border-color: rgba(148, 163, 184, 0.28);
+    color: #f8fafc;
+    box-shadow: 0 16px 36px rgba(0, 0, 0, 0.32);
+}
+
+.dark .admin-dashboard .admin-toast--success,
+.dark .account-dashboard .account-toast--success {
+    background: rgba(6, 78, 59, 0.88);
+    border-color: rgba(52, 211, 153, 0.35);
+    color: #d1fae5;
+}
+
+.dark .admin-dashboard .admin-toast--error,
+.dark .account-dashboard .account-toast--error {
+    background: rgba(127, 29, 29, 0.88);
+    border-color: rgba(248, 113, 113, 0.35);
+    color: #fee2e2;
+}
+
+.dark .admin-dashboard .admin-screen--modal,
+.dark .admin-dashboard .admin-screen.admin-screen--modal {
+    background:
+        linear-gradient(145deg, rgba(125, 211, 252, 0.1), transparent 38%),
+        rgba(15, 23, 42, 0.76);
+    border-color: rgba(148, 163, 184, 0.28);
+    color: #f8fafc;
+}
+
+.dark .account-dashboard .analysis-panel,
+.dark .account-dashboard .analysis-select,
+.dark .account-dashboard .analysis-date,
+.dark .account-dashboard .analysis-metric-menu,
+.dark .account-dashboard .analysis-calendar {
+    background: rgba(15, 23, 42, 0.82);
+    border-color: rgba(148, 163, 184, 0.28);
+    color: #f8fafc;
+}
+
+.dark .account-dashboard .analysis-metric-menu__item,
+.dark .admin-dashboard .analysis-metric-menu__item {
+    color: #e2e8f0;
+}
+
+.dark .account-dashboard .analysis-metric-menu__item:hover,
+.dark .admin-dashboard .analysis-metric-menu__item:hover {
+    background: rgba(14, 165, 233, 0.16);
+    color: #7dd3fc;
+}
+
+.dark .account-dashboard .analysis-calendar__nav,
+.dark .admin-dashboard .analysis-calendar__nav {
+    color: #7dd3fc;
+}
+
+.dark .account-dashboard .analysis-screen__title,
+.dark .account-dashboard .analysis-screen__back-link,
+.dark .account-dashboard .analysis-empty,
+.dark .account-dashboard .analysis-empty strong,
+.dark .account-dashboard .analysis-empty p,
+.dark .account-dashboard .analysis-measurements__head strong,
+.dark .account-dashboard .analysis-measurements__head span,
+.dark .account-dashboard .analysis-measurements__group h3,
+.dark .account-dashboard .analysis-measurements__item span,
+.dark .account-dashboard .analysis-measurements__item strong,
+.dark .account-dashboard .analysis-metric-card__top strong,
+.dark .account-dashboard .analysis-metric-card__top span,
+.dark .account-dashboard .analysis-chart-card__head strong,
+.dark .account-dashboard .analysis-chart-card__head span,
+.dark .account-dashboard .analysis-summary-card__content strong,
+.dark .account-dashboard .analysis-summary-card__content p,
+.dark .account-dashboard .profile-screen__lead,
+.dark .account-dashboard .profile-screen__title {
+    color: #f8fafc;
+}
+
+.dark .account-dashboard .analysis-empty,
+.dark .account-dashboard .analysis-summary-card,
+.dark .account-dashboard .analysis-chart-card,
+.dark .account-dashboard .analysis-metric-card,
+.dark .account-dashboard .analysis-measurements__item {
+    background:
+        linear-gradient(145deg, rgba(125, 211, 252, 0.1), transparent 38%),
+        rgba(15, 23, 42, 0.72);
+    border-color: rgba(148, 163, 184, 0.28);
+}
+
+.dark .account-dashboard .analysis-select,
+.dark .account-dashboard .analysis-date {
+    background: rgba(2, 6, 23, 0.58);
+    border-color: rgba(148, 163, 184, 0.32);
+    color: #f8fafc;
+}
+
+.dark .admin-dashboard .analysis-panel,
+.dark .admin-dashboard .analysis-select,
+.dark .admin-dashboard .analysis-date,
+.dark .admin-dashboard .analysis-metric-menu,
+.dark .admin-dashboard .analysis-calendar {
+    background: rgba(15, 23, 42, 0.82);
+    border-color: rgba(148, 163, 184, 0.28);
+    color: #f8fafc;
+}
+
+.dark .admin-dashboard .analysis-screen__title,
+.dark .admin-dashboard .analysis-screen__back-link,
+.dark .admin-dashboard .analysis-empty,
+.dark .admin-dashboard .analysis-empty strong,
+.dark .admin-dashboard .analysis-empty p,
+.dark .admin-dashboard .analysis-measurements__head strong,
+.dark .admin-dashboard .analysis-measurements__head span,
+.dark .admin-dashboard .analysis-measurements__group h3,
+.dark .admin-dashboard .analysis-measurements__item span,
+.dark .admin-dashboard .analysis-measurements__item strong,
+.dark .admin-dashboard .analysis-metric-card__top strong,
+.dark .admin-dashboard .analysis-metric-card__top span,
+.dark .admin-dashboard .analysis-chart-card__head strong,
+.dark .admin-dashboard .analysis-chart-card__head span,
+.dark .admin-dashboard .analysis-summary-card__content strong,
+.dark .admin-dashboard .analysis-summary-card__content p,
+.dark .admin-dashboard .analysis-filter-field > span,
+.dark .admin-dashboard .analysis-summary-card__ring {
+    color: #f8fafc;
+}
+
+.dark .admin-dashboard .analysis-empty,
+.dark .admin-dashboard .analysis-summary-card,
+.dark .admin-dashboard .analysis-chart-card,
+.dark .admin-dashboard .analysis-metric-card,
+.dark .admin-dashboard .analysis-measurements,
+.dark .admin-dashboard .analysis-measurements__item,
+.dark .admin-dashboard .analysis-formula-badge {
+    background:
+        linear-gradient(145deg, rgba(125, 211, 252, 0.1), transparent 38%),
+        rgba(15, 23, 42, 0.72);
+    border-color: rgba(148, 163, 184, 0.28);
+}
+
+.dark .admin-dashboard .analysis-select,
+.dark .admin-dashboard .analysis-date,
+.dark .admin-dashboard .analysis-select--native {
+    background: rgba(2, 6, 23, 0.58);
+    border-color: rgba(148, 163, 184, 0.32);
+    color: #f8fafc;
+}
+
+.dark .admin-dashboard .analysis-formula-badge {
+    color: #7dd3fc;
+}
+
+.dark .account-dashboard .account-bottom-nav__label,
+.dark .account-dashboard .account-bottom-nav__item {
+    color: #cbd5e1;
+}
+
+.dark .account-dashboard .account-bottom-nav__item.is-active,
+.dark .account-dashboard .account-bottom-nav__item.is-active .account-bottom-nav__label {
+    color: #7dd3fc;
+}
+
+.dark .admin-dashboard .admin-mobile-status {
+    color: #f8fafc;
+}
+
+.dark .admin-dashboard .admin-sidebar-nav__item {
+    color: #cbd5e1;
+}
+
+.dark .admin-dashboard .admin-sidebar-nav__item:hover {
+    background: rgba(14, 165, 233, 0.12);
+    color: #e5eefb;
+}
+
+.dark .admin-dashboard .admin-sidebar-nav__item.is-active {
+    background: rgba(14, 165, 233, 0.18);
+    color: #7dd3fc;
+}
+
+.dark .admin-dashboard .admin-sidebar-nav__footer {
+    border-top-color: rgba(148, 163, 184, 0.28);
+}
+
+.dark .admin-dashboard .admin-sort-bar__item {
+    background: rgba(15, 23, 42, 0.6);
+    border-color: rgba(148, 163, 184, 0.28);
+    color: #cbd5e1;
+}
+
+.dark .admin-dashboard .admin-sort-bar__item.is-active {
+    background: rgba(14, 165, 233, 0.16);
+    border-color: rgba(125, 211, 252, 0.34);
+    color: #7dd3fc;
+}
+
+.dark .admin-dashboard .admin-pagination__status {
+    color: #cbd5e1;
+}
+
+/* ============================================================================
+   Round 7 — account panel overhaul: dashboard feed, analysis dashboard,
+   coach-request form, dark-mode fixes. (This file loads last, so it wins ties.)
+   ============================================================================ */
+
+/* --- 1.1 Font / overflow hardening on profile cards --- */
+.profile-metric-card,
+.profile-metric-card__content,
+.profile-identity-card__meta {
+    min-width: 0;
+}
+.profile-metric-card__value {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+    font-size: clamp(0.95rem, 2.6vw, 1.15rem);
+    line-height: 1.35;
+}
+.profile-metric-card__label,
+.profile-identity-card__meta strong,
+.profile-identity-card__phone {
+    overflow-wrap: anywhere;
+}
+
+/* --- 1.2 Dashboard feed banner + enrolled-courses strip --- */
+.dashboard-feed-banner {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 14px 16px;
+    border-radius: 18px;
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    background: var(--account-surface, #fff);
+    box-shadow: var(--account-shadow, 0 10px 22px rgba(15, 23, 42, 0.05));
+}
+.dashboard-feed-banner__body {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+.dashboard-feed-banner__close {
+    display: inline-grid;
+    flex: 0 0 auto;
+    place-items: center;
+    width: 28px;
+    height: 28px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--account-muted, #6b7280);
+    font-size: 1.35rem;
+    line-height: 1;
+    cursor: pointer;
+}
+.dashboard-feed-banner__close:hover,
+.dashboard-feed-banner__close:focus-visible {
+    background: rgba(100, 116, 139, .12);
+    color: var(--account-foreground, #111827);
+}
+.dashboard-feed-banner.is-dismissed {
+    display: none;
+}
+.dashboard-feed-banner--birthday {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.16), rgba(236, 72, 153, 0.12));
+    border-color: rgba(236, 72, 153, 0.28);
+}
+.dashboard-feed-banner--mood {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(59, 130, 246, 0.08));
+    border-color: rgba(16, 185, 129, 0.28);
+}
+.dashboard-feed-banner__action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 8px;
+    color: var(--account-brand, #3454d1);
+    font-size: 0.84rem;
+    font-weight: 800;
+    text-decoration: none;
+}
+.dashboard-feed-banner__action:hover,
+.dashboard-feed-banner__action:focus-visible {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+.dashboard-feed-banner__icon {
+    font-size: 1.6rem;
+    line-height: 1;
+}
+.dashboard-feed-banner__body strong {
+    display: block;
+    font-size: 0.95rem;
+}
+.dashboard-feed-banner__body p {
+    margin: 4px 0 0;
+    font-size: 0.82rem;
+    color: var(--account-muted, #6b7280);
+    line-height: 1.7;
+}
+
+.dashboard-courses {
+    display: grid;
+    gap: 12px;
+}
+.dashboard-courses__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+.dashboard-courses__title {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 800;
+}
+.dashboard-courses__link {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--account-brand, #3454d1);
+    text-decoration: none;
+}
+.dashboard-courses__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+}
+.dashboard-course-card {
+    display: grid;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 16px;
+    background: var(--account-surface, #fff);
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    box-shadow: var(--account-shadow, 0 10px 22px rgba(15, 23, 42, 0.05));
+    text-decoration: none;
+    color: inherit;
+    min-width: 0;
+}
+.dashboard-course-card__thumb {
+    display: block;
+    aspect-ratio: 16 / 10;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #eef1f6;
+}
+.dashboard-course-card__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.dashboard-course-card__body {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+}
+.dashboard-course-card__title {
+    font-size: 0.85rem;
+    font-weight: 800;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+.dashboard-course-card__meta {
+    font-size: 0.75rem;
+    color: var(--account-muted, #6b7280);
+    overflow-wrap: anywhere;
+}
+.dashboard-courses__empty {
+    display: grid;
+    gap: 10px;
+    justify-items: center;
+    text-align: center;
+    padding: 20px;
+    border: 1px dashed var(--account-border, rgba(229, 231, 235, 0.95));
+    border-radius: 16px;
+}
+
+/* --- 2. Analysis dashboard --- */
+.analysis-sec-title {
+    margin: 8px 0 0;
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+.analysis-dashboard {
+    display: grid;
+    gap: 16px;
+}
+.analysis-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+}
+.analysis-stat-card {
+    display: grid;
+    gap: 6px;
+    justify-items: center;
+    text-align: center;
+    padding: 14px 12px;
+    border-radius: 16px;
+    background: var(--account-surface, #fff);
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    box-shadow: var(--account-shadow, 0 10px 22px rgba(15, 23, 42, 0.05));
+    min-width: 0;
+}
+.analysis-stat-card__icon {
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: rgba(52, 84, 209, 0.1);
+    color: var(--account-brand, #3454d1);
+}
+.analysis-stat-card__icon svg {
+    width: 20px;
+    height: 20px;
+}
+.analysis-stat-card__label {
+    font-size: 0.78rem;
+    color: var(--account-muted, #6b7280);
+}
+.analysis-stat-card__value {
+    font-size: 1.25rem;
+    font-weight: 800;
+    overflow-wrap: anywhere;
+}
+.analysis-stat-card__unit {
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--account-muted, #6b7280);
+}
+
+.analysis-gauge-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+}
+.analysis-gauge-card {
+    display: grid;
+    gap: 8px;
+    justify-items: center;
+    text-align: center;
+    padding: 16px;
+    border-radius: 18px;
+    background: var(--account-surface, #fff);
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    box-shadow: var(--account-shadow, 0 10px 22px rgba(15, 23, 42, 0.05));
+}
+.analysis-gauge-card__title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--account-muted, #6b7280);
+}
+.analysis-gauge-card__num {
+    font-size: 1.8rem;
+    font-weight: 900;
+}
+.analysis-gauge-card__cat {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--account-brand, #3454d1);
+}
+.analysis-gauge-bar {
+    position: relative;
+    width: 100%;
+    height: 12px;
+    border-radius: 999px;
+}
+.analysis-gauge-bar--bmi {
+    background: linear-gradient(to left, #60a5fa, #34d399, #fbbf24, #f87171);
+}
+.analysis-gauge-bar--whr {
+    background: linear-gradient(to left, #34d399, #fbbf24, #f87171);
+}
+.analysis-gauge-bar__ptr {
+    position: absolute;
+    top: 50%;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid #1f2937;
+    transform: translate(50%, -50%);
+}
+.analysis-gauge-bar__labs {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    font-size: 0.66rem;
+    color: var(--account-muted, #6b7280);
+}
+
+.analysis-panel--explorer {
+    padding: 14px;
+    border-radius: 18px;
+    background: var(--account-surface, #fff);
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    box-shadow: var(--account-shadow, 0 10px 22px rgba(15, 23, 42, 0.05));
+}
+.analysis-explorer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.analysis-explorer-head strong {
+    font-size: 0.95rem;
+}
+.analysis-explorer-head span {
+    font-size: 0.75rem;
+    color: var(--account-muted, #6b7280);
+}
+
+.analysis-chart-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+}
+.analysis-chart-box {
+    display: grid;
+    gap: 10px;
+    padding: 14px;
+    border-radius: 18px;
+    background: var(--account-surface, #fff);
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    box-shadow: var(--account-shadow, 0 10px 22px rgba(15, 23, 42, 0.05));
+    min-width: 0;
+}
+.analysis-chart-box > span {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: var(--account-muted, #6b7280);
+}
+.analysis-chart-box canvas {
+    width: 100% !important;
+}
+.analysis-measure-trend {
+    display: grid;
+    gap: 12px;
+}
+.analysis-trend-select {
+    width: 100%;
+    height: 44px;
+    padding: 0 14px;
+    border-radius: 14px;
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    background: var(--account-surface, #fff);
+    font-weight: 700;
+    color: inherit;
+}
+
+.analysis-tables {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 14px;
+}
+.analysis-table-card {
+    padding: 14px;
+    border-radius: 18px;
+    background: var(--account-surface, #fff);
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    box-shadow: var(--account-shadow, 0 10px 22px rgba(15, 23, 42, 0.05));
+    overflow-x: auto;
+}
+.analysis-table-card h3 {
+    margin: 0 0 10px;
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+.analysis-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+}
+.analysis-table th,
+.analysis-table td {
+    padding: 9px 10px;
+    text-align: right;
+    border-bottom: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+}
+.analysis-table thead th {
+    color: var(--account-muted, #6b7280);
+    font-weight: 800;
+    font-size: 0.78rem;
+}
+.analysis-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+.analysis-table--history th,
+.analysis-table--history td {
+    text-align: center;
+}
+
+/* --- 6. Fixed-height chart wrappers (kills Chart.js infinite-growth loop) --- */
+.analysis-canvas {
+    position: relative;
+    width: 100%;
+    height: 170px;
+}
+.analysis-canvas--lg {
+    height: 260px;
+}
+.analysis-canvas canvas {
+    position: absolute !important;
+    inset: 0;
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+}
+
+/* --- Snapshot date picker (replaces the old calendar + two date buttons) --- */
+.analysis-datepicker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: var(--account-surface, #fff);
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    box-shadow: var(--account-shadow, 0 10px 22px rgba(15, 23, 42, 0.05));
+}
+.analysis-results-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.analysis-results-head > .analysis-sec-title {
+    margin: 0;
+    flex: 0 0 auto;
+}
+.analysis-result-controls {
+    align-items: end;
+    flex: 1 1 540px;
+    justify-content: flex-end;
+    padding: 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+.analysis-result-control {
+    display: grid;
+    gap: 6px;
+    flex: 1 1 220px;
+    min-width: 0;
+    max-width: 320px;
+}
+.analysis-datepicker__label {
+    font-size: 0.85rem;
+    font-weight: 800;
+}
+.analysis-formula-picker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 0 0 10px;
+}
+.analysis-formula-picker__label {
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+.analysis-formula-picker .analysis-trend-select {
+    min-width: 220px;
+}
+.analysis-table__formula {
+    display: block;
+    margin-top: 3px;
+    color: var(--account-muted, #6b7280);
+    font-size: 0.7rem;
+    font-weight: 700;
+}
+.analysis-datepicker .analysis-trend-select {
+    flex: 1 1 160px;
+    min-width: 150px;
+}
+.analysis-datepicker__go {
+    height: 40px;
+    padding: 0 16px;
+    border-radius: 12px;
+    border: 0;
+    background: var(--account-brand, #3454d1);
+    color: #fff;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+/* --- 4 + 5. Calculation result tiles (square numbers, no somatotype) --- */
+.analysis-result-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+}
+.analysis-result-tile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-align: center;
+    aspect-ratio: 1 / 1;
+    padding: 12px;
+    border-radius: 18px;
+    background: var(--account-surface, #fff);
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    box-shadow: var(--account-shadow, 0 10px 22px rgba(15, 23, 42, 0.05));
+    border-top: 4px solid var(--tile-accent, #3454d1);
+    min-width: 0;
+}
+.analysis-result-tile__label {
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--account-muted, #6b7280);
+    overflow-wrap: anywhere;
+}
+.analysis-result-tile__value {
+    font-size: 1rem;
+    font-weight: 700;
+    line-height: 1;
+    overflow-wrap: anywhere;
+}
+.analysis-result-tile__value small {
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-inline-start: 2px;
+    color: var(--account-muted, #6b7280);
+}
+.analysis-result-tile__status {
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: rgba(52, 84, 209, 0.1);
+    color: var(--tile-accent, #3454d1);
+}
+.analysis-result-tile--good {
+    --tile-accent: #16a34a;
+}
+.analysis-result-tile--good .analysis-result-tile__status {
+    background: rgba(22, 163, 74, 0.12);
+}
+.analysis-result-tile--warn {
+    --tile-accent: #d97706;
+}
+.analysis-result-tile--warn .analysis-result-tile__status {
+    background: rgba(217, 119, 6, 0.14);
+}
+.analysis-result-tile--danger {
+    --tile-accent: #dc2626;
+}
+.analysis-result-tile--danger .analysis-result-tile__status {
+    background: rgba(220, 38, 38, 0.14);
+}
+
+/* --- Nutrition targets --------------------------------------------------- */
+.analysis-nutrition-panel {
+    display: grid;
+    gap: 16px;
+    padding: clamp(16px, 3vw, 22px);
+    border: 1px solid rgba(20, 184, 166, 0.2);
+    border-radius: 22px;
+    background: linear-gradient(135deg, rgba(240, 253, 250, 0.96), rgba(239, 246, 255, 0.9));
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.06);
+}
+.analysis-nutrition-panel__intro {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+.analysis-nutrition-panel__icon {
+    display: grid;
+    flex: 0 0 42px;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: #0f766e;
+    color: #fff;
+    font-size: 1.2rem;
+}
+.analysis-kicker {
+    color: #0f766e;
+    font-size: .72rem;
+    font-weight: 900;
+    letter-spacing: .06em;
+}
+.analysis-nutrition-panel h3 { margin: 2px 0 4px; font-size: 1.1rem; font-weight: 900; }
+.analysis-nutrition-panel__intro p { margin: 0; color: var(--account-muted, #6b7280); font-size: .8rem; line-height: 1.8; }
+.analysis-nutrition-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.analysis-nutrition-card { display: grid; align-content: start; gap: 5px; min-width: 0; padding: 14px; border: 1px solid rgba(148,163,184,.2); border-radius: 16px; background: rgba(255,255,255,.86); }
+.analysis-nutrition-card__label { min-height: 2.7em; color: #475569; font-size: .77rem; font-weight: 800; line-height: 1.65; }
+.analysis-nutrition-card strong { color: #0f172a; font-size: clamp(1.45rem, 3vw, 2rem); font-weight: 950; line-height: 1.1; overflow-wrap: anywhere; }
+.analysis-nutrition-card small { color: #64748b; font-size: .7rem; font-weight: 700; }
+.analysis-nutrition-card__hint { margin-top: 5px; color: #64748b; font-size: .7rem; line-height: 1.6; }
+.analysis-nutrition-card--loss { border-top: 3px solid #2563eb; }
+.analysis-nutrition-card--gain { border-top: 3px solid #f59e0b; }
+.analysis-nutrition-card--protein { border-top: 3px solid #0f766e; }
+.analysis-nutrition-note { margin: 0; color: #64748b; font-size: .72rem; line-height: 1.8; }
+@media (max-width: 900px) { .analysis-nutrition-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .analysis-nutrition-panel { padding: 14px; border-radius: 18px; } .analysis-nutrition-panel__intro { gap: 9px; } .analysis-nutrition-panel__icon { flex-basis: 36px; width: 36px; height: 36px; border-radius: 11px; } .analysis-nutrition-grid { grid-template-columns: 1fr 1fr; gap: 8px; } .analysis-nutrition-card { padding: 11px; } .analysis-nutrition-card__label { min-height: 3.8em; font-size: .7rem; } }
+
+/* --- Smart goal planning ------------------------------------------------ */
+.analysis-smart-goal {
+    display: grid;
+    gap: 18px;
+    padding: clamp(16px, 3vw, 24px);
+    border: 1px solid rgba(52, 84, 209, 0.2);
+    border-radius: 22px;
+    background: linear-gradient(135deg, rgba(239, 246, 255, 0.98), rgba(240, 253, 250, 0.92));
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.06);
+}
+.analysis-smart-goal__header,
+.analysis-smart-goal__timeline-head,
+.analysis-smart-goal__metric-head,
+.analysis-smart-goal__metric-values {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.analysis-smart-goal__header {
+    align-items: flex-start;
+}
+.analysis-smart-goal__intro {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+}
+.analysis-smart-goal__icon {
+    display: grid;
+    flex: 0 0 42px;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    background: #3454d1;
+    color: #fff;
+    font-size: 1.5rem;
+    line-height: 1;
+}
+.analysis-smart-goal h3,
+.analysis-smart-goal h4 {
+    margin: 2px 0 4px;
+    font-weight: 900;
+}
+.analysis-smart-goal h3 { font-size: 1.1rem; }
+.analysis-smart-goal h4 { font-size: .95rem; }
+.analysis-smart-goal__intro p {
+    margin: 0;
+    color: var(--account-muted, #64748b);
+    font-size: .8rem;
+    line-height: 1.8;
+}
+.analysis-smart-goal__badge {
+    flex: 0 0 auto;
+    padding: 7px 11px;
+    border-radius: 999px;
+    background: rgba(52, 84, 209, .1);
+    color: #3454d1;
+    font-size: .72rem;
+    font-weight: 900;
+    white-space: nowrap;
+}
+.analysis-smart-goal__metrics {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+}
+.analysis-smart-goal__metric {
+    display: grid;
+    gap: 9px;
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid rgba(148, 163, 184, .2);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, .82);
+}
+.analysis-smart-goal__metric-head {
+    align-items: flex-start;
+}
+.analysis-smart-goal__metric-head > span {
+    color: #334155;
+    font-size: .78rem;
+    font-weight: 900;
+}
+.analysis-smart-goal__metric-head small,
+.analysis-smart-goal__progress-label {
+    color: #64748b;
+    font-size: .68rem;
+    font-weight: 800;
+}
+.analysis-smart-goal__metric-values {
+    justify-content: flex-start;
+    gap: 7px;
+    direction: ltr;
+    min-width: 0;
+}
+.analysis-smart-goal__metric-values strong,
+.analysis-smart-goal__metric-values b {
+    overflow-wrap: anywhere;
+    font-size: 1.05rem;
+    line-height: 1.3;
+}
+.analysis-smart-goal__metric-values strong { color: #0f172a; }
+.analysis-smart-goal__metric-values b { color: #3454d1; }
+.analysis-smart-goal__metric-values span { color: #94a3b8; }
+.analysis-smart-goal__progress {
+    position: relative;
+    height: 8px;
+    overflow: hidden;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, .22);
+}
+.analysis-smart-goal__progress i {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #3454d1, #0ea5a4);
+    transition: width .25s ease;
+}
+.analysis-smart-goal__timeline-head {
+    align-items: flex-end;
+}
+.analysis-smart-goal__timeline-head > span {
+    color: var(--account-muted, #64748b);
+    font-size: .7rem;
+}
+.analysis-smart-goal__charts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+.analysis-smart-goal__chart {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid rgba(148, 163, 184, .2);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, .72);
+}
+.analysis-smart-goal__chart > span {
+    color: #475569;
+    font-size: .76rem;
+    font-weight: 900;
+}
+.analysis-smart-goal__chart .analysis-canvas { height: 190px; }
+.analysis-smart-goal__history {
+    display: grid;
+    gap: 10px;
+}
+.analysis-smart-goal__history .analysis-table-card {
+    margin: 0;
+    background: rgba(255, 255, 255, .72);
+}
+.analysis-smart-goal__note {
+    margin: 0;
+    color: #64748b;
+    font-size: .72rem;
+    line-height: 1.85;
+}
+@media (max-width: 900px) {
+    .analysis-smart-goal__metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 560px) {
+    .analysis-smart-goal { padding: 14px; border-radius: 18px; }
+    .analysis-smart-goal__header,
+    .analysis-smart-goal__timeline-head { display: grid; align-items: start; }
+    .analysis-smart-goal__badge { justify-self: start; }
+    .analysis-smart-goal__charts { grid-template-columns: 1fr; }
+    .analysis-smart-goal__metric { padding: 11px; }
+    .analysis-smart-goal__metric-values strong,
+    .analysis-smart-goal__metric-values b { font-size: .92rem; }
+    .analysis-smart-goal__history .analysis-table-card { padding: 8px; }
+    .analysis-smart-goal__history .analysis-table { min-width: 620px; }
+}
+
+/* --- 2. Metric explorer (collapsed dropdown + single live chart) --- */
+.analysis-metric-explorer {
+    display: grid;
+    gap: 12px;
+    padding: 14px;
+    border-radius: 18px;
+    background: var(--account-surface, #fff);
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    box-shadow: var(--account-shadow, 0 10px 22px rgba(15, 23, 42, 0.05));
+}
+.analysis-metric-explorer__empty {
+    margin: 0;
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--account-muted, #6b7280);
+}
+
+/* --- 5. Coach-request form --- */
+.coach-edit-banner {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 12px 14px;
+    border-radius: 14px;
+    margin-bottom: 16px;
+    background: rgba(52, 84, 209, 0.08);
+    border: 1px solid rgba(52, 84, 209, 0.2);
+}
+.coach-edit-banner p {
+    margin: 0;
+    font-size: 0.84rem;
+    line-height: 1.7;
+}
+.coach-request-form {
+    display: grid;
+    gap: 18px;
+}
+.coach-fieldset {
+    margin: 0;
+    padding: 14px;
+    display: grid;
+    gap: 12px;
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    border-radius: 16px;
+}
+.coach-fieldset legend {
+    padding: 0 8px;
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+.coach-collapsible {
+    overflow: hidden;
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    border-radius: 16px;
+    background: var(--account-surface, #fff);
+}
+.coach-collapsible__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 15px 16px;
+    cursor: pointer;
+    list-style: none;
+    font-size: 0.92rem;
+    font-weight: 800;
+}
+.coach-collapsible__summary::-webkit-details-marker {
+    display: none;
+}
+.coach-collapsible__summary > span:first-child {
+    display: grid;
+    gap: 3px;
+}
+.coach-collapsible__eyebrow {
+    color: var(--account-muted, #6b7280);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+.coach-collapsible__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    background: rgba(52, 84, 209, 0.1);
+    color: var(--account-brand, #3454d1);
+    font-size: 1.15rem;
+    line-height: 1;
+    transition: transform 180ms ease, background-color 180ms ease;
+}
+.coach-collapsible[open] .coach-collapsible__icon {
+    transform: rotate(180deg);
+    background: rgba(52, 84, 209, 0.16);
+}
+.coach-fieldset--collapsible {
+    border: 0;
+    border-top: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    border-radius: 0;
+}
+.coach-workout-types-field {
+    margin-top: 2px;
+}
+.coach-workout-types-field__label {
+    display: block;
+    color: var(--account-text, #111827);
+    font-size: 0.88rem;
+    font-weight: 800;
+}
+.coach-workout-types-field > #id_workout_types,
+.coach-workout-types-field > #id_workout_types > div,
+.coach-workout-types-field > #id_workout_types > div > div {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.coach-workout-types-field > #id_workout_types {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+.coach-workout-types-field > #id_workout_types > div {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    min-width: 0;
+    padding: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 16px;
+    background: rgba(248, 250, 252, 0.72);
+    color: var(--account-muted, #6b7280);
+    font-size: 0.76rem;
+    font-weight: 800;
+}
+.coach-workout-types-field > #id_workout_types > div > label {
+    grid-column: 1 / -1;
+    margin-bottom: 2px;
+}
+.coach-workout-types-field > #id_workout_types > div > div {
+    min-width: 0;
+}
+.coach-workout-types-field > #id_workout_types > div > div > label {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 54px;
+    padding: 10px 12px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 13px;
+    background: var(--account-surface, #fff);
+    color: var(--account-text, #111827);
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 750;
+    line-height: 1.5;
+    transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+.coach-workout-types-field > #id_workout_types > div > div > label:hover {
+    transform: translateY(-2px);
+    border-color: rgba(52, 84, 209, 0.42);
+    box-shadow: 0 8px 18px rgba(52, 84, 209, 0.1);
+}
+.coach-workout-types-field > #id_workout_types > div > div > label::before {
+    content: "";
+    flex: 0 0 auto;
+    width: 20px;
+    height: 20px;
+    border: 2px solid rgba(148, 163, 184, 0.68);
+    border-radius: 7px;
+    background: transparent;
+    transition: border-color 180ms ease, background-color 180ms ease, transform 180ms ease;
+}
+.coach-workout-types-field > #id_workout_types > div > div > label::after {
+    content: "✓";
+    position: absolute;
+    inset-inline-start: 17px;
+    top: 50%;
+    color: #fff;
+    font-size: 0.78rem;
+    font-weight: 900;
+    opacity: 0;
+    transform: translateY(-50%) scale(0.5);
+    transition: opacity 180ms ease, transform 180ms ease;
+}
+.coach-workout-types-field > #id_workout_types > div > div > label:focus-within {
+    outline: 3px solid rgba(52, 84, 209, 0.16);
+    outline-offset: 2px;
+}
+.coach-workout-types-field > #id_workout_types > div > div > label.is-selected {
+    border-color: rgba(52, 84, 209, 0.52);
+    background: linear-gradient(135deg, rgba(52, 84, 209, 0.12), rgba(45, 212, 191, 0.09));
+    box-shadow: 0 10px 22px rgba(52, 84, 209, 0.14);
+    color: var(--account-brand-dark, #2f4ecc);
+    transform: translateY(-2px);
+}
+.coach-workout-types-field > #id_workout_types > div > div > label.is-selected::before {
+    border-color: var(--account-brand, #3454d1);
+    background: var(--account-brand, #3454d1);
+    transform: scale(1.08);
+}
+.coach-workout-types-field > #id_workout_types > div > div > label.is-selected::after {
+    opacity: 1;
+    transform: translateY(-50%) scale(1);
+}
+.coach-workout-types-field > #id_workout_types > div > div > label > input[type="checkbox"] {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    cursor: pointer;
+    opacity: 0;
+    appearance: none;
+}
+.dark .account-dashboard .coach-workout-types-field > #id_workout_types > div {
+    border-color: rgba(148, 163, 184, 0.28);
+    background: rgba(15, 23, 42, 0.38);
+}
+.dark .account-dashboard .coach-workout-types-field > #id_workout_types > div > div > label {
+    border-color: rgba(148, 163, 184, 0.28);
+    background: rgba(15, 23, 42, 0.68);
+    color: #f8fafc;
+}
+.dark .account-dashboard .coach-workout-types-field > #id_workout_types > div > div > label.is-selected {
+    border-color: rgba(125, 211, 252, 0.54);
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.26), rgba(45, 212, 191, 0.14));
+    color: #e0f2fe;
+}
+.dark .account-dashboard .coach-workout-types-field > #id_workout_types > div > div > label.is-selected::before {
+    border-color: #60a5fa;
+    background: #3b82f6;
+}
+.coach-fieldset__hint {
+    margin: 0;
+    font-size: 0.76rem;
+    color: var(--account-muted, #6b7280);
+}
+.coach-equipment-field {
+    display: grid;
+    gap: 8px;
+}
+.coach-equipment-field__label {
+    color: var(--account-text, #111827);
+    font-size: 0.88rem;
+    font-weight: 800;
+}
+.coach-equipment-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+    gap: 8px;
+}
+.coach-equipment-option {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    min-width: 0;
+    min-height: 44px;
+    padding: 9px 11px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 12px;
+    background: var(--account-surface, #fff);
+    color: var(--account-text, #111827);
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 750;
+}
+.coach-equipment-option input {
+    flex: 0 0 auto;
+    width: 17px;
+    height: 17px;
+    accent-color: var(--account-brand, #3454d1);
+}
+.dark .account-dashboard .coach-equipment-option {
+    border-color: rgba(148, 163, 184, 0.28);
+    background: rgba(15, 23, 42, 0.68);
+    color: #f8fafc;
+}
+.coach-measure-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 12px;
+}
+.coach-measure-grid--pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.coach-measure-field {
+    display: grid;
+    gap: 6px;
+    min-width: 0;
+}
+.coach-measure-field label {
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+.coach-req {
+    color: #ef4444;
+}
+.coach-check-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+.coach-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.86rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+@media (max-width: 640px) {
+    .coach-workout-types-field > #id_workout_types {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .coach-workout-types-field > #id_workout_types > div {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 7px;
+    }
+    .coach-workout-types-field > #id_workout_types > div > div > label {
+        min-height: 58px;
+        padding: 10px;
+        font-size: 0.76rem;
+    }
+}
+
+@media (min-width: 901px) {
+    .account-dashboard .account-app__layout--coach {
+        grid-template-columns: 240px minmax(0, 1fr);
+        gap: 24px;
+        align-items: start;
+    }
+
+    .account-dashboard .account-app__layout--coach .admin-app__sidebar {
+        display: block;
+        position: sticky;
+        top: 96px;
+    }
+}
+
+@media (max-width: 900px) {
+    .account-dashboard .account-app__layout--coach {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .account-dashboard .account-app__layout--coach .admin-app__sidebar {
+        display: none;
+    }
+}
+
+/* Personal coach tools, staff record readability, and wider review workspaces. */
+
+.admin-dashboard .admin-workout-records {
+    color: #172033;
+}
+
+.admin-dashboard .admin-workout-records .admin-collapsible__summary {
+    color: #172033;
+}
+
+.dark .admin-dashboard .admin-workout-records {
+    border-color: rgba(148, 163, 184, .28);
+    background:
+        linear-gradient(145deg, rgba(125, 211, 252, .08), transparent 42%),
+        rgba(15, 23, 42, .88);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, .3);
+    color: #e2e8f0;
+}
+
+.dark .admin-dashboard .admin-workout-records .admin-collapsible__summary,
+.dark .admin-dashboard .admin-workout-records .admin-collapsible__summary h2,
+.dark .admin-dashboard .admin-workout-records .admin-workout-records__header h2 {
+    color: #f1f5f9;
+}
+
+.dark .admin-dashboard .admin-workout-records .admin-section-eyebrow,
+.dark .admin-dashboard .admin-workout-records .admin-workout-records__count,
+.dark .admin-dashboard .admin-workout-records .admin-workout-records__filter label {
+    color: #a5b4fc;
+}
+
+.dark .admin-dashboard .admin-workout-records .admin-workout-records__table th,
+.dark .admin-dashboard .admin-workout-records .admin-workout-records__table td {
+    border-color: rgba(148, 163, 184, .2);
+    color: #dbe4f0;
+}
+
+.dark .admin-dashboard .admin-workout-records .admin-workout-records__table th {
+    background: rgba(30, 41, 59, .78);
+    color: #cbd5e1;
+}
+
+.dark .admin-dashboard .admin-workout-records .admin-input {
+    border-color: rgba(148, 163, 184, .28);
+    background: rgba(2, 6, 23, .58);
+    color: #f1f5f9;
+    color-scheme: dark;
+}
+
+.dark .admin-dashboard .admin-coach-mood-panel .admin-mood-table th,
+.dark .admin-dashboard .admin-coach-mood-panel .admin-mood-table td {
+    border-color: rgba(148, 163, 184, .2);
+    color: #dbe4f0;
+}
+
+.dark .admin-dashboard .admin-coach-mood-panel .admin-mood-table th {
+    background: rgba(30, 41, 59, .78);
+    color: #cbd5e1;
+}
+
+.dark .account-dashboard .account-app__layout--coach .admin-sidebar-nav__item {
+    color: #b6c2d4;
+}
+
+.dark .account-dashboard .account-app__layout--coach .admin-sidebar-nav__item:hover {
+    background: rgba(148, 163, 184, .1);
+    color: #f1f5f9;
+}
+
+.dark .account-dashboard .account-app__layout--coach .admin-sidebar-nav__item.is-active {
+    background: rgba(96, 125, 255, .2);
+    color: #dbeafe;
+}
+
+.dark .account-dashboard .account-app__layout--coach .admin-sidebar-nav__footer {
+    border-color: rgba(148, 163, 184, .2);
+}
+
+.dark .account-dashboard .admin-bottom-nav {
+    border-color: rgba(148, 163, 184, .18);
+    background: rgba(15, 23, 42, .94);
+}
+
+.dark .account-dashboard .admin-bottom-nav__item,
+.dark .account-dashboard .admin-bottom-nav__submenu-item {
+    color: #b6c2d4;
+}
+
+.dark .account-dashboard .admin-bottom-nav__item.is-active,
+.dark .account-dashboard .admin-bottom-nav__submenu-item.is-active {
+    color: #dbeafe;
+}
+
+.dark .account-dashboard .admin-bottom-nav__submenu {
+    border-color: rgba(148, 163, 184, .2);
+    background: rgba(15, 23, 42, .98);
+}
+
+/* The third analysis section is the nutrition guidance panel. */
+.dark .account-dashboard .analysis-nutrition-panel {
+    border: 1px solid rgba(125, 211, 252, .25);
+    background:
+        radial-gradient(circle at 8% 0%, rgba(34, 211, 238, .14), transparent 34%),
+        linear-gradient(145deg, rgba(30, 41, 59, .96), rgba(15, 23, 42, .94));
+    box-shadow: 0 24px 55px rgba(2, 6, 23, .34);
+    color: #f8fafc;
+}
+
+.dark .account-dashboard .analysis-nutrition-panel h3,
+.dark .account-dashboard .analysis-nutrition-panel__intro p,
+.dark .account-dashboard .analysis-nutrition-panel .analysis-kicker,
+.dark .account-dashboard .analysis-nutrition-note {
+    color: #e2e8f0;
+}
+
+.dark .account-dashboard .analysis-nutrition-panel__icon {
+    border-color: rgba(103, 232, 249, .3);
+    background: rgba(8, 145, 178, .2);
+    color: #a5f3fc;
+}
+
+.dark .account-dashboard .analysis-nutrition-card {
+    border-color: rgba(148, 163, 184, .26);
+    background: linear-gradient(145deg, rgba(51, 65, 85, .72), rgba(15, 23, 42, .84));
+    box-shadow: inset 0 1px rgba(255, 255, 255, .04);
+}
+
+.dark .account-dashboard .analysis-nutrition-card__label,
+.dark .account-dashboard .analysis-nutrition-card small,
+.dark .account-dashboard .analysis-nutrition-card__hint {
+    color: #cbd5e1;
+}
+
+.dark .account-dashboard .analysis-nutrition-card strong {
+    color: #f8fafc;
+}
+
+.dark .admin-dashboard .admin-health-screen .admin-screen__title,
+.dark .admin-dashboard .admin-health-screen .admin-screen__lead,
+.dark .admin-dashboard .admin-health-screen .admin-form-panel h2,
+.dark .admin-dashboard .admin-health-screen .admin-program-card__head p,
+.dark .admin-dashboard .admin-health-screen .field-group label,
+.dark .admin-dashboard .admin-health-screen .field-group small,
+.dark .admin-dashboard .admin-health-record__meta,
+.dark .admin-dashboard .admin-health-record p,
+.dark .admin-dashboard .admin-health-record small {
+    color: #d1dae8;
+}
+
+.dark .admin-dashboard .admin-health-screen .admin-form-panel {
+    border-color: rgba(148, 163, 184, .26);
+    background:
+        linear-gradient(145deg, rgba(125, 211, 252, .07), transparent 42%),
+        rgba(15, 23, 42, .88);
+    box-shadow: 0 18px 42px rgba(0, 0, 0, .28);
+    color: #e2e8f0;
+}
+
+.dark .admin-dashboard .admin-health-screen .admin-form-panel h2,
+.dark .admin-dashboard .admin-health-screen .admin-health-record h3 {
+    color: #f8fafc;
+}
+
+.dark .admin-dashboard .admin-health-screen .admin-health-record__category {
+    color: #93b4ff;
+}
+
+.dark .admin-dashboard .admin-health-screen .admin-form-grid input,
+.dark .admin-dashboard .admin-health-screen .admin-form-grid select,
+.dark .admin-dashboard .admin-health-screen .admin-form-grid textarea {
+    border-color: rgba(148, 163, 184, .28);
+    background: rgba(2, 6, 23, .58);
+    color: #f1f5f9;
+    color-scheme: dark;
+}
+
+.dark .admin-dashboard .admin-health-screen .admin-health-record {
+    border-color: rgba(148, 163, 184, .22);
+    background: rgba(2, 6, 23, .42);
+}
+
+.dark .admin-dashboard .admin-health-screen .admin-mood-table th,
+.dark .admin-dashboard .admin-health-screen .admin-mood-table td {
+    border-color: rgba(148, 163, 184, .2);
+    color: #dbe4f0;
+}
+
+.dark .admin-dashboard .admin-health-screen .admin-mood-table th {
+    background: rgba(30, 41, 59, .78);
+    color: #cbd5e1;
+}
+
+.dark .admin-dashboard .admin-health-screen .admin-empty {
+    color: #cbd5e1;
+}
+
+.admin-coach-self-service {
+    display: grid;
+    grid-template-columns: minmax(0, 1.45fr) minmax(280px, .75fr);
+    align-items: start;
+    gap: 16px;
+    margin-block: 8px 22px;
+}
+
+.admin-coach-self-service > section {
+    min-width: 0;
+    align-content: start;
+}
+
+.admin-coach-self-service__heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.admin-coach-self-service__heading p {
+    margin: 5px 0 0;
+    color: #64748b;
+    font-size: .8rem;
+    line-height: 1.8;
+}
+
+.admin-coach-mood-form {
+    display: grid;
+    gap: 13px;
+}
+
+.admin-coach-mood-form__scores,
+.admin-coach-mood-form__heart-rate {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.admin-coach-mood-form__date {
+    max-width: 260px;
+}
+
+.admin-coach-mood-form .field-group {
+    display: grid;
+    align-content: start;
+    gap: 5px;
+    min-width: 0;
+}
+
+.admin-coach-mood-form .field-group label {
+    color: #475569;
+    font-size: .78rem;
+    font-weight: 800;
+}
+
+.admin-coach-mood-form .field-group small {
+    color: #64748b;
+    font-size: .7rem;
+    line-height: 1.6;
+}
+
+.admin-coach-mood-form input {
+    width: 100%;
+    min-width: 0;
+}
+
+.admin-coach-mood-panel__charts {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    padding-top: 8px;
+}
+
+.admin-coach-mood-panel__charts .mood-chart-wrap {
+    height: 250px;
+}
+
+.admin-coach-purchases__list {
+    display: grid;
+    gap: 10px;
+}
+
+.admin-coach-purchase-order {
+    display: grid;
+    gap: 9px;
+    padding: 13px;
+    border: 1px solid rgba(148, 163, 184, .2);
+    border-radius: 15px;
+    background: rgba(248, 250, 252, .72);
+}
+
+.admin-coach-purchase-order__meta {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 6px 12px;
+    color: #64748b;
+    font-size: .72rem;
+}
+
+.admin-coach-purchase-order__meta strong {
+    color: #334155;
+}
+
+.admin-coach-purchase-order__courses {
+    display: grid;
+    gap: 7px;
+}
+
+.admin-coach-purchase-order__courses a,
+.admin-coach-purchases .admin-empty a {
+    color: #3454d1;
+    font-size: .82rem;
+    font-weight: 850;
+    text-decoration: none;
+}
+
+.admin-body-map__image {
+    display: block;
+    width: min(100%, 280px);
+    max-height: 460px;
+    object-fit: contain;
+    border-radius: 16px;
+}
+
+.dark .admin-dashboard .admin-coach-self-service__heading p,
+.dark .admin-dashboard .admin-coach-mood-form .field-group label,
+.dark .admin-dashboard .admin-coach-mood-form .field-group small,
+.dark .admin-dashboard .admin-coach-purchase-order__meta {
+    color: #cbd5e1;
+}
+
+.dark .admin-dashboard .admin-coach-purchase-order {
+    border-color: rgba(148, 163, 184, .24);
+    background: rgba(2, 6, 23, .4);
+}
+
+.dark .admin-dashboard .admin-coach-purchase-order__meta strong {
+    color: #f1f5f9;
+}
+
+.dark .admin-dashboard .admin-coach-purchase-order__courses a,
+.dark .admin-dashboard .admin-coach-purchases .admin-empty a {
+    color: #a5b4fc;
+}
+
+.dark .admin-dashboard .admin-body-map__image {
+    background: rgba(2, 6, 23, .35);
+}
+
+@media (min-width: 901px) {
+    .admin-dashboard .admin-screen.admin-training-queue-screen,
+    .admin-dashboard .admin-screen.admin-health-screen {
+        width: min(1120px, calc(100vw - 300px));
+        min-width: 610px;
+        max-width: 1200px;
+        padding-inline: 26px;
+    }
+}
+
+@media (max-width: 900px) {
+    .admin-dashboard .admin-screen.admin-training-queue-screen,
+    .admin-dashboard .admin-screen.admin-health-screen {
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+        margin-inline: 0;
+    }
+
+    .admin-coach-self-service {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 640px) {
+    .admin-coach-mood-form__scores,
+    .admin-coach-mood-form__heart-rate,
+    .admin-coach-mood-panel__charts {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .admin-coach-mood-form__date {
+        max-width: none;
+    }
+
+    .admin-coach-mood-panel__charts .mood-chart-wrap {
+        height: 260px;
+    }
+}
+.coach-dropzone {
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+    text-align: center;
+    padding: 22px;
+    border: 2px dashed var(--account-border, rgba(209, 213, 219, 0.95));
+    border-radius: 16px;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+}
+.coach-dropzone:hover {
+    border-color: var(--account-brand, #3454d1);
+    background: rgba(52, 84, 209, 0.04);
+}
+.coach-dropzone__icon {
+    font-size: 1.6rem;
+    color: var(--account-brand, #3454d1);
+}
+.coach-dropzone__title {
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+.coach-dropzone__hint {
+    font-size: 0.76rem;
+    color: var(--account-muted, #6b7280);
+}
+.coach-dropzone input[type="file"] {
+    display: none;
+}
+.coach-file-chips {
+    list-style: none;
+    margin: 10px 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.coach-file-chip {
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 999px;
+    background: rgba(52, 84, 209, 0.08);
+    border: 1px solid rgba(52, 84, 209, 0.18);
+    color: #334155;
+}
+.coach-file-chip.is-invalid {
+    background: rgba(239, 68, 68, 0.1);
+    border-color: rgba(239, 68, 68, 0.3);
+    color: #b91c1c;
+}
+.coach-attachments {
+    margin-top: 12px;
+}
+.coach-attachments__title {
+    font-size: 0.8rem;
+    font-weight: 800;
+    color: var(--account-muted, #6b7280);
+}
+.coach-attachments__list {
+    list-style: none;
+    margin: 8px 0 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.coach-attachments__list a {
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 5px 12px;
+    border-radius: 10px;
+    background: rgba(52, 84, 209, 0.08);
+    color: var(--account-brand, #3454d1);
+    text-decoration: none;
+}
+.coach-actions {
+    display: flex;
+    justify-content: flex-start;
+}
+.coach-submit-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 50px;
+    padding: 0 28px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    box-shadow: 0 14px 30px rgba(52, 84, 209, 0.3);
+    border-radius: 12px;
+    color: white;
+    background: linear-gradient(135deg, #3454d1 0%, #2f4ecc 55%, #14b8a6 140%);
+}
+.field-hint {
+    font-size: 0.74rem;
+    color: var(--account-muted, #6b7280);
+}
+
+/* admin coach-request detail */
+.coach-req-body__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin: 8px 0;
+}
+.coach-req-body__chips span {
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 14%);
+    border: 1px solid rgba(52, 84, 209, 0.16);
+    color: #0aabdd;
+}
+.coach-req-files {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+    font-size: 0.76rem;
+}
+.coach-req-files__item {
+    width: 26px;
+    height: 26px;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    background: rgba(52, 84, 209, 0.1);
+    color: var(--account-brand, #3454d1);
+    font-weight: 800;
+    text-decoration: none;
+}
+.coach-req-pushed {
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #16a34a;
+}
+
+/* --- 3 + new components: dark mode --- */
+.dark .account-dashboard .profile-panel-card,
+.dark .account-dashboard .dashboard-feed-banner,
+.dark .account-dashboard .dashboard-course-card,
+.dark .account-dashboard .dashboard-courses__empty,
+.dark .account-dashboard .analysis-stat-card,
+.dark .account-dashboard .analysis-gauge-card,
+.dark .account-dashboard .analysis-panel--explorer,
+.dark .account-dashboard .analysis-metric-explorer,
+.dark .account-dashboard .analysis-datepicker,
+.dark .account-dashboard .analysis-result-tile,
+.dark .account-dashboard .analysis-chart-box,
+.dark .account-dashboard .analysis-table-card,
+.dark .account-dashboard .analysis-smart-goal,
+.dark .account-dashboard .analysis-smart-goal__metric,
+.dark .account-dashboard .analysis-smart-goal__chart,
+.dark .account-dashboard .analysis-smart-goal__history .analysis-table-card,
+.dark .account-dashboard .analysis-trend-select,
+.dark .account-dashboard .coach-fieldset {
+    background:
+        linear-gradient(145deg, rgba(125, 211, 252, 0.1), transparent 38%),
+        rgba(15, 23, 42, 0.72);
+    border-color: rgba(148, 163, 184, 0.28);
+    color: #f8fafc;
+}
+.dark .account-dashboard .dashboard-feed-banner--birthday {
+    background:
+        linear-gradient(135deg, rgba(251, 191, 36, 0.18), rgba(236, 72, 153, 0.16)),
+        rgba(15, 23, 42, 0.72);
+    border-color: rgba(236, 72, 153, 0.4);
+}
+.dark .account-dashboard .dashboard-feed-banner__action {
+    color: #93c5fd;
+}
+.dark .account-dashboard .dashboard-feed-banner__body p,
+.dark .account-dashboard .dashboard-course-card__meta,
+.dark .account-dashboard .dashboard-courses__link,
+.dark .account-dashboard .analysis-stat-card__label,
+.dark .account-dashboard .analysis-stat-card__unit,
+.dark .account-dashboard .analysis-gauge-card__title,
+.dark .account-dashboard .analysis-explorer-head span,
+.dark .account-dashboard .analysis-chart-box > span,
+.dark .account-dashboard .analysis-table thead th,
+.dark .account-dashboard .analysis-result-tile__label,
+.dark .account-dashboard .analysis-result-tile__value small,
+.dark .account-dashboard .analysis-smart-goal__intro p,
+.dark .account-dashboard .analysis-smart-goal__metric-head > span,
+.dark .account-dashboard .analysis-smart-goal__metric-head small,
+.dark .account-dashboard .analysis-smart-goal__progress-label,
+.dark .account-dashboard .analysis-smart-goal__timeline-head > span,
+.dark .account-dashboard .analysis-smart-goal__chart > span,
+.dark .account-dashboard .analysis-smart-goal__note,
+.dark .account-dashboard .analysis-metric-explorer__empty,
+.dark .account-dashboard .field-hint,
+.dark .account-dashboard .coach-fieldset__hint,
+.dark .account-dashboard .coach-dropzone__hint {
+    color: #cbd5e1;
+}
+.dark .account-dashboard .analysis-smart-goal__metric-values strong {
+    color: #f8fafc;
+}
+.dark .account-dashboard .analysis-smart-goal__metric-values b {
+    color: #93b4ff;
+}
+.dark .account-dashboard .analysis-smart-goal__badge {
+    background: rgba(96, 165, 250, 0.18);
+    color: #bfdbfe;
+}
+.dark .account-dashboard .analysis-table th,
+.dark .account-dashboard .analysis-table td {
+    border-color: rgba(148, 163, 184, 0.22);
+}
+.dark .account-dashboard .dashboard-course-card__thumb {
+    background: rgba(2, 6, 23, 0.55);
+}
+.dark .account-dashboard .coach-edit-banner {
+    background: rgba(125, 211, 252, 0.1);
+    border-color: rgba(125, 211, 252, 0.22);
+    color: #e2e8f0;
+}
+.dark .account-dashboard .coach-dropzone {
+    border-color: rgba(148, 163, 184, 0.4);
+}
+.dark .account-dashboard .coach-dropzone:hover {
+    background: rgba(125, 211, 252, 0.06);
+}
+.dark .account-dashboard .coach-file-chip,
+.dark .account-dashboard .coach-attachments__list a,
+.dark .account-dashboard .coach-req-body__chips span,
+.dark .account-dashboard .coach-req-files__item {
+    background: rgba(125, 211, 252, 0.1);
+    border-color: rgba(125, 211, 252, 0.2);
+    color: #cbd5e1;
+}
+.dark .account-dashboard .text-slate-900,
+.dark .account-dashboard .text-emerald-600 {
+    color: #f8fafc;
+}
+.dark .account-dashboard .text-slate-500 {
+    color: #cbd5e1;
+}
+
+/* ============================================================================
+   Task 7 — dark-mode readability sweep for courses / financial / comments
+   (and every other account page). The `--account-*` tokens were only ever
+   defined for light mode, so muted text stayed mid-grey and any card relying
+   on the token fallback stayed white. Redefine the tokens once in the dark
+   account scope, then patch the few elements that hardcode light colours.
+   ========================================================================= */
+.dark .account-dashboard {
+    --account-surface: rgba(15, 23, 42, 0.72);
+    --account-muted: #cbd5e1;
+    --account-border: rgba(148, 163, 184, 0.28);
+    --account-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+}
+
+/* Lead / muted copy and timeline rows */
+.dark .account-dashboard .profile-screen__lead,
+.dark .account-dashboard .timeline-item p,
+.dark .account-dashboard .timeline-item span,
+.dark .account-dashboard .account-list-item__meta,
+.dark .account-dashboard .empty-state p {
+    color: #cbd5e1;
+}
+.dark .account-dashboard .timeline-item strong,
+.dark .account-dashboard .account-list-item__title,
+.dark .account-dashboard .empty-state h3 {
+    color: #f8fafc;
+}
+
+/* Empty-state card had a hardcoded light background */
+.dark .account-dashboard .empty-state {
+    background: rgba(2, 6, 23, 0.5);
+    border-color: rgba(148, 163, 184, 0.3);
+}
+
+/* Status chips: the success variant used dark-green text → invisible on dark */
+.dark .account-dashboard .account-chip {
+    background: rgba(96, 165, 250, 0.16);
+    color: #bfdbfe;
+}
+.dark .account-dashboard .account-chip.is-active {
+    background: rgba(34, 197, 94, 0.2);
+    color: #86efac;
+}
+.dark .account-dashboard .secondary-action {
+    background: rgba(96, 165, 250, 0.16);
+    color: #bfdbfe;
+}
+
+/* Brand-coloured text on dark cards (low contrast in dark) */
+.dark .account-dashboard .analysis-gauge-card__cat,
+.dark .account-dashboard .dashboard-courses__link {
+    color: #93b4ff;
+}
+.dark .account-dashboard .analysis-result-tile--neutral .analysis-result-tile__status {
+    background: rgba(96, 165, 250, 0.18);
+    color: #bfdbfe;
+}
+.dark .account-dashboard .analysis-result-tile--good {
+    --tile-accent: #4ade80;
+}
+.dark .account-dashboard .analysis-result-tile--warn {
+    --tile-accent: #fbbf24;
+}
+.dark .account-dashboard .analysis-result-tile--danger {
+    --tile-accent: #f87171;
+}
+
+/* The admin analysis page shares the account dashboard components. */
+.dark .admin-dashboard .admin-analysis-screen {
+    --account-surface: rgba(15, 23, 42, 0.72);
+    --account-muted: #cbd5e1;
+    --account-border: rgba(148, 163, 184, 0.28);
+    --account-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+}
+
+.dark .admin-dashboard .admin-analysis-screen .analysis-stat-card,
+.dark .admin-dashboard .admin-analysis-screen .analysis-gauge-card,
+.dark .admin-dashboard .admin-analysis-screen .analysis-metric-explorer,
+.dark .admin-dashboard .admin-analysis-screen .analysis-datepicker,
+.dark .admin-dashboard .admin-analysis-screen .analysis-result-tile,
+.dark .admin-dashboard .admin-analysis-screen .analysis-chart-box,
+.dark .admin-dashboard .admin-analysis-screen .analysis-table-card,
+.dark .admin-dashboard .admin-analysis-screen .analysis-trend-select {
+    background:
+        linear-gradient(145deg, rgba(125, 211, 252, 0.1), transparent 38%),
+        rgba(15, 23, 42, 0.72);
+    border-color: rgba(148, 163, 184, 0.28);
+    color: #f8fafc;
+}
+
+.dark .admin-dashboard .admin-analysis-screen .analysis-stat-card__label,
+.dark .admin-dashboard .admin-analysis-screen .analysis-stat-card__unit,
+.dark .admin-dashboard .admin-analysis-screen .analysis-gauge-card__title,
+.dark .admin-dashboard .admin-analysis-screen .analysis-gauge-bar__labs,
+.dark .admin-dashboard .admin-analysis-screen .analysis-chart-box > span,
+.dark .admin-dashboard .admin-analysis-screen .analysis-table thead th,
+.dark .admin-dashboard .admin-analysis-screen .analysis-result-tile__label,
+.dark .admin-dashboard .admin-analysis-screen .analysis-result-tile__value small,
+.dark .admin-dashboard .admin-analysis-screen .analysis-metric-explorer__empty {
+    color: #cbd5e1;
+}
+
+.dark .admin-dashboard .admin-analysis-screen .analysis-explorer-head strong,
+.dark .admin-dashboard .admin-analysis-screen .analysis-table-card h3 {
+    color: #f8fafc;
+}
+
+.dark .admin-dashboard .admin-analysis-screen .analysis-table th,
+.dark .admin-dashboard .admin-analysis-screen .analysis-table td {
+    border-color: rgba(148, 163, 184, 0.22);
+}
+
+.dark .admin-dashboard .admin-analysis-screen .analysis-trend-select {
+    color: #f8fafc;
+}
+
+.dark .admin-dashboard .admin-analysis-screen .analysis-gauge-card__cat {
+    color: #93b4ff;
+}
+
+.dark .admin-dashboard .admin-analysis-screen .analysis-result-tile--neutral .analysis-result-tile__status {
+    background: rgba(96, 165, 250, 0.18);
+    color: #bfdbfe;
+}
+
+.dark .admin-dashboard .admin-analysis-screen .analysis-result-tile--good {
+    --tile-accent: #4ade80;
+}
+
+.dark .admin-dashboard .admin-analysis-screen .analysis-result-tile--warn {
+    --tile-accent: #fbbf24;
+}
+
+.dark .admin-dashboard .admin-analysis-screen .analysis-result-tile--danger {
+    --tile-accent: #f87171;
+}
+
+/* ---------------------------------------------------------------------------
+   Profile course cards, avatar upload, coach wizard, workout inline feedback,
+   exercise performance chart and episode downloads.
+   --------------------------------------------------------------------------- */
+
+.profile-course-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+}
+
+.account-app .profile-course-card {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden;
+    border-radius: 26px;
+    transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+}
+
+.account-app .profile-course-card:hover,
+.account-app .profile-course-card:focus-within {
+    transform: translateY(-4px);
+    border-color: rgba(52, 84, 209, 0.28);
+    box-shadow: 0 30px 70px rgba(15, 23, 42, 0.14);
+}
+
+.profile-course-card__media {
+    position: relative;
+    display: block;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(52, 84, 209, 0.16), rgba(14, 165, 164, 0.14));
+}
+
+.profile-course-card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 420ms ease;
+}
+
+.profile-course-card:hover .profile-course-card__media img {
+    transform: scale(1.05);
+}
+
+.profile-course-card__media-glow {
+    position: absolute;
+    inset: auto 0 0;
+    height: 55%;
+    background: linear-gradient(180deg, transparent, rgba(2, 6, 23, 0.55));
+    pointer-events: none;
+}
+
+.profile-course-card__media-badge {
+    position: absolute;
+    top: 14px;
+    inset-inline-start: 14px;
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    color: #1d4ed8;
+    font-size: 0.78rem;
+    font-weight: 800;
+    backdrop-filter: blur(8px);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.16);
+}
+
+.profile-course-card__media-badge.is-free {
+    color: #047857;
+}
+
+.profile-course-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 18px 20px 20px;
+}
+
+.profile-course-card__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.profile-course-card__dot {
+    width: 7px;
+    height: 7px;
+    margin-inline-end: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.12);
+}
+
+.profile-course-card__title {
+    margin: 0;
+    font-size: 1.12rem;
+    font-weight: 900;
+    line-height: 1.5;
+    color: hsl(var(--foreground));
+}
+
+.profile-course-card__author {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin: 0;
+    color: hsl(var(--muted));
+    font-size: 0.86rem;
+    font-weight: 600;
+}
+
+.profile-course-card__footer {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap-reverse;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 4px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.profile-course-card__price {
+    color: hsl(var(--foreground));
+    font-size: 0.98rem;
+    font-weight: 900;
+}
+
+.profile-course-card__price.is-free {
+    color: #059669;
+}
+
+.profile-course-card__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 0 16px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #3454d1, #2f4ecc);
+    color: #fff;
+    font-size: 0.86rem;
+    font-weight: 800;
+    text-decoration: none;
+    box-shadow: 0 12px 26px rgba(52, 84, 209, 0.28);
+    transition: transform 180ms ease, box-shadow 180ms ease;
+}
+
+.profile-course-card__cta:hover,
+.profile-course-card__cta:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 34px rgba(52, 84, 209, 0.34);
+    color: #fff;
+}
+
+.profile-course-card__cta-arrow {
+    transition: transform 180ms ease;
+}
+
+.profile-course-card__cta:hover .profile-course-card__cta-arrow {
+    transform: translateX(-3px);
+}
+
+.dark .profile-course-card__title,
+.dark .profile-course-card__price {
+    color: #f8fafc;
+}
+
+.dark .profile-course-card__author {
+    color: #94a3b8;
+}
+
+.dark .profile-course-card__media-badge {
+    background: rgba(15, 23, 42, 0.86);
+    color: #bfdbfe;
+}
+
+.dark .profile-course-card__media-badge.is-free {
+    color: #6ee7b7;
+}
+
+/* Avatar upload block */
+.profile-avatar-field {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.profile-avatar-field__label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+}
+
+.profile-avatar-field__row {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    padding: 16px;
+    border: 1px dashed rgba(52, 84, 209, 0.32);
+    border-radius: 22px;
+    background: linear-gradient(135deg, rgba(239, 246, 255, 0.7), rgba(236, 253, 245, 0.55));
+}
+
+.profile-avatar-field__preview {
+    width: 84px;
+    height: 84px;
+    flex: 0 0 auto;
+    overflow: hidden;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.16);
+}
+
+.profile-avatar-field__preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-avatar-field__copy {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.profile-avatar-field__button {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    align-self: flex-start;
+    min-height: 40px;
+    padding: 0 16px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid rgba(52, 84, 209, 0.24);
+    color: hsl(var(--primary));
+    font-size: 0.86rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background-color 160ms ease, transform 160ms ease;
+}
+
+.profile-avatar-field__button:hover,
+.profile-avatar-field__button:focus-visible {
+    background: rgba(52, 84, 209, 0.06);
+    transform: translateY(-1px);
+}
+
+.profile-avatar-field__input {
+    display: none;
+}
+
+.profile-avatar-field__filename {
+    color: hsl(var(--primary));
+    font-size: 0.8rem;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.dark .profile-avatar-field__row {
+    background: rgba(15, 23, 42, 0.6);
+    border-color: rgba(96, 165, 250, 0.32);
+}
+
+.dark .profile-avatar-field__preview {
+    background: rgba(2, 6, 23, 0.6);
+}
+
+.dark .profile-avatar-field__button {
+    background: rgba(15, 23, 42, 0.8);
+    border-color: rgba(96, 165, 250, 0.32);
+    color: #bfdbfe;
+}
+
+/* Workout inline record feedback */
+.workout-performance-form {
+    position: relative;
+}
+
+.workout-performance-feedback {
+    display: none;
+    margin-top: 14px;
+    padding: 14px 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(220, 38, 38, 0.24);
+    background: rgba(254, 242, 242, 0.9);
+    color: #991b1b;
+    font-size: 0.88rem;
+    font-weight: 600;
+}
+
+.workout-performance-feedback.is-visible {
+    display: block;
+}
+
+.workout-performance-feedback.is-success {
+    border-color: rgba(22, 163, 74, 0.28);
+    background: rgba(236, 253, 245, 0.92);
+    color: #166534;
+}
+
+.workout-performance-feedback__title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-weight: 900;
+}
+
+.workout-performance-feedback ul {
+    margin: 0;
+    padding-inline-start: 18px;
+    display: grid;
+    gap: 4px;
+}
+
+.workout-record-input input.is-invalid {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.14);
+}
+
+.workout-performance-submit.is-loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.dark .workout-performance-feedback {
+    background: rgba(127, 29, 29, 0.24);
+    border-color: rgba(248, 113, 113, 0.32);
+    color: #fecaca;
+}
+
+.dark .workout-performance-feedback.is-success {
+    background: rgba(6, 78, 59, 0.28);
+    border-color: rgba(74, 222, 128, 0.3);
+    color: #bbf7d0;
+}
+
+/* Coach request wizard */
+.coach-wizard {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.coach-wizard__progress {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(239, 246, 255, 0.9), rgba(236, 253, 245, 0.7));
+    border: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.coach-wizard__track {
+    flex: 1;
+    height: 8px;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.24);
+    overflow: hidden;
+}
+
+.coach-wizard__bar {
+    height: 100%;
+    width: 0;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #3454d1, #0ea5a4);
+    transition: width 260ms ease;
+}
+
+.coach-wizard__counter {
+    font-size: 0.82rem;
+    font-weight: 800;
+    color: hsl(var(--primary));
+    white-space: nowrap;
+}
+
+.coach-wizard__step {
+    display: none;
+    animation: coachStepIn 240ms ease;
+}
+
+.coach-wizard__step.is-active {
+    display: block;
+}
+
+@keyframes coachStepIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.coach-wizard__step-head {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 12px;
+}
+
+.coach-wizard__step-head strong {
+    font-size: 1.02rem;
+    font-weight: 900;
+    color: hsl(var(--foreground));
+}
+
+.coach-wizard__step-head span {
+    font-size: 0.84rem;
+    color: hsl(var(--muted));
+}
+
+.coach-wizard__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 6px;
+}
+
+.coach-wizard__nav-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.coach-wizard__back,
+.coach-wizard__next,
+.coach-wizard__submit {
+    min-height: 46px;
+    padding: 0 22px;
+    border-radius: 14px;
+    border: 0;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 160ms ease, box-shadow 160ms ease, background-color 160ms ease;
+}
+
+.coach-wizard__back {
+    background: rgba(148, 163, 184, 0.16);
+    color: hsl(var(--foreground));
+}
+
+.coach-wizard__next,
+.coach-wizard__submit {
+    background: linear-gradient(135deg, #3454d1, #2f4ecc);
+    color: #fff;
+    box-shadow: 0 14px 30px rgba(52, 84, 209, 0.28);
+}
+
+.coach-wizard__next:hover,
+.coach-wizard__submit:hover,
+.coach-wizard__back:hover {
+    transform: translateY(-2px);
+}
+
+.coach-wizard__next[hidden],
+.coach-wizard__back[hidden],
+.coach-wizard__submit[hidden] {
+    display: none;
+}
+
+.coach-wizard__error {
+    display: none;
+    margin-top: 10px;
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: rgba(254, 242, 242, 0.92);
+    border: 1px solid rgba(220, 38, 38, 0.22);
+    color: #991b1b;
+    font-size: 0.84rem;
+    font-weight: 700;
+}
+
+.coach-wizard__error.is-visible {
+    display: block;
+}
+
+.coach-wizard .field-group.is-invalid input,
+.coach-wizard .field-group.is-invalid select,
+.coach-wizard .field-group.is-invalid textarea {
+    border-color: #dc2626 !important;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+.dark .coach-wizard__progress {
+    background: rgba(15, 23, 42, 0.6);
+    border-color: rgba(148, 163, 184, 0.24);
+}
+
+.dark .coach-wizard__step-head strong {
+    color: #f8fafc;
+}
+
+.dark .coach-wizard__back {
+    background: rgba(148, 163, 184, 0.18);
+    color: #e2e8f0;
+}
+
+.dark .coach-wizard__error {
+    background: rgba(127, 29, 29, 0.28);
+    border-color: rgba(248, 113, 113, 0.32);
+    color: #fecaca;
+}
+
+/* Exercise performance chart on the analysis page */
+.analysis-performance-card {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding: 20px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+}
+
+.analysis-performance-card__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.analysis-performance-card__head h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 900;
+    color: hsl(var(--foreground));
+}
+
+.analysis-performance-card__head p {
+    margin: 2px 0 0;
+    font-size: 0.82rem;
+    color: hsl(var(--muted));
+}
+
+.analysis-performance-card__controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.analysis-performance-card__controls label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: hsl(var(--muted));
+}
+
+.analysis-performance-card__controls select {
+    min-height: 42px;
+    min-width: 190px;
+    padding: 0 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.32);
+    background: #fff;
+    color: hsl(var(--foreground));
+    font: inherit;
+    font-size: 0.86rem;
+    font-weight: 700;
+}
+
+.analysis-performance-card__canvas {
+    position: relative;
+    height: 260px;
+}
+
+.analysis-performance-card__empty {
+    padding: 18px;
+    border-radius: 14px;
+    background: rgba(148, 163, 184, 0.1);
+    color: hsl(var(--muted));
+    font-size: 0.86rem;
+    text-align: center;
+}
+
+.dark .analysis-performance-card {
+    background: rgba(2, 6, 23, 0.7);
+    border-color: rgba(148, 163, 184, 0.18);
+}
+
+.dark .analysis-performance-card__head h3,
+.dark .analysis-performance-card__controls select {
+    color: #f8fafc;
+}
+
+.dark .analysis-performance-card__controls select {
+    background: rgba(15, 23, 42, 0.9);
+    border-color: rgba(148, 163, 184, 0.28);
+}
+
+/* Episode downloads */
+.episode-downloads {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 18px;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08);
+}
+
+.episode-downloads__head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.episode-downloads__head strong {
+    font-size: 0.98rem;
+    font-weight: 900;
+    color: hsl(var(--foreground));
+}
+
+.episode-downloads__head span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    background: rgba(52, 84, 209, 0.1);
+    color: hsl(var(--primary));
+    font-size: 1rem;
+}
+
+.episode-downloads__list {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+.episode-download-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: rgba(248, 250, 252, 0.9);
+    color: hsl(var(--foreground));
+    text-decoration: none;
+    transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.episode-download-link:hover,
+.episode-download-link:focus-visible {
+    transform: translateY(-2px);
+    border-color: rgba(52, 84, 209, 0.32);
+    box-shadow: 0 14px 28px rgba(15, 23, 42, 0.1);
+    color: hsl(var(--foreground));
+}
+
+.episode-download-link__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 auto;
+    border-radius: 13px;
+    background: rgba(52, 84, 209, 0.1);
+    color: hsl(var(--primary));
+}
+
+.episode-download-link__copy {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.episode-download-link__name {
+    font-size: 0.88rem;
+    font-weight: 800;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.episode-download-link__meta {
+    font-size: 0.76rem;
+    color: hsl(var(--muted));
+}
+
+.episode-download-link__arrow {
+    margin-inline-start: auto;
+    color: hsl(var(--primary));
+    font-weight: 900;
+}
+
+.dark .episode-downloads {
+    background: rgba(2, 6, 23, 0.7);
+    border-color: rgba(148, 163, 184, 0.18);
+}
+
+.dark .episode-downloads__head strong {
+    color: #f8fafc;
+}
+
+.dark .episode-download-link {
+    background: rgba(15, 23, 42, 0.8);
+    border-color: rgba(148, 163, 184, 0.22);
+    color: #e2e8f0;
+}
+
+.dark .episode-download-link:hover,
+.dark .episode-download-link:focus-visible {
+    color: #f8fafc;
+}
+
+.dark .episode-download-link__meta {
+    color: #94a3b8;
+}
+
+@media (max-width: 640px) {
+    .profile-avatar-field__row {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: start;
+    }
+
+    .coach-wizard__nav {
+        flex-direction: column-reverse;
+        align-items: stretch;
+    }
+
+    .coach-wizard__nav-group {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .coach-wizard__next,
+    .coach-wizard__submit,
+    .coach-wizard__back {
+        width: 100%;
+    }
+
+    .analysis-performance-card__controls,
+    .analysis-performance-card__controls label,
+    .analysis-performance-card__controls select {
+        width: 100%;
+    }
+}
+
+/* Mobile-friendly Jalali birth date picker */
+.birth-date-picker {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.birth-date-picker__label {
+    font-size: 0.88rem;
+    font-weight: 800;
+    color: hsl(var(--foreground));
+}
+
+.birth-date-picker__grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 10px;
+}
+
+.birth-date-picker__control {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: hsl(var(--muted));
+}
+
+.birth-date-picker__control select {
+    width: 100%;
+    min-width: 0;
+    min-height: 48px;
+    padding: 0 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.32);
+    background: #fff;
+    color: hsl(var(--foreground));
+    font: inherit;
+    font-size: 0.95rem;
+    font-weight: 800;
+    text-align: center;
+}
+
+.birth-date-picker__control select:focus-visible {
+    outline: 2px solid rgba(52, 84, 209, 0.45);
+    outline-offset: 2px;
+}
+
+.birth-date-picker__hint {
+    margin: 0;
+    font-size: 0.78rem;
+    color: hsl(var(--muted));
+}
+
+.birth-date-picker__hint.is-error {
+    color: #dc2626;
+    font-weight: 700;
+}
+
+.dark .birth-date-picker__label {
+    color: #f8fafc;
+}
+
+.dark .birth-date-picker__control select {
+    background: rgba(15, 23, 42, 0.9);
+    border-color: rgba(148, 163, 184, 0.3);
+    color: #f8fafc;
+}
+
+@media (max-width: 380px) {
+    .birth-date-picker__grid {
+        gap: 7px;
+    }
+
+    .birth-date-picker__control select {
+        padding: 0 6px;
+        font-size: 0.85rem;
+    }
+}
+
+.dark .admin-dashboard .admin-library-bulk-delete,
+.dark .admin-dashboard .admin-coach-overview,
+.dark .admin-dashboard .admin-coach-search-panel {
+    border-color: rgba(148, 163, 184, .16);
+    background: radial-gradient(circle at 100% 0, rgba(20, 184, 166, .08), transparent 34%), #111b2e;
+    color: #a8b4c7;
+}
+
+.dark .admin-dashboard .admin-library-select,
+.dark .admin-dashboard .admin-coach-card,
+.dark .admin-dashboard .admin-coach-client-card,
+.dark .admin-dashboard .admin-coach-bulk-assign {
+    border-color: rgba(148, 163, 184, .16);
+    background: #172337;
+    color: #cbd5e1;
+}
+
+.dark .admin-dashboard .admin-library-delete-btn {
+    border-color: rgba(248, 113, 113, .36);
+    background: rgba(127, 29, 29, .2);
+    color: #fca5a5;
+}
+
+.dark .admin-dashboard .admin-library-delete-btn:hover,
+.dark .admin-dashboard .admin-library-delete-btn:focus-visible {
+    background: rgba(127, 29, 29, .36);
+}
+
+.dark .admin-dashboard .admin-coach-card__identity strong,
+.dark .admin-dashboard .admin-coach-client-card__identity > div strong,
+.dark .admin-dashboard .admin-coach-bulk-assign summary,
+.dark .admin-dashboard .admin-coach-search-form > label,
+.dark .admin-dashboard .admin-coach-assign-form .field-group label {
+    color: #e2e8f0;
+}
+
+.dark .admin-dashboard .admin-coach-card__identity > div > span,
+.dark .admin-dashboard .admin-coach-client-card__identity > div > span,
+.dark .admin-dashboard .admin-coach-card__bio,
+.dark .admin-dashboard .admin-coach-search-panel > p,
+.dark .admin-dashboard .admin-coach-current {
+    color: #a8b4c7;
+}
+
+.dark .admin-dashboard .admin-coach-card__links a,
+.dark .admin-dashboard .admin-coach-current strong {
+    border-color: rgba(45, 212, 191, .2);
+    background: rgba(15, 118, 110, .16);
+    color: #99f6e4;
+}
+
+.dark .admin-dashboard .admin-coach-search-form .admin-input,
+.dark .admin-dashboard .admin-coach-assign-form .admin-input {
+    border-color: rgba(148, 163, 184, .24);
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+.dark .admin-dashboard .admin-coach-search-empty {
+    border-color: rgba(45, 212, 191, .24);
+    background: rgba(15, 118, 110, .12);
+}
+
+.dark .admin-dashboard .admin-user-summary__name > span {
+    color: #a8b4c7;
+}
+
+.dark .admin-dashboard .admin-user-summary__name strong {
+    color: #f1f5f9;
+}
+
+.dark .admin-dashboard .admin-user-summary__phone {
+    border-color: rgba(129, 140, 248, .22);
+    background: rgba(49, 46, 129, .2);
+    color: #c7d2fe;
+}
+
+.dark .admin-dashboard .admin-user-summary__role {
+    border-color: rgba(45, 212, 191, .2);
+    background: rgba(15, 118, 110, .17);
+    color: #99f6e4;
+}
+
+.dark .admin-dashboard .admin-user-summary__role-assignment {
+    border-color: rgba(129, 140, 248, .22);
+    background: rgba(49, 46, 129, .16);
+}
+
+.dark .admin-dashboard .admin-user-summary__role-assignment select {
+    border-color: rgba(148, 163, 184, .24);
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+.dark .admin-dashboard .admin-user-summary__quick-actions .admin-role-form--admin-toggle .admin-secondary-btn,
+.dark .admin-dashboard .admin-user-summary__quick-actions .admin-user-summary__analysis {
+    border-color: rgba(129, 140, 248, .24);
+    background: rgba(49, 46, 129, .2);
+    color: #c7d2fe;
+}
+
+.dark .admin-dashboard .admin-user-summary__quick-actions .admin-role-form--coach-toggle .admin-secondary-btn {
+    border-color: rgba(45, 212, 191, .22);
+    background: rgba(15, 118, 110, .16);
+    color: #99f6e4;
+}
+
+.dark .admin-dashboard .admin-user-summary__quick-actions .admin-user-summary__delete button {
+    border-color: rgba(248, 113, 113, .3);
+    background: rgba(127, 29, 29, .2);
+    color: #fca5a5;
+}
+
+@media (min-width: 901px) {
+    .admin-dashboard .admin-screen.admin-coach-portal-screen,
+    .admin-dashboard .admin-screen.admin-user-hub-screen {
+        width: min(770px, 100%);
+        max-width: 770px;
+        margin-inline: auto;
+    }
+
+    .admin-dashboard .admin-screen.admin-search-screen {
+        width: min(1110px, 100%);
+    }
+
+    .admin-dashboard .admin-screen.admin-coach-management-screen {
+        width: min(1070px, 100%);
+    }
+
+    .admin-dashboard .admin-screen.admin-library-screen,
+    .admin-dashboard .admin-screen.admin-analytics-screen,
+    .admin-dashboard .admin-screen.admin-coach-applications-screen,
+    .admin-dashboard .admin-screen.admin-exercise-suggestions-screen {
+        width: min(770px, 100%);
+    }
+}
+
+@media (min-width: 901px) {
+    .admin-dashboard .admin-app__content > .admin-screen.admin-main-search-screen,
+    .admin-dashboard .admin-app__content > .admin-screen.admin-clients-screen,
+    .admin-dashboard .admin-app__content > .admin-screen.admin-coach-management-screen,
+    .admin-dashboard .admin-app__content > .admin-screen.admin-library-screen,
+    .admin-dashboard .admin-app__content > .admin-screen.admin-analytics-screen,
+    .admin-dashboard .admin-app__content > .admin-screen.admin-coach-applications-screen,
+    .admin-dashboard .admin-app__content > .admin-screen.admin-exercise-suggestions-screen {
+        width: auto;
+        max-width: none;
+        margin-inline: 15px;
+    }
+}
+
+/* Coach dashboard: roomy, color-coded athlete cards on desktop. */
+@media (min-width: 901px) {
+    .admin-dashboard .admin-coach-portal__athlete-list {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card {
+        position: relative;
+        isolation: isolate;
+        display: grid;
+        align-content: space-between;
+        gap: 18px;
+        min-height: 174px;
+        overflow: hidden;
+        padding: 20px;
+        border: 1px solid rgba(13, 148, 136, .16);
+        border-radius: 22px;
+        background:
+            radial-gradient(circle at 100% 0, rgba(45, 212, 191, .13), transparent 42%),
+            linear-gradient(135deg, #f0fdfa 0%, #ffffff 58%, #eff6ff 100%);
+        box-shadow: 0 12px 28px rgba(15, 23, 42, .07), inset 0 1px 0 rgba(255, 255, 255, .9);
+        transition: transform 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card:hover,
+    .admin-dashboard .admin-coach-portal__athlete-card:focus-within {
+        transform: translateY(-3px);
+        border-color: rgba(13, 148, 136, .34);
+        box-shadow: 0 20px 36px rgba(15, 118, 110, .12), inset 0 1px 0 rgba(255, 255, 255, .95);
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__meta {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        /* grid-template-columns: minmax(0, 1fr); */
+        gap: 5px;
+        padding-block-end: 15px;
+        border-bottom: 1px solid rgba(15, 118, 110, .12);
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__meta > div {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__meta strong {
+        min-width: 0;
+        color: #123b45;
+        font-size: 1.04rem;
+        font-weight: 900;
+        line-height: 1.5;
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__meta span {
+        flex: 0 0 auto;
+        direction: ltr;
+        unicode-bidi: isolate;
+        color: #5c737c;
+        font-size: .8rem;
+        font-weight: 700;
+        letter-spacing: .01em;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__links {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__links a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 38px;
+        padding: 0 13px;
+        border: 1px solid rgba(15, 118, 110, .16);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, .78);
+        color: #0f766e;
+        font-size: .75rem;
+        font-weight: 850;
+        text-decoration: none;
+        transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, transform 180ms ease;
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__links a:first-child {
+        border-color: transparent;
+        background: linear-gradient(135deg, #0f766e, #0d9488);
+        color: #fff;
+        box-shadow: 0 7px 16px rgba(13, 148, 136, .18);
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__links a:hover,
+    .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__links a:focus-visible {
+        transform: translateY(-1px);
+        border-color: rgba(15, 118, 110, .32);
+        background-color: #ecfdf5;
+        color: #115e59;
+        text-decoration: none;
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__links a:first-child:hover,
+    .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__links a:first-child:focus-visible {
+        border-color: transparent;
+        background: linear-gradient(135deg, #115e59, #0f766e);
+        color: #fff;
+    }
+}
+
+@media (min-width: 901px) {
+.dark .admin-dashboard .admin-coach-portal__athlete-card {
+    border-color: rgba(45, 212, 191, .2);
+    background:
+        radial-gradient(circle at 100% 0, rgba(45, 212, 191, .13), transparent 42%),
+        linear-gradient(135deg, rgba(15, 118, 110, .12), rgba(15, 23, 42, .92) 58%, rgba(30, 41, 59, .88));
+    box-shadow: 0 16px 34px rgba(0, 0, 0, .2), inset 0 1px 0 rgba(255, 255, 255, .04);
+}
+
+.dark .admin-dashboard .admin-coach-portal__athlete-card:hover,
+.dark .admin-dashboard .admin-coach-portal__athlete-card:focus-within {
+    border-color: rgba(45, 212, 191, .4);
+    box-shadow: 0 20px 38px rgba(0, 0, 0, .3), 0 0 0 1px rgba(45, 212, 191, .08);
+}
+
+.dark .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__meta strong {
+    color: #e6fffb;
+}
+
+.dark .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__meta span {
+    color: #a8c6c8;
+}
+
+.dark .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__meta {
+    border-bottom-color: rgba(94, 234, 212, .14);
+}
+
+.dark .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__links a {
+    border-color: rgba(94, 234, 212, .2);
+    background: rgba(15, 23, 42, .58);
+    color: #99f6e4;
+}
+
+.dark .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__links a:first-child {
+    border-color: transparent;
+    background: linear-gradient(135deg, #0f766e, #0d9488);
+    color: #f0fdfa;
+}
+
+.dark .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__links a:hover,
+.dark .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__links a:focus-visible {
+    border-color: rgba(94, 234, 212, .42);
+    background: rgba(15, 118, 110, .24);
+    color: #ccfbf1;
+}
+
+.dark .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__links a:first-child:hover,
+.dark .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__links a:first-child:focus-visible {
+    border-color: transparent;
+    background: linear-gradient(135deg, #115e59, #0f766e);
+    color: #fff;
+}
+}
+
+/* Tablet coach navigation: a smaller centered dock with clear touch targets. */
+@media (min-width: 640px) and (max-width: 900px) {
+    .admin-dashboard .admin-bottom-nav--coach {
+        --bottom-nav-icon-size: 20px;
+        --bottom-nav-label-size: .67rem;
+        inset-inline: auto;
+        left: 50%;
+        bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+        width: min(700px, calc(100% - 32px));
+        box-sizing: border-box;
+        gap: 5px;
+        padding: 7px;
+        border: 1px solid rgba(148, 163, 184, .24);
+        border-radius: 23px;
+        background:
+            linear-gradient(135deg, rgba(255, 255, 255, .94), rgba(240, 253, 250, .78)),
+            rgba(255, 255, 255, .92);
+        box-shadow: 0 16px 42px rgba(15, 23, 42, .14), inset 0 1px 0 rgba(255, 255, 255, .92);
+        backdrop-filter: blur(22px) saturate(150%);
+        -webkit-backdrop-filter: blur(22px) saturate(150%);
+        transform: translateX(-50%);
+    }
+
+    .admin-dashboard .admin-bottom-nav--coach .admin-bottom-nav__item {
+        min-height: 54px;
+        gap: 3px;
+        padding: 5px 8px;
+        border-radius: 16px;
+        color: #667783;
+        font-size: .67rem;
+        font-weight: 750;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .admin-dashboard .admin-bottom-nav--coach .admin-bottom-nav__item:hover,
+    .admin-dashboard .admin-bottom-nav--coach .admin-bottom-nav__item:focus-visible {
+        background: rgba(15, 118, 110, .07);
+        color: #0f766e;
+    }
+
+    .admin-dashboard .admin-bottom-nav--coach .admin-bottom-nav__icon {
+        width: 31px;
+        height: 31px;
+        border-radius: 11px;
+        color: inherit;
+    }
+
+    .admin-dashboard .admin-bottom-nav--coach .admin-bottom-nav__icon svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .admin-dashboard .admin-bottom-nav--coach .admin-bottom-nav__label {
+        font-size: .67rem;
+    }
+
+    .admin-dashboard .admin-bottom-nav--coach .admin-bottom-nav__item.is-active {
+        background: rgba(13, 148, 136, .08);
+        color: #0f766e;
+    }
+
+    .admin-dashboard .admin-bottom-nav--coach .admin-bottom-nav__item.is-active .admin-bottom-nav__icon {
+        width: 31px;
+        height: 31px;
+        background: #d1fae5;
+        color: #0f766e;
+        box-shadow: inset 0 0 0 1px rgba(15, 118, 110, .08);
+    }
+
+    .admin-dashboard .admin-bottom-nav--coach .admin-bottom-nav__group-toggle {
+        position: relative;
+    }
+
+    .admin-dashboard .admin-bottom-nav--coach .admin-bottom-nav__chevron {
+        position: absolute;
+        top: 5px;
+        inset-inline-end: 7px;
+        width: 10px;
+        height: 10px;
+        margin: 0;
+        color: #94a3b8;
+        font-size: .72rem;
+    }
+
+    .admin-dashboard .admin-bottom-nav--coach .admin-bottom-nav__submenu {
+        bottom: calc(100% + 11px);
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+        border-color: rgba(148, 163, 184, .22);
+        border-radius: 17px;
+        box-shadow: 0 16px 38px rgba(15, 23, 42, .16);
+    }
+}
+
+.dark .admin-dashboard .admin-bottom-nav--coach {
+    border-color: rgba(148, 163, 184, .28);
+    background:
+        linear-gradient(135deg, rgba(45, 212, 191, .1), rgba(15, 23, 42, .84)),
+        rgba(15, 23, 42, .9);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, .32), inset 0 1px 0 rgba(255, 255, 255, .06);
+}
+
+.dark .admin-dashboard .admin-bottom-nav--coach .admin-bottom-nav__item {
+    color: #a8b4c7;
+}
+
+.dark .admin-dashboard .admin-bottom-nav--coach .admin-bottom-nav__item:hover,
+.dark .admin-dashboard .admin-bottom-nav--coach .admin-bottom-nav__item:focus-visible {
+    background: rgba(45, 212, 191, .1);
+    color: #ccfbf1;
+}
+
+.dark .admin-dashboard .admin-bottom-nav--coach .admin-bottom-nav__item.is-active {
+    background: rgba(45, 212, 191, .12);
+    color: #99f6e4;
+}
+
+.dark .admin-dashboard .admin-bottom-nav--coach .admin-bottom-nav__item.is-active .admin-bottom-nav__icon {
+    background: rgba(13, 148, 136, .24);
+    color: #99f6e4;
+    box-shadow: inset 0 0 0 1px rgba(94, 234, 212, .12);
+}
+
+.dark .admin-dashboard .admin-bottom-nav--coach .admin-bottom-nav__chevron {
+    color: #94a3b8;
+}
+
+.dark .admin-dashboard .admin-bottom-nav--coach .admin-bottom-nav__submenu {
+    border-color: rgba(148, 163, 184, .26);
+    background: rgba(15, 23, 42, .96);
+}
+
+/* Keep the coach roster cards polished as the dashboard narrows. */
+@media (max-width: 900px) {
+    .admin-dashboard .admin-coach-portal__athlete-list {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 13px;
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card {
+        position: relative;
+        isolation: isolate;
+        display: grid;
+        align-content: space-between;
+        gap: 15px;
+        min-width: 0;
+        min-height: 158px;
+        overflow: hidden;
+        padding: 17px;
+        border: 1px solid rgba(13, 148, 136, .16);
+        border-radius: 20px;
+        background:
+            radial-gradient(circle at 100% 0, rgba(45, 212, 191, .13), transparent 42%),
+            linear-gradient(135deg, #f0fdfa 0%, #ffffff 58%, #eff6ff 100%);
+        box-shadow: 0 12px 26px rgba(15, 23, 42, .07), inset 0 1px 0 rgba(255, 255, 255, .9);
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__meta {
+        display: flex;
+        min-width: 0;
+        gap: 5px;
+        padding-block-end: 12px;
+        border-bottom: 1px solid rgba(15, 118, 110, .12);
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__meta > div {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        min-width: 0;
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__meta strong {
+        min-width: 0;
+        overflow: hidden;
+        color: #123b45;
+        font-size: .96rem;
+        font-weight: 900;
+        line-height: 1.5;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__meta span {
+        flex: 0 0 auto;
+        direction: ltr;
+        unicode-bidi: isolate;
+        color: #5c737c;
+        font-size: .76rem;
+        font-weight: 700;
+        text-align: left;
+        white-space: nowrap;
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__links a {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        padding: 0 12px;
+        border: 1px solid rgba(15, 118, 110, .16);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, .82);
+        color: #0f766e;
+        font-size: .73rem;
+        font-weight: 850;
+        text-align: center;
+        text-decoration: none;
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__links a:first-child {
+        border-color: transparent;
+        background: linear-gradient(135deg, #0f766e, #0d9488);
+        color: #fff;
+        box-shadow: 0 7px 16px rgba(13, 148, 136, .18);
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__links a:focus-visible {
+        outline: 3px solid rgba(52, 84, 209, .35);
+        outline-offset: 2px;
+    }
+
+    .dark .admin-dashboard .admin-coach-portal__athlete-card {
+        border-color: rgba(45, 212, 191, .2);
+        background:
+            radial-gradient(circle at 100% 0, rgba(45, 212, 191, .13), transparent 42%),
+            linear-gradient(135deg, rgba(15, 118, 110, .12), rgba(15, 23, 42, .92) 58%, rgba(30, 41, 59, .88));
+        box-shadow: 0 16px 34px rgba(0, 0, 0, .2), inset 0 1px 0 rgba(255, 255, 255, .04);
+    }
+
+    .dark .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__meta strong {
+        color: #e6fffb;
+    }
+
+    .dark .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__meta span {
+        color: #a8c6c8;
+    }
+
+    .dark .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__meta {
+        border-bottom-color: rgba(94, 234, 212, .14);
+    }
+
+    .dark .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__links a {
+        border-color: rgba(94, 234, 212, .2);
+        background: rgba(15, 23, 42, .58);
+        color: #99f6e4;
+    }
+
+    .dark .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__links a:first-child {
+        border-color: transparent;
+        background: linear-gradient(135deg, #0f766e, #0d9488);
+        color: #f0fdfa;
+    }
+}
+
+@media (max-width: 560px) {
+    .admin-dashboard .admin-coach-portal__athlete-list {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 11px;
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card {
+        min-height: 144px;
+        padding: 15px;
+        border-radius: 18px;
+    }
+
+    .admin-dashboard .admin-coach-portal__athlete-card .admin-result-card__links a {
+        flex: 1 1 120px;
+    }
+}
+
+/* The five coach dashboard actions keep equal touch targets at every width. */
+.admin-dashboard .admin-coach-portal-screen .admin-quick-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 86px;
+    align-items: stretch;
+    gap: 12px;
+    width: 100%;
+    margin-block: 6px 22px;
+}
+
+/* Finance analytics dashboard. */
+.admin-dashboard .admin-app__content > .admin-screen.admin-analytics-screen {
+    width: auto;
+    max-width: none;
+    margin-inline: 0;
+}
+
+.admin-dashboard .admin-analytics-screen {
+    gap: 22px;
+}
+
+.admin-finance-heading {
+    align-items: end;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.admin-finance-heading > div {
+    display: grid;
+    gap: 4px;
+}
+
+.admin-finance-eyebrow {
+    color: #3158d8;
+    font-size: .76rem;
+    font-weight: 900;
+    letter-spacing: .02em;
+}
+
+.admin-finance-period {
+    padding: 8px 12px;
+    border: 1px solid rgba(49, 88, 216, .14);
+    border-radius: 999px;
+    background: rgba(49, 88, 216, .06);
+    color: #3158d8;
+    font-size: .8rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.admin-finance-lead {
+    max-width: 900px;
+}
+
+.admin-finance-panel {
+    display: grid;
+    gap: 20px;
+    min-width: 0;
+    padding: clamp(14px, 2.2vw, 24px);
+    border: 1px solid rgba(148, 163, 184, .2);
+    border-radius: 24px;
+    background: linear-gradient(150deg, rgba(255, 255, 255, .97), rgba(248, 250, 255, .94));
+    box-shadow: 0 18px 46px rgba(15, 23, 42, .07);
+}
+
+.admin-finance-panel__head {
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.admin-finance-panel__head h2,
+.admin-finance-chart-card h3,
+.admin-finance-table-card h3,
+.admin-finance-people h2 {
+    margin: 0;
+    color: #172033;
+    font-size: 1rem;
+    font-weight: 950;
+}
+
+.admin-finance-panel__head p,
+.admin-finance-chart-card__heading p {
+    margin: 4px 0 0;
+    color: #748094;
+    font-size: .8rem;
+    line-height: 1.7;
+}
+
+.admin-finance-filter {
+    display: flex;
+    align-items: end;
+    gap: 8px;
+}
+
+.admin-finance-filter label {
+    display: grid;
+    gap: 5px;
+    min-width: 130px;
+    color: #64748b;
+    font-size: .72rem;
+    font-weight: 800;
+}
+
+.admin-finance-filter input {
+    width: 100%;
+    min-height: 42px;
+    padding: 0 10px;
+    border: 1px solid #dbe2ee;
+    border-radius: 12px;
+    outline: 0;
+    background: #fff;
+    color: #172033;
+    font: inherit;
+    font-size: .84rem;
+    direction: ltr;
+    text-align: center;
+}
+
+.admin-finance-filter input:focus {
+    border-color: #3158d8;
+    box-shadow: 0 0 0 3px rgba(49, 88, 216, .12);
+}
+
+.admin-finance-filter button {
+    min-height: 42px;
+    padding: 0 15px;
+    border: 0;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3158d8, #466ee8);
+    color: #fff;
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 900;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.admin-finance-filter button:hover {
+    filter: brightness(1.06);
+}
+
+.admin-finance-error {
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid rgba(220, 38, 38, .16);
+    border-radius: 12px;
+    background: rgba(254, 242, 242, .9);
+    color: #b91c1c;
+    font-size: .84rem;
+}
+
+.admin-finance-kpis {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.admin-finance-kpi {
+    position: relative;
+    display: grid;
+    align-content: center;
+    gap: 7px;
+    min-width: 0;
+    min-height: 118px;
+    padding: 16px;
+    border: 1px solid rgba(148, 163, 184, .18);
+    border-radius: 18px;
+    background: #fff;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, .035);
+}
+
+.admin-finance-kpi > span {
+    color: #64748b;
+    font-size: .78rem;
+    font-weight: 800;
+}
+
+.admin-finance-kpi strong {
+    overflow-wrap: anywhere;
+    color: #18233a;
+    font-size: clamp(1.1rem, 2vw, 1.55rem);
+    font-weight: 950;
+    line-height: 1.35;
+    font-variant-numeric: tabular-nums;
+}
+
+.admin-finance-kpi small {
+    color: #8792a4;
+    font-size: .72rem;
+    font-weight: 700;
+}
+
+.admin-finance-kpi--primary {
+    border-color: rgba(49, 88, 216, .12);
+    background: radial-gradient(circle at 100% 0, rgba(49, 88, 216, .13), transparent 60%), #fff;
+}
+
+.admin-finance-kpi--primary strong {
+    color: #3158d8;
+}
+
+.admin-finance-kpi--coach {
+    border-color: rgba(20, 163, 139, .16);
+    background: radial-gradient(circle at 100% 0, rgba(20, 163, 139, .12), transparent 60%), #fff;
+}
+
+.admin-finance-kpi--coach strong {
+    color: #087f6d;
+}
+
+.admin-finance-chart-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr);
+    gap: 12px;
+    min-width: 0;
+}
+
+.admin-finance-chart-card,
+.admin-finance-table-card {
+    min-width: 0;
+    padding: 16px;
+    border: 1px solid rgba(148, 163, 184, .18);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, .92);
+    box-shadow: 0 8px 22px rgba(15, 23, 42, .035);
+}
+
+.admin-finance-chart-card--wide {
+    grid-column: span 2;
+}
+
+.admin-finance-chart-card__heading,
+.admin-finance-table-card__heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.admin-finance-chart-card__heading h3 {
+    font-size: .9rem;
+}
+
+.admin-finance-chart-frame {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    height: 280px;
+}
+
+.admin-finance-chart-frame--trend {
+    height: 330px;
+}
+
+.admin-finance-chart-frame--coaches {
+    height: max(230px, calc(35px * var(--coach-chart-rows, 7)));
+}
+
+.admin-finance-chart-frame canvas {
+    max-width: 100%;
+}
+
+.admin-finance-tables {
+    display: grid;
+    gap: 12px;
+    min-width: 0;
+}
+
+.admin-finance-table-card {
+    overflow: hidden;
+}
+
+.admin-finance-table-card__heading {
+    margin-bottom: 8px;
+}
+
+.admin-finance-table-card__heading > span {
+    color: #8a95a7;
+    font-size: .72rem;
+    font-weight: 750;
+}
+
+.admin-finance-table {
+    min-width: 620px;
+}
+
+.admin-finance-table th {
+    color: #536176;
+    white-space: nowrap;
+}
+
+.admin-finance-table td {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.admin-finance-table td strong {
+    color: #172f77;
+    font-weight: 950;
+}
+
+.admin-finance-table--coaches {
+    min-width: 850px;
+}
+
+.admin-finance-footnote {
+    margin: -8px 2px 0;
+    color: #7c8799;
+    font-size: .75rem;
+    line-height: 1.8;
+}
+
+.admin-finance-people {
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+}
+
+.admin-finance-people > .admin-finance-table-card__heading {
+    margin: 0;
+}
+
+.admin-finance-people > .admin-finance-table-card__heading > div {
+    display: grid;
+    gap: 4px;
+}
+
+.admin-finance-people .admin-panel-card {
+    min-width: 0;
+}
+
+.dark .admin-finance-panel,
+.dark .admin-finance-kpi,
+.dark .admin-finance-chart-card,
+.dark .admin-finance-table-card {
+    border-color: rgba(148, 163, 184, .2);
+    background: linear-gradient(150deg, rgba(22, 33, 52, .97), rgba(17, 26, 43, .96));
+    box-shadow: 0 18px 42px rgba(0, 0, 0, .16);
+}
+
+.dark .admin-finance-panel__head h2,
+.dark .admin-finance-chart-card h3,
+.dark .admin-finance-table-card h3,
+.dark .admin-finance-people h2,
+.dark .admin-finance-kpi strong {
+    color: #edf3ff;
+}
+
+.dark .admin-finance-kpi--primary strong {
+    color: #9eb3ff;
+}
+
+.dark .admin-finance-kpi--coach strong {
+    color: #6ee7cf;
+}
+
+.dark .admin-finance-filter input {
+    border-color: #334156;
+    background: #111a2b;
+    color: #f1f5f9;
+}
+
+.dark .admin-finance-table td strong {
+    color: #b9c8ff;
+}
+
+@media (max-width: 1000px) {
+    .admin-finance-panel__head {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .admin-finance-filter {
+        justify-content: start;
+        flex-wrap: wrap;
+    }
+
+    .admin-finance-kpis {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 700px) {
+    .admin-dashboard .admin-screen.admin-analytics-screen {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 14px 12px 22px;
+    }
+
+    .admin-finance-heading {
+        align-items: start;
+        flex-direction: column;
+    }
+
+    .admin-finance-period {
+        align-self: start;
+    }
+
+    .admin-finance-chart-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .admin-finance-chart-card--wide {
+        grid-column: auto;
+    }
+
+    .admin-finance-chart-frame,
+    .admin-finance-chart-frame--trend {
+        height: 260px;
+    }
+
+    .admin-finance-filter {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .admin-finance-filter label {
+        min-width: 0;
+    }
+
+    .admin-finance-filter button {
+        grid-column: 1 / -1;
+    }
+
+    .admin-finance-panel {
+        gap: 14px;
+        padding: 12px;
+        border-radius: 18px;
+    }
+
+    .admin-finance-kpi {
+        min-height: 102px;
+        padding: 12px;
+        border-radius: 15px;
+    }
+
+    .admin-finance-kpi > span {
+        font-size: .7rem;
+    }
+
+    .admin-finance-kpi strong {
+        font-size: 1.05rem;
+    }
+
+    .admin-finance-chart-card,
+    .admin-finance-table-card {
+        padding: 12px;
+        border-radius: 15px;
+    }
+
+    .admin-finance-people > .admin-finance-table-card__heading {
+        align-items: start;
+    }
+}
+
+@media (max-width: 380px) {
+    .admin-finance-kpis {
+        gap: 8px;
+    }
+
+    .admin-finance-kpi {
+        padding: 10px;
+    }
+
+    .admin-finance-kpi strong {
+        font-size: .92rem;
+    }
+}
+
+.admin-dashboard .admin-coach-portal-screen .admin-quick-actions a {
+    display: flex;
+    min-width: 0;
+    height: 86px;
+    box-sizing: border-box;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+    border-radius: 16px;
+    font-size: .85rem;
+    line-height: 1.45;
+    text-align: center;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+.admin-dashboard .coach-dashboard__add-athlete {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding-inline: 17px;
+    text-decoration: none;
+}
+
+.admin-dashboard .coach-athlete-create-form__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.admin-dashboard .coach-athlete-create-form__actions > * {
+    display: inline-flex;
+    min-height: 46px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 18px;
+    text-decoration: none;
+}
+
+@media (min-width: 641px) and (max-width: 900px) {
+    .admin-dashboard .admin-coach-portal-screen .admin-quick-actions {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 901px) {
+    .admin-dashboard .admin-screen.admin-coach-portal-screen {
+        width: min(1180px, 100%);
+        max-width: 1180px;
+        margin-inline: 15px;
+    }
+
+    .admin-dashboard .admin-coach-portal-screen .admin-quick-actions {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+
+    .admin-dashboard .admin-screen.admin-coach-athlete-create-screen {
+        width: min(940px, 100%);
+        max-width: 940px;
+        margin-inline: auto;
+    }
+}
+
+@media (max-width: 640px) {
+    .admin-dashboard .admin-coach-portal-screen .admin-quick-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 9px;
+    }
+
+    .admin-dashboard .coach-dashboard__add-athlete {
+        width: 100%;
+    }
+
+    .admin-dashboard .admin-coach-portal-screen .coach-dashboard__header {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .admin-dashboard .coach-athlete-create-form__actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+    }
+}

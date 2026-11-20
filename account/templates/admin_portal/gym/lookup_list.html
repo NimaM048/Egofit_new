@@ -1,0 +1,103 @@
+{% extends 'admin_portal/_shell.html' %}
+{% load i18n %}
+
+{% block title %}{% blocktrans %}{{ page_title }} | ایگوفیت{% endblocktrans %}{% endblock %}
+
+{% block admin_content %}
+<section class="admin-screen admin-search-screen admin-lookup-screen">
+    <header class="admin-screen__header admin-screen__header--split">
+        <a href="{% url 'register:admin_gym_library' %}" class="admin-back-link" aria-label="{% trans 'بازگشت' %}">→</a>
+        <h1 class="admin-screen__title">{{ lookup_title }}</h1>
+    </header>
+
+    <a href="{% url 'register:admin_lookup_add' lookup_key %}" class="admin-primary-btn">+ {% trans 'افزودن' %}</a>
+
+    <form method="post" action="{% url 'register:admin_lookup_bulk_delete' lookup_key %}" id="lookup-bulk-delete" class="admin-library-bulk-delete admin-lookup-bulk-delete" data-lookup-bulk-form onsubmit="return confirm('{% trans "آیا از حذف موارد انتخاب‌شده مطمئن هستید؟" %}');">
+        {% csrf_token %}
+        <input type="hidden" name="return_to" value="{{ request.get_full_path }}">
+        <label class="admin-library-select admin-lookup-select-all">
+            <input type="checkbox" data-lookup-select-all>
+            <span>{% trans 'انتخاب همه موارد این صفحه' %}</span>
+        </label>
+        <span class="admin-lookup-selection-count" data-lookup-selection-count aria-live="polite">{% trans 'موردی انتخاب نشده است' %}</span>
+        <button type="submit" class="admin-library-delete-btn admin-library-bulk-delete__button">{% trans 'حذف انتخاب‌شده‌ها' %}</button>
+    </form>
+
+    <section class="admin-result-list admin-result-list--grid admin-lookup-result-list">
+        {% for item in items %}
+            <article class="admin-result-card admin-lookup-card">
+                <label class="admin-library-select admin-lookup-card__select">
+                    <input type="checkbox" name="selected_ids" value="{{ item.pk }}" form="lookup-bulk-delete" data-lookup-item>
+                    <span>{% trans 'انتخاب مورد' %}</span>
+                </label>
+                <div class="admin-result-card__meta">
+                    <div class="admin-lookup-card__identity">
+                        <strong>{{ item.primary }}</strong>
+                        <span class="admin-lookup-card__values">
+                            {% if item.secondary %}<span dir="ltr">{{ item.secondary }}</span>{% endif %}
+                            {% if item.tertiary %}<span>{{ item.tertiary }}</span>{% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="admin-result-card__actions admin-library-actions">
+                    <a href="{% url 'register:admin_lookup_edit' lookup_key item.pk %}" class="admin-secondary-btn admin-secondary-btn--small admin-library-edit-btn">{% trans 'ویرایش' %}</a>
+                    <form method="post" action="{% url 'register:admin_lookup_delete' lookup_key item.pk %}" onsubmit="return confirm('{% trans "آیا از حذف این مورد مطمئن هستید؟" %}');">
+                        {% csrf_token %}
+                        <input type="hidden" name="return_to" value="{{ request.get_full_path }}">
+                        <button type="submit" class="admin-library-delete-btn">{% trans 'حذف' %}</button>
+                    </form>
+                </div>
+            </article>
+        {% empty %}
+            <article class="admin-empty admin-empty--center admin-lookup-empty">
+                <strong>{% trans 'موردی ثبت نشده است.' %}</strong>
+                <p>{% trans 'برای شروع، اولین مورد این بخش را اضافه کنید.' %}</p>
+            </article>
+        {% endfor %}
+    </section>
+
+    {% include 'admin_portal/gym/_pagination.html' %}
+</section>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+(function () {
+    "use strict";
+    const form = document.querySelector("[data-lookup-bulk-form]");
+    if (!form) return;
+    const selectAll = form.querySelector("[data-lookup-select-all]");
+    const selectItems = Array.from(document.querySelectorAll("[data-lookup-item]"));
+    const selectedCount = form.querySelector("[data-lookup-selection-count]");
+    const deleteButton = form.querySelector("button[type='submit']");
+    const noneSelectedText = "{% trans 'موردی انتخاب نشده است' %}";
+    const selectedText = "{% trans 'مورد انتخاب شده' %}";
+
+    function updateSelection() {
+        const selected = selectItems.filter(function (checkbox) { return checkbox.checked; });
+        if (selectAll) {
+            selectAll.checked = selectItems.length > 0 && selected.length === selectItems.length;
+            selectAll.indeterminate = selected.length > 0 && selected.length < selectItems.length;
+        }
+        if (selectedCount) {
+            selectedCount.textContent = selected.length
+                ? selected.length + " " + selectedText
+                : noneSelectedText;
+        }
+        if (deleteButton) deleteButton.disabled = selected.length === 0;
+    }
+
+    if (selectAll) {
+        selectAll.addEventListener("change", function () {
+            selectItems.forEach(function (checkbox) { checkbox.checked = selectAll.checked; });
+            updateSelection();
+        });
+    }
+    selectItems.forEach(function (checkbox) {
+        checkbox.addEventListener("change", updateSelection);
+    });
+    updateSelection();
+})();
+</script>
+{% endblock %}

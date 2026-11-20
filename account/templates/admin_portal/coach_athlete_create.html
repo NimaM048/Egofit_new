@@ -1,0 +1,52 @@
+{% extends 'admin_portal/_shell.html' %}
+{% load i18n %}
+
+{% block title %}{% blocktrans %}{{ page_title }} | ایگوفیت{% endblocktrans %}{% endblock %}
+
+{% block admin_content %}
+<section class="admin-screen admin-coach-athlete-create-screen">
+    <header class="admin-screen__header">
+        <a href="{% url 'register:coach_dashboard' %}" class="admin-back-link" aria-label="{% trans 'بازگشت به داشبورد مربی' %}">→</a>
+        <h1 class="admin-screen__title">{{ page_title }}</h1>
+    </header>
+
+    <p class="admin-screen__lead">{% trans 'اطلاعات ورود ورزشکار را ثبت کنید. حساب ساخته‌شده به‌صورت خودکار به فهرست شاگردان شما اضافه می‌شود.' %}</p>
+
+    <form method="post" class="admin-form-grid admin-form-grid--stacked admin-form-grid--cols2 coach-athlete-create-form">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <div class="admin-form-errors admin-form-grid__full">
+                {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+        {% endif %}
+
+        {% for field in form %}
+            <div class="field-group{% if field.name == 'blood_group' %} admin-form-grid__full{% endif %}">
+                {% if field.name == 'blood_group' %}
+                    <span class="field-group__label">{{ field.label }}</span>
+                    <div class="blood-group-grid">
+                        {% for value, label in form.fields.blood_group.choices %}
+                            {% if value %}
+                                <label class="blood-group-chip {% if field.value == value %}is-active{% endif %}">
+                                    <input type="radio" name="blood_group" value="{{ value }}" {% if field.value == value %}checked{% endif %}>
+                                    <span>{{ label }}</span>
+                                </label>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.name == 'password' %}<small>{{ field.help_text }}</small>{% endif %}
+                {% endif %}
+                {{ field.errors }}
+            </div>
+        {% endfor %}
+
+        <div class="admin-form-grid__full coach-athlete-create-form__actions">
+            <button type="submit" class="admin-primary-btn">{% trans 'ثبت و افزودن ورزشکار' %}</button>
+            <a href="{% url 'register:coach_dashboard' %}" class="admin-secondary-btn">{% trans 'انصراف' %}</a>
+        </div>
+    </form>
+</section>
+{% endblock %}

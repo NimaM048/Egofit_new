@@ -1,0 +1,65 @@
+{% load i18n %}
+<section class="mood-reminder-card {% if mood_reminder_enabled %}mood-reminder-card--enabled{% endif %}" data-mood-reminder data-enabled="{{ mood_reminder_enabled|yesno:'true,false' }}" data-api-url="{% url 'register:mood_reminder_api' %}" data-worker-url="{% url 'register:mood_reminder_service_worker' %}" data-public-key="{{ mood_reminder_vapid_public_key }}" aria-labelledby="mood-reminder-title">
+    <div class="mood-reminder-card__topline">
+        <span class="mood-reminder-card__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="mood-reminder-card__state {% if mood_reminder_enabled %}is-on{% endif %}">
+            {% if mood_reminder_enabled %}{% trans 'یادآور روشن است' %}{% else %}{% trans 'یادآور خاموش است' %}{% endif %}
+        </span>
+    </div>
+
+    <div class="mood-reminder-card__intro">
+        <h2 id="mood-reminder-title">{% trans 'یادآور ثبت وضعیت روزانه' %}</h2>
+        {% if mood_reminder_enabled %}
+            <p>{% trans 'در روزها و ساعت انتخاب‌شده، اعلان مرورگر برای ثبت روحیه و ضربان قلب استراحتی امروزتان ارسال می‌شود.' %}</p>
+        {% elif mood_reminder_prompt_due %}
+            <p>{% trans 'روزها و ساعت دلخواهتان را انتخاب کنید تا در زمان مناسب، ثبت روحیه و ضربان قلب استراحتی را به شما یادآوری کنیم.' %}</p>
+        {% else %}
+            <p>{% trans 'یادآور فعلا غیرفعال است. هر زمان بخواهید می‌توانید آن را از همین‌جا دوباره روشن کنید.' %}</p>
+        {% endif %}
+    </div>
+
+    <form class="mood-reminder-form" data-reminder-form>
+        {% csrf_token %}
+        <div class="mood-reminder-form__time">
+            <label for="mood-reminder-time">{% trans 'ساعت ارسال اعلان' %}</label>
+            <input id="mood-reminder-time" type="time" value="{{ mood_reminder_time }}" data-reminder-time required>
+        </div>
+
+        <fieldset class="mood-reminder-days">
+            <legend>{% trans 'روزهای دریافت اعلان' %}</legend>
+            <div class="mood-reminder-days__grid">
+                {% for day in mood_reminder_weekday_options %}
+                    <label class="mood-reminder-day {% if day.selected %}is-selected{% endif %}">
+                        <input type="checkbox" value="{{ day.value }}" data-reminder-day {% if day.selected %}checked{% endif %}>
+                        <span>{{ day.label }}</span>
+                    </label>
+                {% endfor %}
+            </div>
+        </fieldset>
+
+        <p class="mood-reminder-card__message" data-reminder-message role="status" aria-live="polite" hidden></p>
+
+        <div class="mood-reminder-card__actions">
+            <button class="mood-reminder-card__primary" type="submit">
+                {% if mood_reminder_enabled %}{% trans 'ذخیره زمان‌بندی' %}{% else %}{% trans 'فعال‌سازی اعلان' %}{% endif %}
+            </button>
+            {% if mood_reminder_enabled %}
+                <button class="mood-reminder-card__secondary mood-reminder-card__secondary--danger" type="button" data-reminder-disable>{% trans 'خاموش کردن یادآور' %}</button>
+            {% elif mood_reminder_prompt_due %}
+                <button class="mood-reminder-card__secondary" type="button" data-reminder-defer>{% trans 'فعلا نه' %}</button>
+            {% endif %}
+        </div>
+        <p class="mood-reminder-card__footnote">{% trans 'برای نمایش اعلان، اجازهٔ مرورگر لازم است. با لمس اعلان، صفحهٔ ثبت روزانه باز می‌شود.' %}</p>
+        <p class="mood-reminder-card__footnote" data-ios-install-hint hidden>{% trans 'برای دریافت اعلان در آیفون و آیپد، سایت را از منوی اشتراک‌گذاری به صفحهٔ اصلی اضافه کنید و دوباره وارد شوید.' %}</p>
+    </form>
+
+    {% if mood_reminder_enabled %}
+        <div class="mood-reminder-summary" aria-label="{% trans 'زمان‌بندی ذخیره‌شدهٔ یادآور' %}">
+            <strong>{% trans 'زمان‌بندی ذخیره‌شده' %}</strong>
+            <p><span>{% trans 'روزهای یادآوری:' %}</span> {{ mood_reminder_selected_weekday_labels|join:'، ' }}</p>
+            <p><span>{% trans 'ساعت ارسال:' %}</span> {{ mood_reminder_time }}</p>
+        </div>
+    {% endif %}
+</section>

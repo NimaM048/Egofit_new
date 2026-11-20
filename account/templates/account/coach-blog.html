@@ -1,0 +1,102 @@
+{% extends 'admin_portal/_shell.html' %}
+{% load i18n %}
+
+{% block title %}{% blocktrans %}بلاگ مربی | ایگوفیت{% endblocktrans %}{% endblock %}
+
+{% block admin_content %}
+<section class="admin-screen admin-coach-portal-screen">
+    <header class="admin-screen__header admin-screen__header--split">
+        <h1 class="admin-screen__title">{% trans 'بلاگ مربی' %}</h1>
+    </header>
+
+    <p class="admin-screen__lead">
+        {% trans 'پست خود را بنویسید. پست پس از تایید ادمین با نام شما در بلاگ سایت منتشر می‌شود.' %}
+    </p>
+
+    <section class="admin-panel-card">
+        <h2 class="admin-panel-card__title">{% trans 'نوشتن پست جدید' %}</h2>
+        <form method="post" enctype="multipart/form-data" class="admin-form-grid admin-form-grid--stacked">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <div class="field-group admin-form-grid__full">
+                <label for="{{ form.title.id_for_label }}">{{ form.title.label }}</label>
+                {{ form.title }}
+                {{ form.title.errors }}
+            </div>
+
+            <div class="field-group">
+                <label for="{{ form.language_kinds.id_for_label }}">{{ form.language_kinds.label }}</label>
+                {{ form.language_kinds }}
+                {{ form.language_kinds.errors }}
+            </div>
+            <div class="field-group">
+                <label for="{{ form.subcategory.id_for_label }}">{{ form.subcategory.label }}</label>
+                {{ form.subcategory }}
+                {{ form.subcategory.errors }}
+            </div>
+
+            <div class="field-group">
+                <label for="{{ form.image.id_for_label }}">{{ form.image.label }}</label>
+                {{ form.image }}
+                {{ form.image.errors }}
+            </div>
+            <div class="field-group">
+                <label for="{{ form.reading_time.id_for_label }}">{{ form.reading_time.label }}</label>
+                {{ form.reading_time }}
+                {{ form.reading_time.errors }}
+            </div>
+
+            <div class="field-group admin-form-grid__full">
+                <label for="{{ form.article_excerpt.id_for_label }}">{{ form.article_excerpt.label }}</label>
+                {{ form.article_excerpt }}
+                {{ form.article_excerpt.errors }}
+            </div>
+
+            <div class="field-group admin-form-grid__full">
+                <label for="{{ form.article_description.id_for_label }}">{{ form.article_description.label }}</label>
+                {{ form.article_description }}
+                {{ form.article_description.errors }}
+            </div>
+
+            <button type="submit" class="admin-primary-btn">{% trans 'ارسال برای بررسی ادمین' %}</button>
+        </form>
+    </section>
+
+    <section class="admin-panel-card">
+        <h2 class="admin-panel-card__title">{% trans 'پست‌های من' %}</h2>
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>{% trans 'عنوان' %}</th>
+                        <th>{% trans 'وضعیت' %}</th>
+                        <th>{% trans 'پیوند' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for post in posts %}
+                        <tr>
+                            <td>{{ post.title }}</td>
+                            <td>
+                                <span class="admin-badge admin-badge--{{ post.publication_status }}">
+                                    {{ post.get_publication_status_display }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if post.publication_status == 'approved' %}
+                                    <a href="{% url 'home:article_detail' post.slug %}" target="_blank" rel="noopener">{% trans 'مشاهده در سایت' %}</a>
+                                {% else %}
+                                    —
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="3">{% trans 'هنوز پستی ارسال نکرده‌اید.' %}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</section>
+{% endblock %}

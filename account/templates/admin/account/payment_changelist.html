@@ -1,0 +1,37 @@
+{% extends "admin/change_list.html" %}
+{% load i18n humanize %}
+
+{% block content %}
+    <section class="module" style="margin-bottom: 18px;">
+        <h2>{% trans "گزارش کلی درآمد مربیان و ادمین‌ها" %}</h2>
+        <p style="padding: 0 12px;">
+            {% trans "مجموع پرداخت‌های موفق برنامه و فایل" %}: <strong>{{ revenue_total|intcomma }} {% trans "تومان" %}</strong>
+            · {% trans "تعداد پرداخت" %}: {{ revenue_payment_count|intcomma }}
+        </p>
+        <table style="width: 100%;">
+            <thead>
+                <tr>
+                    <th>{% trans "نقش" %}</th>
+                    <th>{% trans "مربی یا ادمین" %}</th>
+                    <th>{% trans "درآمد برنامه بدنسازی (تومان)" %}</th>
+                    <th>{% trans "درآمد فایل (تومان)" %}</th>
+                    <th>{% trans "مجموع درآمد (تومان)" %}</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in revenue_by_responsible %}
+                    <tr>
+                        <td>{{ item.role }}</td>
+                        <td>{{ item.name }}</td>
+                        <td>{{ item.program_revenue|intcomma }}</td>
+                        <td>{{ item.document_revenue|intcomma }}</td>
+                        <td>{{ item.total_amount|intcomma }}</td>
+                    </tr>
+                {% empty %}
+                    <tr><td colspan="5">{% trans "هنوز پرداخت موفقی ثبت نشده است." %}</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+    {{ block.super }}
+{% endblock %}

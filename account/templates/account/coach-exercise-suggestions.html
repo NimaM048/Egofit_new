@@ -1,0 +1,81 @@
+{% extends 'admin_portal/_shell.html' %}
+{% load i18n %}
+
+{% block title %}{% blocktrans %}پیشنهاد حرکت | ایگوفیت{% endblocktrans %}{% endblock %}
+
+{% block admin_content %}
+<section class="admin-screen admin-coach-portal-screen">
+    <header class="admin-screen__header admin-screen__header--split">
+        <h1 class="admin-screen__title">{% trans 'پیشنهاد حرکت جدید' %}</h1>
+    </header>
+
+    <p class="admin-screen__lead">
+        {% trans 'شما به‌عنوان مربی امکان تغییر کتابخانه حرکات را ندارید. نام فارسی، نام انگلیسی، هدف حرکت و تصویر را ارسال کنید تا ادمین بررسی و اضافه کند.' %}
+    </p>
+
+    <section class="admin-panel-card">
+        <form method="post" enctype="multipart/form-data" class="admin-form-grid admin-form-grid--stacked">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <div class="field-group">
+                <label for="{{ form.kind.id_for_label }}">{{ form.kind.label }}</label>
+                {{ form.kind }}
+                {{ form.kind.errors }}
+            </div>
+            <div class="field-group">
+                <label for="{{ form.name_fa.id_for_label }}">{{ form.name_fa.label }}</label>
+                {{ form.name_fa }}
+                {{ form.name_fa.errors }}
+            </div>
+            <div class="field-group">
+                <label for="{{ form.name_en.id_for_label }}">{{ form.name_en.label }}</label>
+                {{ form.name_en }}
+                {{ form.name_en.errors }}
+            </div>
+            <div class="field-group admin-form-grid__full">
+                <label for="{{ form.goal.id_for_label }}">{{ form.goal.label }}</label>
+                {{ form.goal }}
+                {{ form.goal.errors }}
+            </div>
+            <div class="field-group admin-form-grid__full">
+                <label for="{{ form.image.id_for_label }}">{{ form.image.label }}</label>
+                {{ form.image }}
+                {{ form.image.errors }}
+            </div>
+
+            <button type="submit" class="admin-primary-btn">{% trans 'ارسال پیشنهاد' %}</button>
+        </form>
+    </section>
+
+    <section class="admin-panel-card">
+        <h2 class="admin-panel-card__title">{% trans 'پیشنهادهای من' %}</h2>
+        <div class="admin-table-wrap">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>{% trans 'نام فارسی' %}</th>
+                        <th>{% trans 'نام انگلیسی' %}</th>
+                        <th>{% trans 'نوع' %}</th>
+                        <th>{% trans 'وضعیت' %}</th>
+                        <th>{% trans 'دلیل رد' %}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for suggestion in suggestions %}
+                        <tr>
+                            <td>{{ suggestion.name_fa }}</td>
+                            <td dir="ltr">{{ suggestion.name_en }}</td>
+                            <td>{{ suggestion.get_kind_display }}</td>
+                            <td>{{ suggestion.get_status_display }}</td>
+                            <td>{{ suggestion.rejection_reason|default:'—' }}</td>
+                        </tr>
+                    {% empty %}
+                        <tr><td colspan="5">{% trans 'هنوز پیشنهادی ارسال نکرده‌اید.' %}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</section>
+{% endblock %}

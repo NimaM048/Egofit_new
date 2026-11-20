@@ -1,0 +1,196 @@
+{% extends 'admin_portal/_shell.html' %}
+{% load i18n %}
+
+{% block title %}{% blocktrans %}جست و جو کاربر | ایگوفیت{% endblocktrans %}{% endblock %}
+
+{% block admin_content %}
+<section class="admin-screen admin-search-screen admin-main-search-screen">
+    <header class="admin-screen__header">
+        <h1 class="admin-screen__title">{% if is_coach_only %}{% trans 'شاگردان من' %}{% else %}{% trans 'جست و جو کاربر' %}{% endif %}</h1>
+    </header>
+
+    <p class="admin-screen__lead">{% if is_coach_only %}{% trans 'نام یا شماره همراه شاگرد خود را وارد کنید' %}{% else %}{% trans 'نام یا شماره همراه کاربر را وارد کنید' %}{% endif %}</p>
+
+    <form method="get" class="admin-search-form">
+        {{ form.query }}
+        <button type="submit" class="admin-primary-btn">{% if is_coach_only %}{% trans 'جست‌وجو در شاگردان' %}{% else %}{% trans 'جست و جو' %}{% endif %}</button>
+    </form>
+    {% if is_coach_only %}
+        <p class="admin-screen__lead">{% blocktrans with count=roster_count %}تعداد شاگردان شما: {{ count }}{% endblocktrans %}</p>
+    {% else %}
+        <a href="{% url 'register:admin_user_list' %}" class="admin-primary-btn admin-mobile-client-button">{% trans 'مشاهده لیست کاربران' %}</a>
+    {% endif %}
+
+    {% if not is_coach_only %}
+    <section class="admin-stat-grid" aria-label="{% trans 'خلاصه مدیریت' %}">
+        <article>
+            <span>{% trans 'کاربران' %}</span>
+            <strong>{{ total_users }}</strong>
+        </article>
+        <article>
+            <span>{% trans 'پروفایل کامل' %}</span>
+            <strong>{{ completed_profiles_count }}</strong>
+        </article>
+        <article>
+            <span>{% trans 'ادمین‌ها' %}</span>
+            <strong>{{ admin_users_count }}</strong>
+        </article>
+        <article>
+            <span>{% trans 'درخواست‌های در انتظار' %}</span>
+            <strong>{{ pending_coach_requests_count }}</strong>
+        </article>
+    </section>
+
+    <section class="admin-panel-card admin-health-alert-push" data-health-alert-push
+        data-api-url="{% url 'register:health_alert_push_api' %}"
+        data-worker-url="{% url 'register:health_alert_service_worker' %}"
+        data-public-key="{{ health_alert_vapid_public_key }}"
+        data-subscribed="{{ health_alert_push_subscribed|yesno:'true,false' }}">
+        {% csrf_token %}
+        <div>
+            <h2 class="admin-panel-card__title">{% trans 'اعلان تغییرات وضعیت کاربران' %}</h2>
+            <p>{% trans 'برای دریافت فوری تغییرات نیازمند پیگیری، اعلان مرورگر این دستگاه را فعال کنید.' %}</p>
+        </div>
+        <div class="admin-health-alert-push__actions">
+            <button type="button" data-health-alert-push-toggle {% if not health_alert_push_enabled %}disabled{% endif %}>
+                {% if health_alert_push_subscribed %}{% trans 'خاموش‌کردن اعلان مرورگر' %}{% else %}{% trans 'فعال‌سازی اعلان مرورگر' %}{% endif %}
+            </button>
+            <p data-health-alert-push-message role="status" aria-live="polite" {% if health_alert_push_enabled %}hidden{% endif %}>
+                {% if health_alert_push_enabled %}{% trans 'وضعیت اعلان مرورگر را مدیریت کنید.' %}{% else %}{% trans 'ارسال اعلان مرورگر هنوز در تنظیمات سرور فعال نشده است.' %}{% endif %}
+            </p>
+        </div>
+    </section>
+    {% include 'admin_portal/_health_alerts.html' %}
+    {% endif %}
+
+    {% if admin_users and not is_coach_only %}
+        <section class="admin-recent-panel">
+            <h2>{% blocktrans with count=admin_users_count %}ادمین‌ها و مربیان ({{ count }}){% endblocktrans %}</h2>
+            <div class="admin-recent-list">
+                {% for user in admin_users %}
+                    <a href="{% url 'register:admin_user_hub' user.id %}" class="admin-mini-user">
+                        <span>{{ user.fullname }}{% if user.is_admin %} · {% trans 'ادمین' %}{% elif user.is_coach %} · {% trans 'مربی' %}{% endif %}</span>
+                        <small>{{ user.phone }}</small>
+                    </a>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    {% if birthday_users and not is_coach_only %}
+        <section class="admin-recent-panel">
+            <h2>{% trans '🎉 تولد امروز' %}</h2>
+            <div class="admin-recent-list">
+                {% for user in birthday_users %}
+                    <a href="{% url 'register:admin_user_hub' user.id %}" class="admin-mini-user">
+                        <span>{{ user.display_name|default:user.fullname }}</span>
+                        <small>{{ user.phone }}</small>
+                    </a>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    {% if pending_coach_requests and not is_coach_only %}
+        <section class="admin-recent-panel">
+            <h2>{% blocktrans with count=pending_coach_requests_count %}درخواست‌های از مربی ({{ count }}){% endblocktrans %}</h2>
+            <div class="admin-result-list">
+                {% for coach_request in pending_coach_requests %}
+                    <article class="admin-result-card">
+                        <div class="admin-result-card__meta">
+                            <div>
+                                <strong>{{ coach_request.user.fullname }}</strong>
+                                <span>{{ coach_request.get_sessions_per_week_display }} —
+                                    {% if coach_request.wants_diet %}{% trans 'برنامه غذایی' %}{% endif %}
+                                    {% if coach_request.wants_workout %}{% trans 'برنامه تمرینی' %}{% endif %}
+                                </span>
+                            </div>
+                        </div>
+                        {% include 'admin_portal/_coach_request_detail.html' with coach_request=coach_request %}
+                        <div class="admin-result-card__actions">
+                            <a href="{% url 'register:admin_user_hub' coach_request.user.id %}" class="admin-secondary-btn admin-secondary-btn--small">{% trans 'مشاهده کاربر' %}</a>
+                            {% if not coach_request.pushed_to_measurements or not coach_request.pushed_to_caliper or not coach_request.pushed_health_to_records or not coach_request.pushed_attachments_to_files %}
+                                <form method="post" action="{% url 'register:admin_coach_request_push' coach_request.pk %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                                    <button type="submit" class="admin-secondary-btn admin-secondary-btn--small">{% trans 'ذخیره اطلاعات در دیتابیس' %}</button>
+                                </form>
+                            {% else %}
+                                <span class="coach-req-pushed">{% trans 'اطلاعات در دیتابیس ذخیره شد' %}</span>
+                            {% endif %}
+                            <form method="post" action="{% url 'register:admin_coach_request_handled' coach_request.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="admin-primary-btn admin-primary-btn--small">{% trans 'بررسی شد' %}</button>
+                            </form>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        </section>
+    {% endif %}
+
+    {% if has_searched and not search_results %}
+        <article class="admin-empty admin-empty--center">
+            <strong>{% trans 'نتیجه‌ای یافت نشد.' %}</strong>
+            <p>{% trans 'نام یا شماره را دوباره بررسی کنید.' %}</p>
+        </article>
+    {% endif %}
+
+    <section class="admin-result-list">
+        {% for user in search_results %}
+            <article class="admin-result-card">
+                <div class="admin-result-card__meta">
+                    <span class="admin-result-card__avatar" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="8.5" r="3.5" stroke="currentColor" stroke-width="1.8"/>
+                            <path d="M6 19V17.5C6 15.6 7.6 14 9.5 14H14.5C16.4 14 18 15.6 18 17.5V19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                        </svg>
+                    </span>
+                    <div>
+                        <strong>{{ user.fullname }}{% if user.is_admin %} · {% trans 'ادمین' %}{% elif user.is_coach %} · {% trans 'مربی' %}{% endif %}</strong>
+                        <span>{{ user.phone }}</span>
+                    </div>
+                </div>
+                <div class="admin-result-card__actions">
+                    <a href="{% url 'register:admin_upload' user.id %}" class="admin-secondary-btn admin-secondary-btn--small">{% trans 'آپلود فایل' %}</a>
+                    {% if not is_coach_only %}
+                    <form method="post" action="{% url 'register:admin_role_set' user.id %}" class="admin-role-form">
+                        {% csrf_token %}
+                        <select name="role" class="form-input enterprise-input h-9 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-xs text-foreground px-3" aria-label="{% trans 'نقش کاربر' %}">
+                            <option value="athlete" {% if user.role == 'athlete' %}selected{% endif %}>{% trans 'ورزشکار' %}</option>
+                            <option value="coach" {% if user.role == 'coach' %}selected{% endif %}>{% trans 'مربی' %}</option>
+                            <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>{% trans 'ادمین' %}</option>
+                        </select>
+                        <button type="submit" class="admin-primary-btn admin-primary-btn--small">{% trans 'ثبت نقش' %}</button>
+                    </form>
+                    {% endif %}
+                    {% if not user.is_admin and not is_coach_only %}
+                    <form method="post" action="{% url 'register:admin_role_toggle' user.id %}" class="admin-role-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="is_admin" value="on">
+                        <button type="submit" class="admin-secondary-btn admin-secondary-btn--small" title="{% trans 'اعطای نقش ادمین' %}">+ {% trans 'ادمین' %}</button>
+                    </form>
+                    {% endif %}
+                    <a href="{% url 'register:admin_user_hub' user.id %}" class="admin-primary-btn admin-primary-btn--small">{% trans 'مشاهده اطلاعات' %}</a>
+                </div>
+            </article>
+        {% empty %}
+            {% if not has_searched %}
+                <section class="admin-recent-panel">
+                    <h2>{% trans 'کاربران اخیر' %}</h2>
+                    <div class="admin-recent-list">
+                        {% for user in recent_users %}
+                            <a href="{% url 'register:admin_user_hub' user.id %}" class="admin-mini-user">
+                                <span>{{ user.fullname }}</span>
+                                <small>{{ user.phone }}</small>
+                            </a>
+                        {% empty %}
+                            <p>{% trans 'هنوز کاربری ثبت نشده است.' %}</p>
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
+        {% endfor %}
+    </section>
+</section>
+{% endblock %}

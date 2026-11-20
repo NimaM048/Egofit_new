@@ -1,0 +1,293 @@
+{% extends 'admin_portal/_shell.html' %}
+{% load i18n static %}
+
+{% block title %}{% blocktrans %}ثبت اطلاعات کاربر | ایگوفیت{% endblocktrans %}{% endblock %}
+
+{% block admin_content %}
+<section class="admin-screen admin-record-screen admin-user-hub-screen">
+    <header class="admin-screen__header admin-screen__header--split">
+        <a href="{% url 'register:admin_search' %}" class="admin-back-link" aria-label="{% trans 'بازگشت' %}">→</a>
+        <h1 class="admin-screen__title">{% trans 'ثبت اطلاعات کاربر' %}</h1>
+    </header>
+
+    <article class="admin-user-summary">
+        <div class="admin-user-summary__identity">
+            <div class="admin-user-summary__name">
+                <span>{% trans 'کاربر انتخاب‌شده' %}</span>
+                <strong>{{ target_user.fullname }}</strong>
+            </div>
+            <small class="admin-user-summary__phone">{{ target_user.phone }}</small>
+            <small class="admin-user-summary__role">
+                {% if target_user.is_admin and target_user.is_coach %}{% trans 'مدیر و مربی' %}{% elif target_user.is_admin %}{% trans 'مدیر' %}{% elif target_user.is_coach %}{% trans 'مربی' %}{% else %}{% trans 'ورزشکار' %}{% endif %}
+            </small>
+        </div>
+        <div class="admin-user-summary__actions">
+            {% if not is_coach_only and target_user.id != request.user.id %}
+                <form method="post" action="{% url 'register:admin_role_set' target_user.id %}" class="admin-role-form admin-role-form--primary admin-user-summary__role-assignment">
+                    {% csrf_token %}
+                    <select name="role" class="form-input enterprise-input h-9 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-xs text-foreground px-3" aria-label="{% trans 'نقش کاربر' %}">
+                        <option value="athlete" {% if target_user.role == 'athlete' %}selected{% endif %}>{% trans 'ورزشکار' %}</option>
+                        <option value="coach" {% if target_user.role == 'coach' %}selected{% endif %}>{% trans 'مربی' %}</option>
+                        <option value="admin" {% if target_user.role == 'admin' %}selected{% endif %}>{% trans 'ادمین' %}</option>
+                    </select>
+                    <button type="submit" class="admin-primary-btn admin-primary-btn--small admin-user-summary__role-submit">{% trans 'ثبت نقش' %}</button>
+                </form>
+            {% endif %}
+            <div class="admin-user-summary__quick-actions">
+                {% if not is_coach_only and target_user.id != request.user.id %}
+                    <form method="post" action="{% url 'register:admin_role_toggle' target_user.id %}" class="admin-role-form admin-role-form--admin-toggle">
+                        {% csrf_token %}
+                        {% if target_user.is_admin %}
+                            <button type="submit" class="admin-secondary-btn admin-secondary-btn--small">{% trans 'لغو نقش ادمین' %}</button>
+                        {% else %}
+                            <input type="hidden" name="is_admin" value="on">
+                            <button type="submit" class="admin-secondary-btn admin-secondary-btn--small">{% trans 'ادمین' %}</button>
+                        {% endif %}
+                    </form>
+                    <form method="post" action="{% url 'register:admin_coach_role_toggle' target_user.id %}" class="admin-role-form admin-role-form--coach-toggle">
+                        {% csrf_token %}
+                        {% if target_user.is_coach %}
+                            <button type="submit" class="admin-secondary-btn admin-secondary-btn--small">{% trans 'لغو نقش مربی' %}</button>
+                        {% else %}
+                            <input type="hidden" name="is_coach" value="on">
+                            <button type="submit" class="admin-secondary-btn admin-secondary-btn--small">{% trans 'تبدیل به مربی' %}</button>
+                        {% endif %}
+                    </form>
+                {% endif %}
+                <a href="{% url 'register:admin_user_analysis' target_user.id %}" class="admin-secondary-btn admin-secondary-btn--small admin-user-summary__analysis">{% trans 'آنالیز' %}</a>
+                {% if not is_coach_only %}
+                    <form method="post" action="{% url 'register:admin_user_delete' target_user.id %}" class="admin-user-summary__delete" onsubmit="return confirm('{% trans "آیا از حذف این کاربر اطمینان دارید؟ این عمل غیرقابل بازگشت است." %}');">
+                        {% csrf_token %}
+                        <button type="submit" class="admin-secondary-btn admin-secondary-btn--small">{% trans 'حذف' %}</button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+    </article>
+
+    <div class="admin-cardio-targets-section__wrapper">
+        {% include 'admin_portal/_cardio_training.html' %}
+    </div>
+
+    <section class="admin-menu-list">
+        <a href="{% url 'register:admin_personal_info' target_user.id %}" class="admin-menu-item">
+            <span>{% trans 'ثبت اطلاعات شخصی' %}</span>
+            <span aria-hidden="true">‹</span>
+        </a>
+        <a href="{% url 'register:admin_health' target_user.id %}" class="admin-menu-item">
+            <span>{% trans 'ثبت آسیب‌ها و جزئیات' %}</span>
+            <span aria-hidden="true">‹</span>
+        </a>
+        <a href="{% url 'register:admin_circumference' target_user.id %}" class="admin-menu-item">
+            <span>{% trans 'ثبت اندازه‌گیری محیط بدن (Circumference)' %}</span>
+            <span aria-hidden="true">‹</span>
+        </a>
+        <a href="{% url 'register:admin_caliper' target_user.id %}" class="admin-menu-item">
+            <span>{% trans 'ثبت کالیپر (Caliper)' %}</span>
+            <span aria-hidden="true">‹</span>
+        </a>
+        <a href="{% url 'register:admin_upload' target_user.id %}" class="admin-menu-item">
+            <span>{% trans 'آپلود فایل/برنامه برای کاربر' %}</span>
+            <span aria-hidden="true">‹</span>
+        </a>
+        <a href="{% url 'register:admin_user_files' target_user.id %}" class="admin-menu-item">
+            <span>{% trans 'فایل‌های کاربر' %}</span>
+            <span aria-hidden="true">‹</span>
+        </a>
+        <a href="{% url 'register:admin_program_list' target_user.id %}" class="admin-menu-item">
+            <span>{% trans 'برنامه بدنسازی' %}</span>
+            <span aria-hidden="true">‹</span>
+        </a>
+        <a href="{% url 'register:admin_measurement_history' target_user.id %}" class="admin-menu-item">
+            <span>{% trans 'تاریخچه و ویرایش اندازه‌گیری‌ها' %}</span>
+            <span aria-hidden="true">‹</span>
+        </a>
+    </section>
+
+    <section class="admin-workout-records-section">
+        <div class="admin-workout-records-section__wrapper">
+        <details class="admin-workout-records admin-collapsible" {% if workout_record_query %}open{% endif %}>
+            <summary class="admin-collapsible__summary">
+            <div>
+                <span class="admin-section-eyebrow">{% trans 'ثبت‌های برنامه بدنسازی' %}</span>
+                <h2 id="admin-workout-records-title">{% trans 'رکوردهای ورزشکار' %}</h2>
+            </div>
+            <span class="admin-collapsible__summary-end">
+                <span class="admin-workout-records__count">{{ workout_records|length }} {% trans 'رکورد' %}</span>
+                <span class="admin-collapsible__chevron" aria-hidden="true">⌄</span>
+            </span>
+            </summary>
+            <div class="admin-collapsible__content">
+            <form method="get" class="admin-workout-records__filter">
+                <label for="workout-record-exercise">{% trans 'فیلتر بر اساس نام حرکت' %}</label>
+                <div>
+                    <input id="workout-record-exercise" type="search" name="exercise" value="{{ workout_record_query }}" class="admin-input" placeholder="{% trans 'مثلاً اسکوات' %}">
+                    <button type="submit" class="admin-secondary-btn admin-secondary-btn--small">{% trans 'فیلتر' %}</button>
+                    {% if workout_record_query %}<a href="{% url 'register:admin_user_hub' target_user.id %}" class="admin-secondary-btn admin-secondary-btn--small">{% trans 'حذف فیلتر' %}</a>{% endif %}
+                </div>
+            </form>
+            <div class="admin-workout-records__table-wrap">
+                <table class="admin-workout-records__table">
+                    <thead>
+                        <tr>
+                            <th>{% trans 'نام حرکت' %}</th>
+                            <th>{% trans 'تاریخ ثبت حرکت' %}</th>
+                            <th>{% trans 'میزان وزنه (کیلوگرم)' %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for record in workout_records %}
+                            <tr>
+                                <td>{{ record.exercise_label|default:'—' }}</td>
+                                <td dir="ltr">{{ record.recorded_at|date:'Y/m/d' }}</td>
+                                <td dir="ltr">{{ record.value }}</td>
+                            </tr>
+                        {% empty %}
+                            <tr><td colspan="3">{% trans 'رکوردی برای این ورزشکار ثبت نشده است.' %}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            </div>
+        </details>
+        </div>
+    </section>
+
+    <section class="admin-data-preview">
+        <article>
+            <span>{% trans 'آخرین محیط بدن' %}</span>
+            <strong>{% if latest_circumference %}{% trans 'ثبت شده' %}{% else %}{% trans 'ثبت نشده' %}{% endif %}</strong>
+        </article>
+        <article>
+            <span>{% trans 'آخرین کالیپر' %}</span>
+            <strong>{% if latest_caliper %}{% trans 'ثبت شده' %}{% else %}{% trans 'ثبت نشده' %}{% endif %}</strong>
+        </article>
+        <article>
+            <span>{% trans 'فایل‌ها' %}</span>
+            <strong>{{ latest_media|length }}</strong>
+        </article>
+        <article>
+            <span>{% trans 'برنامه‌ها' %}</span>
+            <strong>{{ latest_documents|length }}</strong>
+        </article>
+        <article>
+            <span>{% trans 'برنامه بدنسازی' %}</span>
+            <strong>{{ latest_workout_programs|length }}</strong>
+        </article>
+    </section>
+
+    {% if training_recommendation_pending_count or training_recommendation_history_count %}
+        <section class="admin-training-recommendation-summary">
+            <div>
+                <p class="automatic-section-eyebrow">{% trans 'پیشنهادهای مبتنی بر عملکرد' %}</p>
+                <h2>{% trans 'بازبینی پیشرفت تمرین' %}</h2>
+                <p>{% trans 'پیشنهادهای تأییدشده در تولید برنامهٔ بعدی استفاده می‌شوند؛ سابقهٔ تصمیم و برنامهٔ مصرف‌کننده در بایگانی قابل مشاهده است.' %}</p>
+                <div class="admin-training-recommendation-summary__counts">
+                    <span>{% trans 'در انتظار' %}: <strong>{{ training_recommendation_pending_count }}</strong></span>
+                    <span>{% trans 'در بایگانی' %}: <strong>{{ training_recommendation_history_count }}</strong></span>
+                </div>
+            </div>
+            <a class="admin-primary-btn admin-primary-btn--small" href="{% url 'register:admin_training_recommendations' %}?{% if training_recommendation_pending_count %}tab=pending{% else %}tab=archive{% endif %}&amp;user={{ target_user.pk }}">
+                {% if training_recommendation_pending_count %}{% trans 'بازبینی پیشنهادها' %}{% else %}{% trans 'مشاهدهٔ سوابق' %}{% endif %}
+            </a>
+        </section>
+    {% endif %}
+
+    {% if coach_requests %}
+        <section class="admin-coach-requests-section">
+            <details class="admin-recent-panel admin-collapsible admin-coach-requests" data-coach-requests-panel data-mark-read-url="{% url 'register:admin_user_coach_requests_read' target_user.id %}">
+                <summary class="admin-collapsible__summary">
+                <span>
+                    <span class="admin-section-eyebrow">{% trans 'پیام‌های کاربر' %}</span>
+                    <h2>{% trans 'درخواست‌های این کاربر از مربی' %}</h2>
+                </span>
+                <span class="admin-collapsible__summary-end">
+                    {% if unread_coach_requests_count %}<span class="admin-notification-badge" data-coach-request-badge title="{% trans 'پیام جدید' %}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>{% trans 'جدید' %}</span>{% endif %}
+                    <span class="admin-collapsible__chevron" aria-hidden="true">⌄</span>
+                </span>
+                </summary>
+                <div class="admin-collapsible__content">
+                <div class="admin-result-list">
+                {% for coach_request in coach_requests %}
+                    <article class="admin-result-card">
+                        <div class="admin-result-card__meta">
+                            <div>
+                                <strong>{{ coach_request.get_status_display }}</strong>
+                                <span>{{ coach_request.get_sessions_per_week_display }} —
+                                    {% if coach_request.wants_diet %}{% trans 'برنامه غذایی' %}{% endif %}
+                                    {% if coach_request.wants_workout %}{% trans 'برنامه تمرینی' %}{% endif %}
+                                    ({{ coach_request.created_at|date:"Y/m/d" }})
+                                </span>
+                            </div>
+                            <form method="post" action="{% url 'register:admin_user_coach_request_delete' target_user.id coach_request.pk %}" onsubmit="return confirm('{% trans "آیا از حذف این پیام اطمینان دارید؟ این عمل غیرقابل بازگشت است." %}');">
+                                {% csrf_token %}
+                                <button type="submit" class="admin-icon-btn admin-icon-btn--danger" aria-label="{% trans 'حذف پیام' %}" title="{% trans 'حذف پیام' %}">
+                                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M10 11v6m4-6v6M9 7V4h6v3m-9 0 1 13h8l1-13" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </button>
+                            </form>
+                        </div>
+                        {% include 'admin_portal/_coach_request_detail.html' with coach_request=coach_request enable_media_preview=True %}
+                        <div class="admin-result-card__actions">
+                            {% if not coach_request.pushed_to_measurements or not coach_request.pushed_to_caliper or not coach_request.pushed_health_to_records or not coach_request.pushed_attachments_to_files %}
+                                <form method="post" action="{% url 'register:admin_coach_request_push' coach_request.pk %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{% url 'register:admin_user_hub' target_user.id %}">
+                                    <button type="submit" class="admin-secondary-btn admin-secondary-btn--small">{% trans 'ذخیره اطلاعات در دیتابیس' %}</button>
+                                </form>
+                            {% else %}
+                                <span class="coach-req-pushed">{% trans 'اطلاعات در دیتابیس ذخیره شد' %}</span>
+                            {% endif %}
+                        </div>
+                        {% if coach_request.status == "pending" %}
+                            <div class="admin-result-card__actions">
+                                <form method="post" action="{% url 'register:admin_coach_request_handled' coach_request.pk %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="next" value="{% url 'register:admin_user_hub' target_user.id %}">
+                                    <button type="submit" class="admin-primary-btn admin-primary-btn--small">{% trans 'بررسی شد' %}</button>
+                                </form>
+                            </div>
+                        {% endif %}
+                    </article>
+                {% endfor %}
+                </div>
+                </div>
+            </details>
+        </section>
+    {% endif %}
+
+    <a href="{% url 'register:admin_search' %}?query={{ target_user.fullname|urlencode }}" class="admin-primary-btn">{% trans 'جستجو' %}</a>
+</section>
+<div class="admin-media-modal" data-media-modal hidden aria-hidden="true">
+    <div class="admin-media-modal__backdrop" data-media-close></div>
+    <div class="admin-media-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="admin-media-modal-title">
+        <button type="button" class="admin-media-modal__close" data-media-close aria-label="{% trans 'بستن' %}" title="{% trans 'بستن' %}">×</button>
+        <h2 id="admin-media-modal-title" class="admin-media-modal__title"></h2>
+        <div class="admin-media-modal__content">
+            <img data-media-modal-image alt="">
+            <video data-media-modal-video controls playsinline preload="metadata"></video>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var requestsPanel = document.querySelector("[data-coach-requests-panel]");
+        if (requestsPanel && requestsPanel.querySelector("[data-coach-request-badge]")) {
+            requestsPanel.addEventListener("toggle", function () {
+                if (!requestsPanel.open || requestsPanel.dataset.readMarked === "true") return;
+                var csrf = document.cookie.split(";").map(function (item) { return item.trim(); }).find(function (item) { return item.indexOf("csrftoken=") === 0; });
+                fetch(requestsPanel.dataset.markReadUrl, {
+                    method: "POST",
+                    credentials: "same-origin",
+                    headers: { "X-CSRFToken": csrf ? decodeURIComponent(csrf.split("=")[1]) : "" }
+                }).then(function (response) {
+                    if (!response.ok) return;
+                    requestsPanel.dataset.readMarked = "true";
+                    var badge = requestsPanel.querySelector("[data-coach-request-badge]");
+                    if (badge) badge.remove();
+                });
+            });
+        }
+    });
+</script>
+<script src="{% static 'js/admin-media-modal.js' %}"></script>
+{% endblock %}

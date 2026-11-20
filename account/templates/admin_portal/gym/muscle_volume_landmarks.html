@@ -1,0 +1,75 @@
+{% extends 'admin_portal/_shell.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'اهداف حجم عضلات | ایگوفیت' %}{% endblock %}
+{% block admin_content %}
+<section class="admin-screen admin-library-screen muscle-volume-screen">
+    <header class="admin-screen__header admin-screen__header--split">
+        <div>
+            <p class="muscle-volume-eyebrow">{% trans 'کتابخانه تجویز خودکار' %}</p>
+            <h1 class="admin-screen__title">{% trans 'اهداف حجم هفتگی عضلات' %}</h1>
+            <p>{% trans 'برای هر عضله، مقادیر MEV، MAV و MRV را بر اساس هدف و سطح تجربه تنظیم کنید.' %}</p>
+        </div>
+        <a class="admin-primary-btn" href="{% url 'register:admin_muscle_volume_landmark_add' %}{% if selected_muscle %}?muscle={{ selected_muscle.pk }}{% endif %}">+ {% trans 'افزودن مقدار' %}</a>
+    </header>
+
+    <form method="get" class="muscle-volume-search" role="search">
+        <label for="muscle-volume-search-input">{% trans 'پیدا کردن عضله' %}</label>
+        <div class="muscle-volume-search__controls">
+            <input id="muscle-volume-search-input" class="admin-input" type="search" name="q" value="{{ search_query }}" placeholder="{% trans 'نام فارسی یا انگلیسی عضله' %}" autocomplete="off">
+            <button class="admin-primary-btn" type="submit">{% trans 'جست‌وجو' %}</button>
+            {% if search_query %}<a class="admin-secondary-btn" href="{% url 'register:admin_muscle_volume_landmarks' %}">{% trans 'پاک‌کردن' %}</a>{% endif %}
+        </div>
+    </form>
+
+    {% if muscle_page.paginator.count %}
+        <section class="muscle-volume-card" aria-labelledby="muscle-volume-current-title">
+            <header class="muscle-volume-card__header">
+                <div>
+                    <span>{% trans 'عضلهٔ انتخاب‌شده' %}</span>
+                    <h2 id="muscle-volume-current-title">{{ selected_muscle.name }}</h2>
+                    {% if selected_muscle.name_en %}<small dir="ltr">{{ selected_muscle.name_en }}</small>{% endif %}
+                </div>
+                <span class="muscle-volume-card__counter">{% trans 'عضله' %} {{ muscle_page.number }} {% trans 'از' %} {{ muscle_page.paginator.count }}</span>
+            </header>
+            <div class="muscle-volume-table-wrap">
+                <table class="admin-data-table muscle-volume-table">
+                    <thead><tr><th>{% trans 'هدف' %}</th><th>{% trans 'سابقه' %}</th><th>MEV</th><th>MAV</th><th>MRV</th><th>{% trans 'عملیات' %}</th></tr></thead>
+                    <tbody>
+                    {% for item in landmarks %}
+                        <tr>
+                            <td data-label="{% trans 'هدف' %}">{{ item.get_training_goal_display }}</td>
+                            <td data-label="{% trans 'سابقه' %}">{{ item.get_experience_band_display }}</td>
+                            <td data-label="MEV"><strong>{{ item.mev }}</strong> <small>{% trans 'ست در هفته' %}</small></td>
+                            <td data-label="MAV"><strong>{{ item.mav }}</strong> <small>{% trans 'ست در هفته' %}</small></td>
+                            <td data-label="MRV"><strong>{{ item.mrv }}</strong> <small>{% trans 'ست در هفته' %}</small></td>
+                            <td data-label="{% trans 'عملیات' %}">
+                                <div class="muscle-volume-actions">
+                                    <a class="muscle-volume-action-btn muscle-volume-action-btn--edit" href="{% url 'register:admin_muscle_volume_landmark_edit' item.pk %}">{% trans 'ویرایش' %}</a>
+                                    <form method="post" action="{% url 'register:admin_muscle_volume_landmark_delete' item.pk %}">{% csrf_token %}<button class="muscle-volume-action-btn muscle-volume-action-btn--delete" type="submit">{% trans 'حذف' %}</button></form>
+                                </div>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr><td class="muscle-volume-table__empty" colspan="6">{% trans 'برای این عضله هنوز مقدار حجمی ثبت نشده است.' %} <a href="{% url 'register:admin_muscle_volume_landmark_add' %}?muscle={{ selected_muscle.pk }}">{% trans 'ثبت مقدار برای این عضله' %}</a></td></tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        {% if muscle_page.paginator.num_pages > 1 %}
+            <nav class="muscle-volume-pagination" aria-label="{% trans 'صفحه‌بندی عضلات' %}">
+                {% if muscle_page.has_previous %}<a class="admin-secondary-btn" href="?q={{ search_query|urlencode }}&amp;page={{ muscle_page.previous_page_number }}">{% trans 'عضلهٔ قبلی' %}</a>{% else %}<span></span>{% endif %}
+                <span>{% trans 'صفحه' %} {{ muscle_page.number }} {% trans 'از' %} {{ muscle_page.paginator.num_pages }}</span>
+                {% if muscle_page.has_next %}<a class="admin-secondary-btn" href="?q={{ search_query|urlencode }}&amp;page={{ muscle_page.next_page_number }}">{% trans 'عضلهٔ بعدی' %}</a>{% else %}<span></span>{% endif %}
+            </nav>
+        {% endif %}
+    {% else %}
+        <div class="muscle-volume-empty">
+            <strong>{% if search_query %}{% trans 'عضله‌ای با این نام در کتابخانه پیدا نشد.' %}{% else %}{% trans 'عضله‌ای در کتابخانه ثبت نشده است.' %}{% endif %}</strong>
+            <p>{% trans 'می‌توانید از دکمهٔ افزودن مقدار، عضله و بازهٔ هدف آن را ثبت کنید.' %}</p>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

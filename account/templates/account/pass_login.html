@@ -1,0 +1,86 @@
+{% extends 'account/_auth_mobile_shell.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% blocktrans %}ورود به حساب | ایگوفیت{% endblocktrans %}{% endblock %}
+
+{% block auth_content %}
+<section class="auth-mobile-screen">
+    <div class="auth-mobile-logo-wrap">
+        <img src="{% static 'images/logoimageego.webp' %}" alt="{% trans 'ایگوفیت' %}" class="auth-mobile-logo">
+    </div>
+
+    <section class="auth-mobile-copy">
+        <p class="auth-mobile-eyebrow">{% trans 'ورود با رمز عبور' %}</p>
+        <h1 class="auth-mobile-title">{% trans 'ورود به حساب کاربری' %}</h1>
+        <p class="auth-mobile-description">{% trans 'نام کاربری و رمز عبور خود را وارد کنید.' %}</p>
+    </section>
+
+    <section class="auth-mobile-form">
+        {% if messages %}
+            <div class="form-messages" role="status" aria-live="polite">
+                {% for message in messages %}
+                    <div class="form-message {% if message.tags %}is-{{ message.tags }}{% endif %}" role="alert">{{ message }}</div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+        <form method="post" class="stack-form auth-mobile-form__stack" novalidate>
+            {% csrf_token %}
+            <div class="field-group">
+                {% trans 'نام کاربری' as default_fullname_label %}
+                <label for="id_fullname">{{ form.fullname.label|default:default_fullname_label }}</label>
+                {{ form.fullname }}
+                {% if form.fullname.errors %}
+                    <div class="form-message is-error" role="alert">{{ form.fullname.errors|striptags }}</div>
+                {% endif %}
+            </div>
+            <div class="field-group">
+                {% trans 'رمز عبور' as default_password_label %}
+                <label for="id_password">{{ form.password.label|default:default_password_label }}</label>
+                <div class="auth-password-control">
+                    {{ form.password }}
+                    <button
+                        type="button"
+                        class="auth-password-toggle"
+                        data-password-toggle
+                        data-target="id_password"
+                        data-show-label="{% trans 'نمایش رمز عبور' %}"
+                        data-hide-label="{% trans 'پنهان کردن رمز عبور' %}"
+                        data-show-text="{% trans 'نمایش' %}"
+                        data-hide-text="{% trans 'پنهان' %}"
+                        aria-label="{% trans 'نمایش رمز عبور' %}"
+                        aria-controls="id_password"
+                        aria-pressed="false"
+                    >
+                        <svg class="auth-password-toggle__icon auth-password-toggle__icon--show" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M2.2 12s3.4-6 9.8-6 9.8 6 9.8 6-3.4 6-9.8 6-9.8-6-9.8-6Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                            <circle cx="12" cy="12" r="2.7" fill="none" stroke="currentColor" stroke-width="1.8" />
+                        </svg>
+                        <svg class="auth-password-toggle__icon auth-password-toggle__icon--hide" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="m3 3 18 18M10.6 6.2A10.9 10.9 0 0 1 12 6c6.4 0 9.8 6 9.8 6a16.7 16.7 0 0 1-3.1 3.6M6.2 6.8C3.6 8.5 2.2 12 2.2 12s3.4 6 9.8 6c1 0 1.9-.2 2.7-.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" />
+                            <path d="M9.9 9.9a3 3 0 0 0 4.2 4.2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" />
+                        </svg>
+                        <span data-password-toggle-label>{% trans 'نمایش' %}</span>
+                    </button>
+                </div>
+                {% if form.password.errors %}
+                    <div class="form-message is-error" role="alert">{{ form.password.errors|striptags }}</div>
+                {% endif %}
+            </div>
+            {% if form.non_field_errors %}
+                {% for error in form.non_field_errors %}
+                    <div class="form-message is-danger" role="alert">{{ error }}</div>
+                {% endfor %}
+            {% endif %}
+            <button type="submit" class="auth-mobile-primary">{% trans 'ورود' %}</button>
+        </form>
+
+        <nav class="auth-links auth-mobile-links" aria-label="{% trans 'مسیرهای کمکی ورود' %}">
+            <a href="{% url 'register:forgot_password' %}">{% trans 'رمز عبور را فراموش کرده‌ام' %}</a>
+            <a href="{% url 'register:pass_register' %}">{% trans 'ثبت‌نام با رمز عبور' %}</a>
+            <a href="{% url 'register:register' %}">{% trans 'ورود با شماره تماس' %}</a>
+        </nav>
+    </section>
+</section>
+{% endblock %}

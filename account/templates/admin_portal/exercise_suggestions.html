@@ -1,0 +1,79 @@
+{% extends 'admin_portal/_shell.html' %}
+{% load i18n %}
+
+{% block title %}{% blocktrans %}پیشنهادهای حرکت | ایگوفیت{% endblocktrans %}{% endblock %}
+
+{% block admin_content %}
+<section class="admin-screen admin-exercise-suggestions-screen">
+    <header class="admin-screen__header admin-screen__header--split">
+        <h1 class="admin-screen__title">{% trans 'پیشنهادهای حرکت مربیان' %}</h1>
+        <span class="admin-badge">{{ pending_count }} {% trans 'در انتظار بررسی' %}</span>
+    </header>
+
+    <p class="admin-screen__lead">
+        {% trans 'مربیان امکان تغییر کتابخانه حرکات را ندارند و فقط می‌توانند حرکت جدید پیشنهاد دهند. پس از تایید، حرکت را از بخش کتابخانه ایجاد کنید.' %}
+    </p>
+
+    <nav class="admin-filter-tabs" aria-label="{% trans 'فیلتر وضعیت' %}">
+        <a href="{% url 'register:admin_exercise_suggestions' %}" class="{% if not active_status %}is-active{% endif %}">{% trans 'همه' %}</a>
+        {% for value, label in status_choices %}
+            <a href="?status={{ value }}" class="{% if active_status == value %}is-active{% endif %}">{{ label }}</a>
+        {% endfor %}
+    </nav>
+
+    <section class="admin-result-list">
+        {% for suggestion in suggestions %}
+            <article class="admin-result-card admin-result-card--wide">
+                <div class="admin-result-card__meta">
+                    <div>
+                        <strong>{{ suggestion.name_fa }}</strong>
+                        <span dir="ltr">{{ suggestion.name_en }}</span>
+                        <span class="admin-badge">{{ suggestion.get_kind_display }}</span>
+                        <span class="admin-badge admin-badge--{{ suggestion.status }}">{{ suggestion.get_status_display }}</span>
+                    </div>
+                    <small>{{ suggestion.requested_by.fullname }} · {{ suggestion.created_at|date:"Y-m-d H:i" }}</small>
+                </div>
+
+                <p class="admin-result-card__bio">{{ suggestion.goal|linebreaksbr }}</p>
+
+                <div class="admin-result-card__links">
+                    {% if suggestion.image %}
+                        <a href="{{ suggestion.image.url }}" target="_blank" rel="noopener">{% trans 'مشاهده تصویر' %}</a>
+                    {% endif %}
+                    {% if suggestion.kind == 'exercise' %}
+                        <a href="{% url 'register:admin_exercise_add' %}">{% trans 'ایجاد حرکت در کتابخانه' %}</a>
+                    {% else %}
+                        <a href="{% url 'register:admin_corrective_add' %}">{% trans 'ایجاد حرکت اصلاحی' %}</a>
+                    {% endif %}
+                </div>
+
+                {% if suggestion.status == 'rejected' and suggestion.rejection_reason %}
+                    <p class="admin-result-card__note">{% trans 'دلیل رد:' %} {{ suggestion.rejection_reason }}</p>
+                {% endif %}
+
+                {% if suggestion.status == 'pending' %}
+                    <form method="post" action="{% url 'register:admin_exercise_suggestion_review' suggestion.pk %}" class="admin-review-form">
+                        {% csrf_token %}
+                        <div class="field-group">
+                            <label for="action-{{ suggestion.pk }}">{% trans 'عملیات' %}</label>
+                            <select name="action" id="action-{{ suggestion.pk }}" class="form-input enterprise-input w-full h-11 !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5">
+                                <option value="approve">{% trans 'تایید' %}</option>
+                                <option value="reject">{% trans 'رد' %}</option>
+                            </select>
+                        </div>
+                        <div class="field-group admin-review-form__reason">
+                            <label for="reason-{{ suggestion.pk }}">{% trans 'دلیل رد (در صورت رد الزامی است)' %}</label>
+                            <textarea name="reason" id="reason-{{ suggestion.pk }}" rows="2" class="form-input enterprise-input w-full !ring-0 !ring-offset-0 bg-secondary border-border focus:border-border rounded-xl text-sm text-foreground px-5 py-3"></textarea>
+                        </div>
+                        <button type="submit" class="admin-primary-btn">{% trans 'ثبت بررسی' %}</button>
+                    </form>
+                {% endif %}
+            </article>
+        {% empty %}
+            <article class="admin-empty admin-empty--center">
+                <strong>{% trans 'پیشنهادی برای نمایش وجود ندارد.' %}</strong>
+            </article>
+        {% endfor %}
+    </section>
+</section>
+{% endblock %}

@@ -1,0 +1,642 @@
+{% extends 'account/_shell.html' %}
+{% load my_tags %}
+{% load i18n %}
+
+{% block title %}{% blocktrans %}برنامه بدنسازی | ایگوفیت{% endblocktrans %}{% endblock %}
+
+{% block account_content %}
+<section class="profile-screen profile-screen--wide workout-program-screen">
+    <header class="profile-screen__header">
+        <h2 class="profile-screen__title">{% trans 'برنامه بدنسازی' %}</h2>
+        <a href="{% url 'register:profile_training_preferences' %}" class="secondary-action">{% trans 'تنظیم هدف و تجهیزات' %}</a>
+    </header>
+
+    <div class="workout-program-list" data-workout-program-list {% if selected_program_id %}hidden{% endif %}>
+        {% if programs %}
+            <div class="workout-program-list__header">
+                <div class="workout-program-list__heading">
+                    <span class="workout-program-list__icon" aria-hidden="true">✦</span>
+                    <div>
+                        <span class="account-eyebrow">{% trans 'برنامه‌های تمرینی شما' %}</span>
+                        <h2>{% trans 'یک برنامه را برای شروع انتخاب کنید' %}</h2>
+                        <p>{% trans 'جزئیات تمرین، رکوردها و بازخورد هر برنامه در صفحه اختصاصی آن در دسترس است.' %}</p>
+                    </div>
+                </div>
+                <span class="workout-program-list__count">{{ programs|length }} {% trans 'برنامه' %}</span>
+            </div>
+        {% endif %}
+
+        {% for program in programs %}
+            <a href="#workout-program-{{ program.pk }}" class="workout-program-list-item secondary-action" data-workout-program-open="{{ program.pk }}">
+                <span class="workout-program-list-item__index" aria-hidden="true">{{ forloop.counter|stringformat:"02d" }}</span>
+                <span class="workout-program-list-item__body">
+                    <span class="workout-program-list-item__title">{{ program.title }}</span>
+                    <span class="workout-program-list-item__meta">
+                        <span><strong>{% trans 'شروع' %}</strong>{{ program.start_date|to_jalali }}</span>
+                        {% if program.end_date %}<span><strong>{% trans 'پایان' %}</strong>{{ program.end_date|to_jalali }}</span>{% endif %}
+                        <span><strong>{% trans 'مربی' %}</strong>{% if program.prescribed_by %}{{ program.prescribed_by.display_name|default:program.prescribed_by.fullname }}{% else %}{% trans 'نامشخص' %}{% endif %}</span>
+                    </span>
+                    <span class="workout-program-list-item__status"><span aria-hidden="true"></span>{% if program.can_access %}{% trans 'آماده ثبت رکورد' %}{% else %}{% trans 'نیازمند پرداخت' %}{% endif %}</span>
+                </span>
+                <span class="workout-program-list-item__arrow" aria-hidden="true">←</span>
+            </a>
+        {% empty %}
+            <section class="account-card">
+                <div class="empty-state">
+                    <h3>{% trans 'هنوز برنامه بدنسازی برای شما ثبت نشده است' %}</h3>
+                    <p>{% trans 'پس از تجویز و انتشار برنامه توسط مربی، برنامه شما در این بخش نمایش داده می‌شود.' %}</p>
+                    <div class="workout-program-empty-request">
+                        <p>{% trans 'شما می توانید با ارسال فرم درخواست برنامه از مربی، از ما برنامه دریافت کنید.' %}</p>
+                        <a href="{% url 'register:profile_coach' %}" class="workout-program-empty-request__button">{% trans 'درخواست برنامه از مربی' %}</a>
+                    </div>
+                </div>
+            </section>
+        {% endfor %}
+    </div>
+
+    {% for program in programs %}
+        <article class="workout-program-card" id="workout-program-{{ program.pk }}" data-workout-program-detail {% if selected_program_id != program.pk %}hidden{% endif %}>
+            <div class="workout-program-card__back">
+                <button type="button" class="secondary-action" data-workout-program-back>{% trans 'بازگشت به لیست برنامه‌ها' %}</button>
+            </div>
+            {% if not program.can_access %}
+                <section class="account-card">
+                    <span class="account-eyebrow">{% trans 'برنامه پولی' %}</span>
+                    <h2>{{ program.title }}</h2>
+                    <p>{% trans 'برای مشاهده جزئیات، ثبت رکورد و دریافت PDF، ابتدا هزینه برنامه را پرداخت کنید.' %}</p>
+                    <form method="post" action="{% url 'register:profile_workout_program_pay' program.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="cta-primary secondary-action">{% blocktrans with price=program.price %}پرداخت {{ price }} تومان و فعال‌سازی برنامه{% endblocktrans %}</button>
+                    </form>
+                </section>
+            {% else %}
+            <header class="workout-program-card__header">
+                <div>
+                    <span class="account-eyebrow">{% trans 'برنامه تجویز‌شده' %}</span>
+                    <h2>{{ program.title }}</h2>
+                    <p>
+                        {% trans 'شروع' %}: {{ program.start_date|to_jalali }}
+                        {% if program.end_date %} — {% trans 'پایان' %}: {{ program.end_date|to_jalali }}{% endif %}
+                    </p>
+                </div>
+                <a
+                    href="{% url 'register:profile_workout_program_pdf' program.pk %}"
+                    class="secondary-action workout-program-pdf-download"
+                    download
+                    aria-label="{% trans 'دریافت PDF برنامه' %}"
+                >
+                    <span class="workout-program-pdf-download__icon" aria-hidden="true">⇩</span>
+                    <span>{% trans 'دریافت PDF' %}</span>
+                </a>
+            </header>
+
+            {% if program.periodization_plan and program.training_cycle %}
+                <aside class="workout-program-card__notes">
+                    {% if program.training_cycle.is_deload %}
+                        {% blocktrans with week=program.training_cycle.week cycle_week=program.training_cycle.cycle_week %}هفتهٔ {{ week }} برنامه (هفتهٔ سبک {{ cycle_week }} چرخه): تعداد ست‌های کاری کاهش یافته است تا فرصت ریکاوری فراهم شود.{% endblocktrans %}
+                    {% else %}
+                        {% blocktrans with week=program.training_cycle.week cycle_week=program.training_cycle.cycle_week %}هفتهٔ {{ week }} برنامه (هفتهٔ {{ cycle_week }} چرخهٔ تمرین).{% endblocktrans %}
+                    {% endif %}
+                    {% if program.periodization_plan.description %} {{ program.periodization_plan.description }}{% endif %}
+                </aside>
+            {% endif %}
+
+            {% if program.notes %}
+                <div class="workout-program-card__notes">{{ program.notes|linebreaksbr }}</div>
+            {% endif %}
+
+                {% if program.warmup_correctives %}
+                    <section class="workout-corrective workout-corrective--warmup">
+                        <h3>{% trans 'حرکات اصلاحی حین گرم کردن' %}</h3>
+                        {% for corrective in program.warmup_correctives %}
+                            <div class="workout-corrective__item">
+                                <a href="{% url 'register:profile_workout_movement' 'corrective' corrective.corrective_exercise.pk %}?program={{ program.pk }}" class="workout-movement-link" data-workout-movement-open>{{ corrective.corrective_exercise.name }}</a>
+                                <span>{% if corrective.sets %}{{ corrective.sets }} {% trans 'ست' %}{% endif %}{% if corrective.reps %} — {{ corrective.reps }}{% endif %}</span>
+                                {% if corrective.note %}<small>{{ corrective.note }}</small>{% endif %}
+                            </div>
+                        {% endfor %}
+                    </section>
+                {% endif %}
+
+            {% for day in program.days.all %}
+                <form method="post" action="{% url 'register:profile_workout_program_performance' program.pk %}" class="workout-performance-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="day_id" value="{{ day.pk }}">
+                    <details class="workout-day" {% if day.completed_count >= day.completion_weeks %}data-workout-day-complete{% endif %}>
+                        <summary class="workout-day__summary">
+                            <div class="workout-day__heading">
+                                <div class="workout-day__title">
+                                    <span class="account-eyebrow workout-day__eyebrow">{% trans 'جلسه تمرین' %} {{ forloop.counter }}</span>
+                                    <h3>{{ day.name }}</h3>
+                                    {% if day.scheduled_weekday %}<span>{{ day.get_scheduled_weekday_display }}</span>{% endif %}
+                                    {% if day.estimated_duration_minutes %}<span>{{ day.estimated_duration_minutes }} {% trans 'دقیقه برآورد' %}</span>{% endif %}
+                                </div>
+                                {% if day.notes %}<p>{{ day.notes }}</p>{% endif %}
+                            </div>
+                            <span class="workout-day__chevron" aria-hidden="true">⌄</span>
+                            <div class="workout-day-completions" aria-label="{% trans 'دفعات انجام برنامه' %}">
+                                <div class="workout-day-completions__heading">
+                                    <strong>{% trans 'دفعات انجام برنامه' %}</strong>
+                                    <span>
+                                        {{ day.completed_count }}/{{ day.completion_weeks }}
+                                        {% if day.completed_count >= day.completion_weeks %}{% trans 'تکمیل شد' %}{% endif %}
+                                    </span>
+                                </div>
+                                <div class="workout-day-completions__list">
+                                    {% for completion_number in day.completion_checks %}
+                                        <label for="workout-completion-{{ day.pk }}-{{ completion_number }}">
+                                            <input id="workout-completion-{{ day.pk }}-{{ completion_number }}" type="checkbox" disabled {% if completion_number <= day.completed_count %}checked{% endif %}>
+                                            <span>{% trans 'دفعه' %} {{ completion_number }}</span>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </summary>
+                        <div class="workout-day__content">
+                        <div class="workout-table-wrap">
+                            <table class="workout-table" role="table">
+                                <thead role="rowgroup">
+                                    <tr role="row">
+                                        <th scope="col" role="columnheader">{% trans 'حرکت' %}</th>
+                                        <th scope="col" role="columnheader">{% trans 'ست' %}</th>
+                                        <th scope="col" role="columnheader">{% trans 'تکرار' %}</th>
+                                        <th scope="col" role="columnheader">{% trans 'استراحت (دقیقه)' %}</th>
+                                        <th scope="col" role="columnheader">{% trans 'نکته' %}</th>
+                                        <th scope="col" role="columnheader">{% trans 'نتیجه واقعی هر ست' %}</th>
+                                    </tr>
+                                </thead>
+                                <tbody role="rowgroup">
+                                    {% for row in day.workout_rows %}
+                                        <tr role="row">
+                                            <td role="cell" data-label="{% trans 'حرکت' %}" class="workout-table__movement">
+                                                {% if row.label %}<span class="workout-superset-label">{{ row.label }}</span>{% endif %}
+                                                {% if row.is_cardio %}
+                                                    <span class="workout-movement-link">{{ row.exercise.name }}</span>
+                                                {% else %}
+                                                    <a href="{% url 'register:profile_workout_movement' 'exercise' row.exercise.pk %}?program={{ program.pk }}" class="workout-movement-link" data-workout-movement-open>{{ row.exercise.name }}</a>
+                                                {% endif %}
+                                            </td>
+                                            <td role="cell" data-label="{% trans 'ست' %}">{{ row.sets }}</td>
+                                            <td role="cell" data-label="{% trans 'تکرار' %}">{{ row.reps }}</td>
+                                            <td role="cell" data-label="{% trans 'استراحت' %}">{{ row.rest|default:"—" }}</td>
+                                            <td role="cell" data-label="{% trans 'نکته' %}" class="workout-table__note">{{ row.item.note|default:"—" }}</td>
+                                            <td role="cell" data-label="{% trans 'نتیجه واقعی هر ست' %}" class="workout-table__performance">
+                                                <details class="workout-row-entry">
+                                                    <summary class="workout-row-entry__summary">
+                                                        <span class="workout-row-entry__copy">
+                                                            <strong>{% trans 'ثبت عملکرد' %}</strong>
+                                                            <span>{{ row.set_count }} {% trans 'ست' %} · {{ row.reps|default:'—' }} {% trans 'تکرار' %}</span>
+                                                        </span>
+                                                        <span class="workout-row-entry__chevron" aria-hidden="true">⌄</span>
+                                                    </summary>
+                                                    <div class="workout-row-entry__content">
+                                                        <div class="workout-set-results" role="group" aria-label="{% trans 'ثبت نتیجه ست‌ها برای' %} {{ row.exercise.name }}">
+                                                            {% for set_number in row.set_numbers %}
+                                                                {% with set_number_text=set_number|stringformat:'s' %}
+                                                                {% with prefix=row.session_prefix|add:'_'|add:set_number_text %}
+                                                                <fieldset class="workout-set-result">
+                                                                    <legend>{% trans 'ست' %} {{ set_number }} · {% trans 'هدف' %}: {{ row.reps|default:'—' }}</legend>
+                                                                    <input type="hidden" name="{{ prefix }}_attempted" value="1">
+                                                                    {% if row.is_cardio %}
+                                                                        <label><span>{% trans 'مدت (ثانیه)' %}</span><input type="number" name="{{ prefix }}_duration_seconds" min="1" max="604800" inputmode="numeric"></label>
+                                                                        <label><span>{% trans 'مسافت (متر)' %}</span><input type="number" name="{{ prefix }}_distance_m" min="0.01" step="0.01" inputmode="decimal"></label>
+                                                                        <label><span>{% trans 'میانگین ضربان قلب' %}</span><input type="number" name="{{ prefix }}_average_heart_rate_bpm" min="30" max="240" inputmode="numeric"></label>
+                                                                        <label><span>{% trans 'بیشینه ضربان قلب' %}</span><input type="number" name="{{ prefix }}_peak_heart_rate_bpm" min="30" max="240" inputmode="numeric"></label>
+                                                                    {% else %}
+                                                                        <label><span>{% trans 'تکرار واقعی' %}</span><input type="number" name="{{ prefix }}_actual_reps" min="0" max="1000" inputmode="numeric"></label>
+                                                                        <label><span>{% trans 'وزنه (کیلوگرم)' %}</span><input type="number" name="{{ prefix }}_actual_load_kg" min="0" max="999999.99" step="0.01" inputmode="decimal" value="{{ row.default_load_kg|default_if_none:'' }}"></label>
+                                                                        <label><span>{% trans 'تکرار ذخیره (RIR)' %}</span><input type="number" name="{{ prefix }}_rir" min="0" max="10" inputmode="numeric"></label>
+                                                                    {% endif %}
+                                                                    <label><span>{% trans 'شدت ادراک‌شده (RPE)' %}</span><input type="number" name="{{ prefix }}_rpe" min="0" max="10" inputmode="numeric"></label>
+                                                                    <label class="workout-set-result__completed"><input type="checkbox" name="{{ prefix }}_completed" value="1" checked><span>{% trans 'ست انجام شد' %}</span></label>
+                                                                </fieldset>
+                                                                {% endwith %}
+                                                                {% endwith %}
+                                                            {% endfor %}
+                                                        </div>
+                                                    </div>
+                                                </details>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <section class="workout-program-feedback">
+                            <div class="workout-program-feedback__heading">
+                                <div>
+                                    <span class="account-eyebrow">{% trans 'بازخورد روز' %}</span>
+                                    <h3>{% trans 'سطح دشواری این روز چقدر بود؟' %}</h3>
+                                    <p>{% trans 'پس از پایان این روز، یک امتیاز از صفر تا ۱۰ به سختی تمرین بدهید.' %}</p>
+                                </div>
+                                <output data-difficulty-output>
+                                    {% if day.user_feedback %}{{ day.user_feedback.difficulty }}{% else %}5{% endif %}/10
+                                </output>
+                            </div>
+                            <input
+                                type="range"
+                                name="difficulty"
+                                min="0"
+                                max="10"
+                                step="1"
+                                value="{% if day.user_feedback %}{{ day.user_feedback.difficulty }}{% else %}5{% endif %}"
+                                data-difficulty-slider
+                                aria-label="{% trans 'سطح دشواری این روز از صفر تا ده' %}"
+                            >
+                            <div class="workout-program-feedback__scale" aria-hidden="true">
+                                <span>0</span><span>5</span><span>10</span>
+                            </div>
+                        </section>
+
+                        <section class="workout-session-meta" aria-label="{% trans 'جزئیات جلسه' %}">
+                            <label><span>{% trans 'مدت کل جلسه (دقیقه)' %}</span><input type="number" name="session_duration_minutes" min="1" max="10080" inputmode="numeric"></label>
+                            <label><span>{% trans 'یادداشت جلسه برای خودتان یا مربی' %}</span><textarea name="session_notes" rows="3" maxlength="4000"></textarea></label>
+                        </section>
+
+                        <button type="submit" class="cta-primary workout-performance-submit" aria-label="{% trans 'ثبت نتیجه ست‌ها و بازخورد این روز' %}">
+                            <span aria-hidden="true">✓</span>
+                            {% trans 'ثبت جلسه و نتیجه ست‌ها' %}
+                        </button>
+                        <div class="workout-performance-feedback" data-workout-feedback role="status" aria-live="polite"></div>
+                        </div>
+                    </details>
+                </form>
+                {% endfor %}
+
+                {% if program.cooldown_correctives %}
+                    <section class="workout-corrective workout-corrective--cooldown">
+                        <h3>{% trans 'حرکات اصلاحی حین سرد کردن' %}</h3>
+                        {% for corrective in program.cooldown_correctives %}
+                            <div class="workout-corrective__item">
+                                <a href="{% url 'register:profile_workout_movement' 'corrective' corrective.corrective_exercise.pk %}?program={{ program.pk }}" class="workout-movement-link" data-workout-movement-open>{{ corrective.corrective_exercise.name }}</a>
+                                <span>{% if corrective.sets %}{{ corrective.sets }} {% trans 'ست' %}{% endif %}{% if corrective.reps %} — {{ corrective.reps }}{% endif %}</span>
+                                {% if corrective.note %}<small>{{ corrective.note }}</small>{% endif %}
+                            </div>
+                        {% endfor %}
+                    </section>
+                {% endif %}
+
+                {% if program.supplements_note or program.warmup_notes or program.cooldown_notes %}
+                    <section class="workout-program-card__extra">
+                        {% if program.supplements_note %}<div><strong>{% trans 'مکمل و نکات تغذیه‌ای' %}</strong><p>{{ program.supplements_note|linebreaksbr }}</p></div>{% endif %}
+                        {% if program.warmup_notes %}<div><strong>{% trans 'توضیحات گرم کردن' %}</strong><p>{{ program.warmup_notes|linebreaksbr }}</p></div>{% endif %}
+                        {% if program.cooldown_notes %}<div><strong>{% trans 'توضیحات سرد کردن' %}</strong><p>{{ program.cooldown_notes|linebreaksbr }}</p></div>{% endif %}
+                    </section>
+                {% endif %}
+            {% endif %}
+
+        </article>
+    {% endfor %}
+
+    <dialog class="workout-movement-dialog" data-workout-movement-dialog aria-labelledby="workout-movement-dialog-title">
+        <div class="workout-movement-dialog__panel">
+            <header class="workout-movement-dialog__header">
+                <h2 id="workout-movement-dialog-title" data-workout-movement-dialog-title>{% trans 'نمایش حرکت' %}</h2>
+                <button type="button" class="workout-movement-dialog__close" data-workout-movement-dialog-close aria-label="{% trans 'بستن' %}">×</button>
+            </header>
+            <div class="workout-movement-dialog__content" data-workout-movement-dialog-content aria-live="polite"></div>
+        </div>
+    </dialog>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+    {{ block.super }}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            (function () {
+                var list = document.querySelector("[data-workout-program-list]");
+                var details = Array.prototype.slice.call(document.querySelectorAll("[data-workout-program-detail]"));
+                if (!list || !details.length) {
+                    return;
+                }
+
+                function showList() {
+                    details.forEach(function (detail) {
+                        detail.hidden = true;
+                    });
+                    list.hidden = false;
+                }
+                window.__workoutProgramShowList = showList;
+
+                function showDetail(pk) {
+                    var target = document.getElementById("workout-program-" + pk);
+                    if (!target) {
+                        return false;
+                    }
+                    details.forEach(function (detail) {
+                        detail.hidden = detail !== target;
+                    });
+                    list.hidden = true;
+                    target.scrollIntoView({ behavior: "smooth", block: "start" });
+                    return true;
+                }
+
+                function pkFromHash() {
+                    var match = /^#workout-program-(\d+)/.exec(window.location.hash);
+                    return match ? match[1] : null;
+                }
+
+                document.querySelectorAll("[data-workout-program-open]").forEach(function (trigger) {
+                    trigger.addEventListener("click", function (event) {
+                        event.preventDefault();
+                        var pk = trigger.getAttribute("data-workout-program-open");
+                        if (showDetail(pk)) {
+                            history.pushState(null, "", "#workout-program-" + pk);
+                        }
+                    });
+                });
+
+                document.querySelectorAll("[data-workout-program-back]").forEach(function (backButton) {
+                    backButton.addEventListener("click", function (event) {
+                        event.preventDefault();
+                        showList();
+                        history.pushState(null, "", window.location.pathname + window.location.search);
+                    });
+                });
+
+                window.addEventListener("popstate", function () {
+                    var pk = pkFromHash();
+                    if (!pk || !showDetail(pk)) {
+                        showList();
+                    }
+                });
+
+                var queryMatch = /(?:\?|&)open_program=(\d+)/.exec(window.location.search);
+                var initialPk = pkFromHash() || (queryMatch ? queryMatch[1] : null);
+                if (!initialPk || !showDetail(initialPk)) {
+                    showList();
+                }
+            })();
+
+            (function () {
+                var dialog = document.querySelector("[data-workout-movement-dialog]");
+                var title = document.querySelector("[data-workout-movement-dialog-title]");
+                var content = document.querySelector("[data-workout-movement-dialog-content]");
+                var closeButton = document.querySelector("[data-workout-movement-dialog-close]");
+                if (!dialog || !title || !content || typeof dialog.showModal !== "function") {
+                    return;
+                }
+
+                var requestVersion = 0;
+                var lastTrigger = null;
+
+                function clearDialogContent() {
+                    content.querySelectorAll("video").forEach(function (video) {
+                        video.pause();
+                        video.removeAttribute("src");
+                        video.load();
+                    });
+                    content.replaceChildren();
+                }
+
+                function closeDialog() {
+                    requestVersion += 1;
+                    if (dialog.open) {
+                        dialog.close();
+                    } else {
+                        clearDialogContent();
+                    }
+                }
+
+                document.querySelectorAll("[data-workout-movement-open]").forEach(function (trigger) {
+                    trigger.addEventListener("click", function (event) {
+                        event.preventDefault();
+                        lastTrigger = trigger;
+                        var currentRequest = ++requestVersion;
+                        title.textContent = trigger.textContent.trim();
+                        content.textContent = "در حال بارگذاری اطلاعات حرکت…";
+                        content.setAttribute("aria-busy", "true");
+                        if (!dialog.open) {
+                            dialog.showModal();
+                        }
+
+                        fetch(trigger.href, { credentials: "same-origin" })
+                            .then(function (response) {
+                                if (!response.ok) {
+                                    throw new Error("movement request failed");
+                                }
+                                return response.text();
+                            })
+                            .then(function (html) {
+                                if (currentRequest !== requestVersion || !dialog.open) {
+                                    return;
+                                }
+                                var parsed = new DOMParser().parseFromString(html, "text/html");
+                                var movementCard = parsed.querySelector(".workout-movement-card");
+                                if (!movementCard) {
+                                    throw new Error("movement details were not found");
+                                }
+                                var movementTitle = parsed.querySelector(".workout-movement-screen .profile-screen__title");
+                                var card = movementCard.cloneNode(true);
+                                var returnLink = card.querySelector(".workout-movement-card__return");
+                                if (returnLink) {
+                                    returnLink.remove();
+                                }
+                                title.textContent = movementTitle ? movementTitle.textContent.trim() : trigger.textContent.trim();
+                                content.replaceChildren(card);
+                                content.setAttribute("aria-busy", "false");
+                            })
+                            .catch(function () {
+                                if (currentRequest !== requestVersion || !dialog.open) {
+                                    return;
+                                }
+                                content.textContent = "بارگذاری اطلاعات حرکت انجام نشد. دوباره تلاش کنید.";
+                                content.setAttribute("aria-busy", "false");
+                            });
+                    });
+                });
+
+                if (closeButton) {
+                    closeButton.addEventListener("click", closeDialog);
+                }
+                dialog.addEventListener("click", function (event) {
+                    if (event.target === dialog) {
+                        closeDialog();
+                    }
+                });
+                dialog.addEventListener("close", function () {
+                    requestVersion += 1;
+                    clearDialogContent();
+                    content.setAttribute("aria-busy", "false");
+                    if (lastTrigger && document.contains(lastTrigger)) {
+                        lastTrigger.focus({ preventScroll: true });
+                    }
+                });
+            })();
+
+            document.querySelectorAll("[data-difficulty-slider]").forEach(function (slider) {
+                var output = slider.closest(".workout-program-feedback").querySelector("[data-difficulty-output]");
+                function syncDifficulty() {
+                    if (output) {
+                        output.textContent = slider.value + "/10";
+                    }
+                }
+                slider.addEventListener("input", syncDifficulty);
+                syncDifficulty();
+            });
+
+            function clearFeedback(form) {
+                var box = form.querySelector("[data-workout-feedback]");
+                if (box) {
+                    box.classList.remove("is-visible", "is-success");
+                    box.innerHTML = "";
+                }
+                form.querySelectorAll(".is-invalid").forEach(function (input) {
+                    input.classList.remove("is-invalid");
+                });
+            }
+
+            function showWorkoutToast(message) {
+                if (!message) {
+                    return;
+                }
+                var stack = document.querySelector(".account-toast-stack");
+                if (!stack) {
+                    var screen = document.querySelector(".workout-program-screen");
+                    if (!screen) {
+                        return;
+                    }
+                    stack = document.createElement("div");
+                    stack.className = "account-toast-stack";
+                    stack.setAttribute("aria-live", "assertive");
+                    var header = screen.querySelector(".profile-screen__header");
+                    screen.insertBefore(stack, header ? header.nextSibling : screen.firstChild);
+                }
+                var toast = document.createElement("div");
+                toast.className = "account-toast account-toast--error";
+                toast.setAttribute("role", "alert");
+                toast.textContent = message;
+                stack.appendChild(toast);
+                window.setTimeout(function () {
+                    toast.classList.add("is-dismissed");
+                    window.setTimeout(function () {
+                        toast.remove();
+                    }, 300);
+                }, 5000);
+            }
+
+            function isRirRpeError(error) {
+                return /(?:^|[._])(?:rir|rpe)$/i.test(String(error.field || ""));
+            }
+
+            function showFeedback(form, payload, isSuccess) {
+                var box = form.querySelector("[data-workout-feedback]");
+                var visibleErrors = [];
+                if (!isSuccess && payload.errors && payload.errors.length) {
+                    payload.errors.forEach(function (error) {
+                        if (error.field) {
+                            var input = form.querySelector('[name="' + error.field + '"]');
+                            if (input) {
+                                input.classList.add("is-invalid");
+                            }
+                        }
+                        if (isRirRpeError(error)) {
+                            var fieldName = /rpe$/i.test(String(error.field || "")) ? "RPE" : "RIR";
+                            showWorkoutToast("خطا در ثبت " + fieldName + ": " + error.message);
+                        } else {
+                            visibleErrors.push(error);
+                        }
+                    });
+                }
+                if (!box) {
+                    return;
+                }
+                box.innerHTML = "";
+                if (!isSuccess && !visibleErrors.length) {
+                    box.classList.remove("is-visible", "is-success");
+                    return;
+                }
+                box.classList.add("is-visible");
+                box.classList.toggle("is-success", isSuccess);
+                var title = document.createElement("div");
+                title.className = "workout-performance-feedback__title";
+                title.textContent = isSuccess ? "✓ " + (payload.message || "ثبت شد") : "⚠ لطفاً موارد زیر را اصلاح کنید";
+                box.appendChild(title);
+                if (!isSuccess && visibleErrors.length) {
+                    var listEl = document.createElement("ul");
+                    visibleErrors.forEach(function (error) {
+                        var item = document.createElement("li");
+                        item.textContent = error.message;
+                        listEl.appendChild(item);
+                    });
+                    box.appendChild(listEl);
+                }
+            }
+
+            document.querySelectorAll(".workout-performance-form").forEach(function (form) {
+                form.addEventListener("invalid", function (event) {
+                    var input = event.target;
+                    if (!input || !/(?:_rir|_rpe)$/i.test(input.name || "")) {
+                        return;
+                    }
+                    event.preventDefault();
+                    var fieldName = /_rpe$/i.test(input.name) ? "RPE" : "RIR";
+                    showWorkoutToast("مقدار " + fieldName + " باید عددی بین ۰ تا ۱۰ باشد.");
+                    input.classList.add("is-invalid");
+                }, true);
+                form.addEventListener("input", function (event) {
+                    if (event.target && /(?:_rir|_rpe)$/i.test(event.target.name || "") && event.target.validity.valid) {
+                        event.target.classList.remove("is-invalid");
+                    }
+                });
+                form.addEventListener("submit", function (event) {
+                    event.preventDefault();
+                    clearFeedback(form);
+                    var button = form.querySelector(".workout-performance-submit");
+                    if (button) {
+                        button.classList.add("is-loading");
+                    }
+                    fetch(form.action, {
+                        method: "POST",
+                        body: new FormData(form),
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest",
+                            "Accept": "application/json"
+                        },
+                        credentials: "same-origin"
+                    })
+                        .then(function (response) {
+                            return response.json().then(function (payload) {
+                                return { ok: response.ok, payload: payload };
+                            });
+                        })
+                        .then(function (result) {
+                            if (button) {
+                                button.classList.remove("is-loading");
+                            }
+                            if (result.ok && result.payload.ok) {
+                                showFeedback(form, result.payload, true);
+                                var detailsEl = form.querySelector("details");
+                                window.setTimeout(function () {
+                                    if (detailsEl) {
+                                        detailsEl.open = false;
+                                    }
+                                    if (window.__workoutProgramShowList) {
+                                        window.__workoutProgramShowList();
+                                        history.pushState(null, "", window.location.pathname + window.location.search);
+                                    }
+                                }, 900);
+                                return;
+                            }
+                            showFeedback(form, result.payload, false);
+                            var firstInvalid = form.querySelector(".is-invalid");
+                            if (firstInvalid) {
+                                firstInvalid.focus();
+                                firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
+                            }
+                        })
+                        .catch(function () {
+                            if (button) {
+                                button.classList.remove("is-loading");
+                            }
+                            showFeedback(form, {
+                                errors: [{ message: "{% trans 'ارتباط با سرور برقرار نشد. دوباره تلاش کنید.' %}" }]
+                            }, false);
+                        });
+                });
+            });
+
+        });
+    </script>
+{% endblock %}

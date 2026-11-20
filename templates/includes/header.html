@@ -1,0 +1,10 @@
+{% load static %}
+{% load my_tags %}
+{% load i18n %}
+<header class="modern-header" x-data="mobileMenu" @keydown.escape.window="offcanvasOpen = false">
+    <div class="shell-container">
+        <div class="modern-header__stack">
+            <div class="modern-header__panel modern-surface">
+            {% include 'includes/header_desktop.html' %}
+            {% include 'includes/header_mobile.html' %}
+</header>

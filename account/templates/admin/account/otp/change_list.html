@@ -1,0 +1,35 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+
+{% block content %}
+    <section class="otp-security-dashboard" aria-label="{% trans 'وضعیت امنیت کدهای یکبارمصرف' %}" style="display:grid;gap:12px;margin:0 0 18px;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;">
+            <div style="padding:14px;border:1px solid var(--hairline-color,#ddd);border-radius:10px;background:var(--body-bg,#fff);">
+                <strong>{% trans 'درخواست در ۱۵ دقیقه' %}</strong>
+                <div style="font-size:1.5rem;font-weight:700;margin-top:6px;">{{ otp_requests_last_15m }}</div>
+            </div>
+            <div style="padding:14px;border:1px solid var(--hairline-color,#ddd);border-radius:10px;background:var(--body-bg,#fff);">
+                <strong>{% trans 'درخواست در یک ساعت' %}</strong>
+                <div style="font-size:1.5rem;font-weight:700;margin-top:6px;">{{ otp_requests_last_hour }}</div>
+            </div>
+            <div style="padding:14px;border:1px solid var(--hairline-color,#ddd);border-radius:10px;background:var(--body-bg,#fff);">
+                <strong>{% trans 'تلاش ناموفق در یک ساعت' %}</strong>
+                <div style="font-size:1.5rem;font-weight:700;margin-top:6px;">{{ otp_failures_last_hour }}</div>
+            </div>
+        </div>
+        {% if otp_requests_last_15m >= otp_spike_threshold %}
+            <p role="alert" style="margin:0;padding:12px 14px;border-radius:9px;background:#fff1f0;color:#a61d24;">
+                {% blocktrans with count=otp_requests_last_15m %}جهش درخواست کد شناسایی شد: {{ count }} درخواست در ۱۵ دقیقه اخیر.{% endblocktrans %}
+            </p>
+        {% endif %}
+        {% if otp_top_request_ips %}
+            <div style="padding:12px 14px;border:1px solid var(--hairline-color,#ddd);border-radius:10px;background:var(--body-bg,#fff);">
+                <strong>{% trans 'بیشترین درخواست از هر IP در ۱۵ دقیقه اخیر' %}</strong>
+                <ul style="display:flex;flex-wrap:wrap;gap:8px 22px;margin:8px 0 0;padding-inline-start:20px;">
+                    {% for row in otp_top_request_ips %}<li dir="ltr">{{ row.ip_address }} <span dir="rtl">({{ row.total }})</span></li>{% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    </section>
+    {{ block.super }}
+{% endblock %}

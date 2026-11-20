@@ -1,0 +1,195 @@
+{% extends 'admin_portal/_shell.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'صف بازبینی پیشنهادهای تمرین | ایگوفیت' %}{% endblock %}
+
+{% block admin_content %}
+<section class="admin-screen admin-training-queue-screen">
+    <header class="admin-screen__header admin-screen__header--split">
+        <a href="{% url 'register:admin_search' %}" class="admin-back-link" aria-label="{% trans 'بازگشت' %}">→</a>
+        <div>
+            <p class="automatic-section-eyebrow">{% trans 'مبتنی بر نتیجهٔ تمرین' %}</p>
+            <h1 class="admin-screen__title">{% trans 'صف بازبینی پیشرفت تمرین' %}</h1>
+            <p class="admin-training-queue__intro">{% trans 'هر ردیف در صف انتظار، تازه‌ترین پیشنهاد همان ورزشکار و حرکت است. پیشنهادهای قدیمی‌تر پس از تصمیم به سوابق پیوند می‌خورند.' %}</p>
+        </div>
+    </header>
+
+    <nav class="admin-training-queue__tabs" aria-label="{% trans 'وضعیت پیشنهادها' %}">
+        {% for item in recommendation_tabs %}
+            <a href="{{ item.url }}" class="admin-training-queue__tab{% if recommendation_tab == item.key %} is-active{% endif %}">
+                <span>{{ item.label }}</span><strong>{{ item.count }}</strong>
+            </a>
+        {% endfor %}
+    </nav>
+
+    <form method="get" action="{{ queue_filter_action }}" class="admin-training-queue__filters">
+        <input type="hidden" name="tab" value="{{ recommendation_tab }}">
+        {% if user_filter %}<input type="hidden" name="user" value="{{ user_filter }}">{% endif %}
+        <label for="training-recommendation-search">{% trans 'جست‌وجوی ورزشکار یا حرکت' %}</label>
+        <div>
+            <input id="training-recommendation-search" class="admin-input" type="search" name="q" value="{{ search_query }}" placeholder="{% trans 'نام، شماره تماس یا حرکت' %}">
+            <button type="submit" class="admin-primary-btn admin-primary-btn--small">{% trans 'جست‌وجو' %}</button>
+            {% if search_query or user_filter %}<a class="admin-secondary-btn" href="{% url 'register:admin_training_recommendations' %}?tab={{ recommendation_tab }}">{% trans 'پاک‌کردن فیلتر' %}</a>{% endif %}
+        </div>
+        {% if user_filter %}<small>{% trans 'فهرست این صفحه برای ورزشکار انتخاب‌شده محدود شده است.' %}</small>{% endif %}
+    </form>
+
+    <div class="admin-training-queue__layout">
+        <section class="admin-training-queue__list-panel" aria-label="{% trans 'فهرست پیشنهادها' %}">
+            {% if recommendation_rows %}
+                <div class="admin-training-queue__table-wrap">
+                    <table class="admin-training-queue__table">
+                        <thead>
+                            <tr>
+                                <th>{% trans 'ورزشکار' %}</th>
+                                <th>{% trans 'حرکت' %}</th>
+                                <th>{% trans 'بار پیشنهادی' %}</th>
+                                <th>{% trans 'تاریخ' %}</th>
+                                <th>{% trans 'وضعیت' %}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for recommendation in recommendation_rows %}
+                                <tr class="{% if selected_recommendation.pk == recommendation.pk %}is-selected{% endif %}">
+                                    <td><a href="{{ recommendation.queue_select_url }}">{{ recommendation.user.fullname|default:recommendation.user.phone }}</a></td>
+                                    <td>
+                                        <a href="{{ recommendation.queue_select_url }}">{{ recommendation.movement_name }}</a>
+                                        {% if recommendation.group_pending_count > 1 %}<small>{{ recommendation.group_pending_count }} {% trans 'پیشنهاد در این گروه' %}</small>{% endif %}
+                                    </td>
+                                    <td dir="ltr">{% if recommendation.suggested_load_kg != None %}{{ recommendation.suggested_load_kg }} kg{% else %}—{% endif %}</td>
+                                    <td>{{ recommendation.created_at|date:'Y/m/d' }}</td>
+                                    <td><span class="admin-training-queue__status admin-training-queue__status--{{ recommendation.status }}">{{ recommendation.get_status_display }}</span></td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% if recommendation_page.paginator.num_pages > 1 %}
+                    <nav class="admin-training-queue__pagination" aria-label="{% trans 'صفحه‌های پیشنهادها' %}">
+                        {% if queue_previous_url %}<a class="admin-secondary-btn" href="{{ queue_previous_url }}">{% trans 'قبلی' %}</a>{% endif %}
+                        <span>{% trans 'صفحه' %} {{ recommendation_page.number }} {% trans 'از' %} {{ recommendation_page.paginator.num_pages }}</span>
+                        {% if queue_next_url %}<a class="admin-secondary-btn" href="{{ queue_next_url }}">{% trans 'بعدی' %}</a>{% endif %}
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="admin-training-queue__empty">
+                    <strong>{% if recommendation_tab == 'pending' %}{% trans 'پیشنهاد درانتظاری وجود ندارد.' %}{% else %}{% trans 'موردی در این بخش پیدا نشد.' %}{% endif %}</strong>
+                    <p>{% trans 'تصمیم‌های ثبت‌شده حذف نمی‌شوند و در تب‌های سوابق قابل بازبینی هستند.' %}</p>
+                </div>
+            {% endif %}
+        </section>
+
+        <aside class="admin-training-queue__detail-panel" aria-label="{% trans 'جزئیات و شواهد' %}">
+            {% if selected_recommendation %}
+                <header class="admin-training-queue__detail-head">
+                    <div>
+                        <p class="automatic-section-eyebrow">{{ selected_recommendation.user.fullname|default:selected_recommendation.user.phone }}</p>
+                        <h2>{{ selected_recommendation.movement_name }}</h2>
+                        <span>{{ selected_recommendation.get_recommendation_type_display }} · {% trans 'اطمینان' %}: {{ selected_recommendation.get_confidence_display }}</span>
+                    </div>
+                    <a class="admin-secondary-btn" href="{% url 'register:admin_user_hub' selected_recommendation.user_id %}">{% trans 'پروفایل' %}</a>
+                </header>
+
+                <div class="admin-training-queue__metrics">
+                    <span>{% trans 'بار مبنا' %}<strong>{% if selected_recommendation.baseline_load_kg != None %}{{ selected_recommendation.baseline_load_kg }} kg{% else %}—{% endif %}</strong></span>
+                    <span>{% trans 'بار پیشنهادی' %}<strong>{% if selected_recommendation.suggested_load_kg != None %}{{ selected_recommendation.suggested_load_kg }} kg{% else %}—{% endif %}</strong></span>
+                    <span>{% trans 'تعداد مواجهه' %}<strong>{{ selected_recommendation.evidence.exposure_count|default:'—' }}</strong></span>
+                    <span>{% trans 'نسخه الگوریتم' %}<strong><code>{{ selected_recommendation.algorithm_version }}</code></strong></span>
+                </div>
+                <p class="admin-training-queue__rationale">{{ selected_recommendation.rationale }}</p>
+                {% if selected_recommendation.evidence.e1rm_estimates %}
+                    <p class="admin-training-queue__rationale">{% trans 'برآورد e1RM در سه جلسه، از قدیمی به جدید:' %} {% for estimate in selected_recommendation.evidence.e1rm_estimates %}<strong>{{ estimate }} kg</strong>{% if not forloop.last %} ← {% endif %}{% endfor %}</p>
+                {% endif %}
+                {% if selected_recommendation.evidence.progression_strategy == 'add_reps_before_load' and selected_recommendation.evidence.next_rep_target %}
+                    <p class="admin-training-queue__rationale">{% trans 'هدف تکرار در صورت تأیید:' %} <strong>{{ selected_recommendation.evidence.next_rep_target }}</strong> · {% trans 'بار فعلی حفظ می‌شود.' %}</p>
+                {% endif %}
+
+                <section class="admin-training-queue__evidence">
+                    <h3>{% trans 'سابقهٔ ست‌ها و آمادگی' %}</h3>
+                    {% if selected_set_results %}
+                        <div class="admin-training-queue__table-wrap">
+                            <table class="admin-training-queue__sets">
+                                <thead><tr><th>{% trans 'جلسه' %}</th><th>{% trans 'ست' %}</th><th>{% trans 'بار برنامه/انجام' %}</th><th>{% trans 'تکرار' %}</th><th>RPE / RIR</th></tr></thead>
+                                <tbody>
+                                    {% for result in selected_set_results %}
+                                        <tr>
+                                            <td>{{ result.session.started_at|date:'Y/m/d' }}</td>
+                                            <td>{{ result.set_number }}</td>
+                                            <td dir="ltr">{{ result.planned_load_kg|default:'—' }} / {{ result.actual_load_kg|default:'—' }} kg</td>
+                                            <td>{{ result.actual_reps|default:'—' }}{% if result.planned_reps %} / {{ result.planned_reps }}{% endif %}</td>
+                                            <td>{{ result.rpe|default:'—' }} / {{ result.rir|default:'—' }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p>{% trans 'دادهٔ ست جزئی برای این پیشنهاد ثبت نشده است؛ خلاصهٔ شواهد زیر در دسترس است.' %}</p>
+                    {% endif %}
+                    {% for item in selected_recommendation_group %}
+                        {% if item.evidence.outcomes %}
+                            <details class="admin-training-queue__outcome-group" {% if forloop.first %}open{% endif %}>
+                                <summary>{{ item.created_at|date:'Y/m/d H:i' }} · {{ item.get_status_display }} · {{ item.evidence.exposure_count|default:'—' }} {% trans 'مواجهه' %}</summary>
+                                <ul>
+                                    {% for outcome in item.evidence.outcomes %}
+                                        <li>{% trans 'جلسه' %} {{ outcome.session_id }}: {{ outcome.average_reps|default:'—' }} {% trans 'تکرار میانگین' %} · RPE {{ outcome.average_rpe|default:'—' }} · RIR {{ outcome.average_rir|default:'—' }}</li>
+                                    {% endfor %}
+                                </ul>
+                            </details>
+                        {% endif %}
+                    {% endfor %}
+                </section>
+
+                {% if selected_is_pending %}
+                    <form method="post" action="{% url 'register:training_recommendation_queue_review' selected_recommendation.pk %}" class="admin-training-queue__review-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="q" value="{{ search_query }}">
+                        <input type="hidden" name="user" value="{{ user_filter }}">
+                        <label><span>{% trans 'تصمیم مربی' %}</span>
+                            <select class="admin-input" name="status">
+                                <option value="accepted">{% trans 'تأیید پیشنهاد' %}</option>
+                                <option value="edited">{% trans 'ثبت بار اصلاح‌شده' %}</option>
+                                <option value="rejected">{% trans 'رد پیشنهاد' %}</option>
+                            </select>
+                        </label>
+                        {% if selected_recommendation.recommendation_type == 'deload' %}
+                            <p>{% trans 'با تأیید این مورد، حجم ست‌های عضلهٔ هدف در برنامهٔ بعدی نصف می‌شود و بار حرکت لنگر ۱۰٪ پایین می‌آید.' %}</p>
+                            <input type="hidden" name="reviewed_load_kg" value="">
+                        {% elif selected_recommendation.evidence.progression_strategy == 'add_reps_before_load' %}
+                            <p>{% trans 'با تأیید این مورد، برنامهٔ بعدی تکرار هدف را یک واحد بالا می‌برد و بار فعلی را حفظ می‌کند؛ این روند تا سقف ۱۵ تکرار ادامه دارد.' %}</p>
+                            <label><span>{% trans 'بار نهایی (اختیاری برای تأیید؛ الزامی برای اصلاح)' %}</span><input class="admin-input" type="number" name="reviewed_load_kg" min="0" step="0.5" value="{{ selected_recommendation.baseline_load_kg|default_if_none:'' }}" dir="ltr"></label>
+                        {% else %}
+                            <label><span>{% trans 'بار نهایی برای برنامهٔ بعدی (کیلوگرم)' %}</span><input class="admin-input" type="number" name="reviewed_load_kg" min="0" step="0.5" value="{{ selected_recommendation.suggested_load_kg|default_if_none:'' }}" dir="ltr"></label>
+                        {% endif %}
+                        <label><span>{% trans 'توضیح تصمیم' %}</span><textarea class="admin-input" name="coach_note" maxlength="2000" rows="3"></textarea></label>
+                        <p>{% trans 'تأیید یا اصلاح در تولید خودکار بعدی مصرف و به همان برنامه متصل می‌شود؛ برنامهٔ فعال بدون اقدام جداگانه تغییر نمی‌کند.' %}</p>
+                        <button type="submit" class="admin-primary-btn">{% trans 'ثبت تصمیم و بازکردن مورد بعدی' %}</button>
+                    </form>
+                {% else %}
+                    <section class="admin-training-queue__audit">
+                        <h3>{% trans 'نتیجه و سابقهٔ تصمیم' %}</h3>
+                        <p>{% trans 'وضعیت' %}: <strong>{{ selected_recommendation.get_status_display }}</strong></p>
+                        <p>{% trans 'ثبت‌کننده' %}: <strong>{{ selected_recommendation.reviewed_by.fullname|default:selected_recommendation.reviewed_by.phone|default:'—' }}</strong></p>
+                        <p>{% trans 'زمان تصمیم' %}: <strong>{{ selected_recommendation.reviewed_at|date:'Y/m/d H:i'|default:'—' }}</strong></p>
+                        {% if selected_recommendation.reviewed_load_kg != None %}<p>{% trans 'بار نهایی ثبت‌شده' %}: <strong>{{ selected_recommendation.reviewed_load_kg }} kg</strong></p>{% endif %}
+                        {% if selected_recommendation.coach_note %}<p>{% trans 'یادداشت' %}: {{ selected_recommendation.coach_note }}</p>{% endif %}
+                        {% if selected_recommendation.applied_to_program %}
+                            <p>{% trans 'مصرف‌شده در برنامه' %}: <a href="{% url 'register:admin_program_list' selected_recommendation.user_id %}">{{ selected_recommendation.applied_to_program.title }} · {% trans 'نسخه' %} {{ selected_recommendation.applied_program_revision|default:selected_recommendation.applied_to_program.revision }}</a> ({{ selected_recommendation.applied_at|date:'Y/m/d H:i' }})</p>
+                        {% elif selected_recommendation.status == 'accepted' or selected_recommendation.status == 'edited' %}
+                            <p>{% trans 'این پیشنهاد هنوز در برنامهٔ تولیدشده‌ای مصرف نشده است.' %}</p>
+                        {% endif %}
+                        {% if selected_recommendation.superseded_by %}
+                            <p>{% trans 'با تصمیم روی پیشنهاد جدیدتر ادغام شد:' %} <a href="{% url 'register:admin_training_recommendations' %}?tab=archive&amp;selected={{ selected_recommendation.superseded_by_id }}">{{ selected_recommendation.superseded_by.movement_name }} · #{{ selected_recommendation.superseded_by_id }}</a></p>
+                        {% endif %}
+                    </section>
+                {% endif %}
+            {% else %}
+                <div class="admin-training-queue__empty admin-training-queue__empty--detail">
+                    <strong>{% trans 'یک ردیف را برای مشاهدهٔ جزئیات انتخاب کنید.' %}</strong>
+                    <p>{% trans 'دلیل پیشنهاد، نتیجهٔ هر ست و تصمیم مربی در همین پنل دیده می‌شود.' %}</p>
+                </div>
+            {% endif %}
+        </aside>
+    </div>
+</section>
+{% endblock %}

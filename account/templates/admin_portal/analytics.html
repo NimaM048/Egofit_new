@@ -1,0 +1,162 @@
+{% extends 'admin_portal/_shell.html' %}
+{% load i18n static %}
+
+{% block title %}{% blocktrans %}تحلیل درآمد و پرداخت‌ها | ایگوفیت{% endblocktrans %}{% endblock %}
+
+{% block admin_content %}
+<section class="admin-screen admin-analytics-screen">
+    <header class="admin-screen__header admin-screen__header--split admin-finance-heading">
+        <div>
+            <span class="admin-finance-eyebrow">{% trans 'گزارش مدیریتی' %}</span>
+            <h1 class="admin-screen__title">{% trans 'تحلیل درآمد و پرداخت‌ها' %}</h1>
+        </div>
+        <span class="admin-finance-period">{{ financial_analytics.filters.from_date }} تا {{ financial_analytics.filters.to_date }}</span>
+    </header>
+
+    <p class="admin-screen__lead admin-finance-lead">
+        {% trans 'پرداخت‌های موفق برنامه‌ها، فایل‌های اختصاصی و دوره‌ها را در بازهٔ شمسی بررسی کنید.' %}
+        {% trans 'مبالغ به تومان هستند و درآمد مربی بر اساس مسئول ثبت‌شدهٔ پرداخت و سهم نویسندهٔ دوره محاسبه می‌شود.' %}
+    </p>
+
+    <section class="admin-finance-panel" aria-labelledby="admin-finance-title">
+        <div class="admin-finance-panel__head">
+            <div>
+                <h2 id="admin-finance-title">{% trans 'نمای کلی مالی' %}</h2>
+                <p>{% trans 'فقط تراکنش‌های موفق در محاسبهٔ درآمد و نمودارها لحاظ شده‌اند.' %}</p>
+            </div>
+            <form class="admin-finance-filter" method="get" action="">
+                <label>
+                    <span>{% trans 'از تاریخ شمسی' %}</span>
+                    <input type="text" name="from_date" value="{{ financial_analytics.filters.from_date }}" inputmode="numeric" autocomplete="off" placeholder="۱۴۰۵/۰۱/۰۱" pattern="[0-9۰-۹٠-٩]{4}[-/][0-9۰-۹٠-٩]{1,2}[-/][0-9۰-۹٠-٩]{1,2}" aria-label="{% trans 'تاریخ شروع شمسی' %}">
+                </label>
+                <label>
+                    <span>{% trans 'تا تاریخ شمسی' %}</span>
+                    <input type="text" name="to_date" value="{{ financial_analytics.filters.to_date }}" inputmode="numeric" autocomplete="off" placeholder="۱۴۰۵/۰۱/۳۰" pattern="[0-9۰-۹٠-٩]{4}[-/][0-9۰-۹٠-٩]{1,2}[-/][0-9۰-۹٠-٩]{1,2}" aria-label="{% trans 'تاریخ پایان شمسی' %}">
+                </label>
+                <button type="submit">{% trans 'اعمال بازه' %}</button>
+            </form>
+        </div>
+        {% if finance_date_error %}<p class="admin-finance-error" role="alert">{{ finance_date_error }}</p>{% endif %}
+
+        <div class="admin-finance-kpis">
+            <article class="admin-finance-kpi admin-finance-kpi--primary">
+                <span>{% trans 'مجموع درآمد موفق' %}</span>
+                <strong>{{ financial_analytics.summary.total_revenue_display }}</strong>
+                <small>{% trans 'تومان' %}</small>
+            </article>
+            <article class="admin-finance-kpi">
+                <span>{% trans 'تعداد پرداخت موفق' %}</span>
+                <strong>{{ financial_analytics.summary.transactions }}</strong>
+                <small>{% trans 'تراکنش' %}</small>
+            </article>
+            <article class="admin-finance-kpi">
+                <span>{% trans 'میانگین مبلغ هر پرداخت' %}</span>
+                <strong>{{ financial_analytics.summary.average_payment_display }}</strong>
+                <small>{% trans 'تومان' %}</small>
+            </article>
+            <article class="admin-finance-kpi admin-finance-kpi--coach">
+                <span>{% trans 'درآمد منتسب به مربیان' %}</span>
+                <strong>{{ financial_analytics.summary.coach_revenue_display }}</strong>
+                <small>{% trans 'تومان ·' %} {{ financial_analytics.summary.coach_count }} {% trans 'مربی دارای درآمد' %}</small>
+            </article>
+        </div>
+
+        <div class="admin-finance-chart-grid">
+            <article class="admin-finance-chart-card admin-finance-chart-card--wide">
+                <div class="admin-finance-chart-card__heading">
+                    <div><h3>{% trans 'روند درآمد و تعداد پرداخت‌ها' %}</h3><p>{% trans 'نمایش' %} {{ financial_analytics.filters.granularity_label }} {% trans 'بر اساس تاریخ پرداخت' %}</p></div>
+                </div>
+                <div class="admin-finance-chart-frame admin-finance-chart-frame--trend">
+                    <canvas id="admin-finance-trend" aria-label="{% trans 'نمودار روند درآمد و تعداد پرداخت‌ها' %}" role="img"></canvas>
+                </div>
+            </article>
+            <article class="admin-finance-chart-card">
+                <div class="admin-finance-chart-card__heading"><div><h3>{% trans 'سهم هر بخش از درآمد' %}</h3><p>{% trans 'بر اساس مبلغ پرداخت موفق' %}</p></div></div>
+                <div class="admin-finance-chart-frame admin-finance-chart-frame--donut">
+                    <canvas id="admin-finance-categories" aria-label="{% trans 'نمودار سهم درآمد بخش‌ها' %}" role="img"></canvas>
+                </div>
+            </article>
+            <article class="admin-finance-chart-card admin-finance-chart-card--wide">
+                <div class="admin-finance-chart-card__heading"><div><h3>{% trans 'مقایسهٔ درآمد مربیان' %}</h3><p>{% trans '۱۰ مربی با بیشترین مبلغ منتسب در بازهٔ انتخابی' %}</p></div></div>
+                <div class="admin-finance-chart-frame admin-finance-chart-frame--coaches">
+                    <canvas id="admin-finance-coaches" aria-label="{% trans 'نمودار درآمد مربیان' %}" role="img"></canvas>
+                </div>
+            </article>
+        </div>
+
+        <div class="admin-finance-tables">
+            <article class="admin-finance-table-card">
+                <div class="admin-finance-table-card__heading"><h3>{% trans 'درآمد به تفکیک بخش' %}</h3><span>{% trans 'بازهٔ انتخابی' %}</span></div>
+                <div class="admin-table-wrap">
+                    <table class="admin-table admin-finance-table">
+                        <thead><tr><th>{% trans 'بخش' %}</th><th>{% trans 'تعداد پرداخت' %}</th><th>{% trans 'درآمد (تومان)' %}</th><th>{% trans 'سهم از کل' %}</th></tr></thead>
+                        <tbody>
+                            {% for category in financial_analytics.categories %}
+                                <tr><td>{{ category.label }}</td><td>{{ category.transactions }}</td><td>{{ category.revenue_display }}</td><td>{{ category.share_percent }}٪</td></tr>
+                            {% empty %}<tr><td colspan="4">{% trans 'در این بازه پرداخت موفقی ثبت نشده است.' %}</td></tr>{% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+
+            <article class="admin-finance-table-card">
+                <div class="admin-finance-table-card__heading"><h3>{% trans 'سهم درآمد هر مربی' %}</h3><span>{% trans 'مرتب‌شده بر اساس درآمد' %}</span></div>
+                <div class="admin-table-wrap">
+                    <table class="admin-table admin-finance-table admin-finance-table--coaches">
+                        <thead><tr><th>{% trans 'مربی' %}</th><th>{% trans 'برنامه' %}</th><th>{% trans 'فایل' %}</th><th>{% trans 'دوره' %}</th><th>{% trans 'جمع درآمد (تومان)' %}</th><th>{% trans 'سهم از کل' %}</th></tr></thead>
+                        <tbody>
+                            {% for coach in financial_analytics.coaches %}
+                                <tr><td>{{ coach.fullname }}</td><td>{{ coach.program_revenue_display }}</td><td>{{ coach.document_revenue_display }}</td><td>{{ coach.course_revenue_display }}</td><td><strong>{{ coach.total_revenue_display }}</strong></td><td>{{ coach.share_percent }}٪</td></tr>
+                            {% empty %}<tr><td colspan="6">{% trans 'مربی‌ای برای این بازه درآمد ثبت‌شده ندارد.' %}</td></tr>{% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+
+            <article class="admin-finance-table-card">
+                <div class="admin-finance-table-card__heading"><h3>{% trans 'جدول درآمد بر اساس تاریخ' %}</h3><span>{% trans 'گروه‌بندی' %} {{ financial_analytics.filters.granularity_label }}</span></div>
+                <div class="admin-table-wrap">
+                    <table class="admin-table admin-finance-table">
+                        <thead><tr><th>{% trans 'تاریخ شمسی' %}</th><th>{% trans 'تعداد پرداخت' %}</th><th>{% trans 'برنامه' %}</th><th>{% trans 'فایل' %}</th><th>{% trans 'دوره' %}</th><th>{% trans 'جمع درآمد (تومان)' %}</th></tr></thead>
+                        <tbody>
+                            {% for row in financial_analytics.time_series reversed %}
+                                <tr><td dir="ltr">{{ row.date }}</td><td>{{ row.transactions }}</td><td>{{ row.program_revenue_display }}</td><td>{{ row.document_revenue_display }}</td><td>{{ row.course_revenue_display }}</td><td><strong>{{ row.revenue_display }}</strong></td></tr>
+                            {% empty %}<tr><td colspan="6">{% trans 'داده‌ای برای نمایش وجود ندارد.' %}</td></tr>{% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </article>
+        </div>
+        <p class="admin-finance-footnote">{% trans 'سهم دوره‌ها با توزیع مبلغ واقعی پرداخت‌شده بین نویسندگان دوره‌ها محاسبه شده است. موارد فاقد انتساب مربی در جمع درآمد کل باقی می‌مانند.' %}</p>
+    </section>
+
+    <section class="admin-finance-people" aria-labelledby="admin-people-title">
+        <div class="admin-finance-table-card__heading"><div><span class="admin-finance-eyebrow">{% trans 'شاخص‌های تکمیلی' %}</span><h2 id="admin-people-title">{% trans 'آمار کاربران و فعالیت' %}</h2></div></div>
+        <section class="admin-stat-grid">
+            <article class="admin-stat-card"><span>{% trans 'ورزشکاران' %}</span><strong>{{ total_athletes }}</strong></article>
+            <article class="admin-stat-card"><span>{% trans 'مربیان' %}</span><strong>{{ total_coaches }}</strong></article>
+            <article class="admin-stat-card"><span>{% trans 'ادمین‌ها' %}</span><strong>{{ total_admins }}</strong></article>
+            <article class="admin-stat-card"><span>{% trans 'ورزشکار با مربی' %}</span><strong>{{ assigned_athletes }}</strong></article>
+            <article class="admin-stat-card"><span>{% trans 'ورزشکار بدون مربی' %}</span><strong>{{ unassigned_athletes }}</strong></article>
+            <article class="admin-stat-card"><span>{% trans 'اندازه‌گیری دورسنجی' %}</span><strong>{{ total_measurements }}</strong></article>
+            <article class="admin-stat-card"><span>{% trans 'اندازه‌گیری کالیپر' %}</span><strong>{{ total_caliper }}</strong></article>
+        </section>
+
+        <section class="admin-panel-card">
+            <h3 class="admin-panel-card__title">{% trans 'تعداد شاگردان هر مربی' %}</h3>
+            <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>{% trans 'مربی' %}</th><th>{% trans 'شماره تماس' %}</th><th>{% trans 'تعداد شاگرد' %}</th></tr></thead>
+                <tbody>{% for coach in coach_rows %}<tr><td>{{ coach.fullname }}</td><td>{{ coach.phone }}</td><td>{{ coach.athlete_count }}</td></tr>{% empty %}<tr><td colspan="3">{% trans 'مربی فعالی وجود ندارد.' %}</td></tr>{% endfor %}</tbody>
+            </table></div>
+        </section>
+        <section class="admin-panel-card">
+            <h3 class="admin-panel-card__title">{% trans 'آخرین ورزشکاران' %}</h3>
+            <div class="admin-table-wrap"><table class="admin-table"><thead><tr><th>{% trans 'نام' %}</th><th>{% trans 'شماره تماس' %}</th><th>{% trans 'مربی' %}</th><th>{% trans 'قد / وزن' %}</th></tr></thead>
+                <tbody>{% for athlete in athlete_rows %}<tr><td><a href="{% url 'register:admin_user_hub' athlete.id %}">{{ athlete.fullname }}</a></td><td>{{ athlete.phone }}</td><td>{{ athlete.coach.fullname|default:'—' }}</td><td>{{ athlete.height_cm|default:'—' }} / {{ athlete.weight_kg|default:'—' }}</td></tr>{% empty %}<tr><td colspan="4">{% trans 'ورزشکاری ثبت نشده است.' %}</td></tr>{% endfor %}</tbody>
+            </table></div>
+        </section>
+    </section>
+</section>
+{{ financial_analytics.chart_payload|json_script:'admin-finance-chart-data' }}
+<script src="{% static 'js/vendor/chart.umd.min.js' %}"></script>
+<script src="{% static 'js/admin-finance-analytics.js' %}"></script>
+{% endblock %}

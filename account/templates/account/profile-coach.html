@@ -1,0 +1,430 @@
+{% extends 'account/_shell.html' %}
+{% load static %}
+{% load my_tags %}
+{% load i18n %}
+
+{% block title %}{% blocktrans %}مربی شما | ایگوفیت{% endblocktrans %}{% endblock %}
+
+{% block account_content %}
+<section class="profile-screen">
+    <header class="profile-screen__header">
+        <h2 class="profile-screen__title">{% trans 'مربی شما' %}</h2>
+    </header>
+
+    {% if messages %}
+        <div class="form-messages mb-4">
+            {% for message in messages %}
+                <div class="form-message {% if message.tags %}is-{{ message.tags }}{% endif %}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if coach %}
+        <article class="profile-identity-card">
+            <div class="profile-identity-card__meta">
+                <span class="profile-identity-card__label">{% trans 'مربی اختصاصی شما' %}</span>
+                <strong>{{ coach.display_name|default:coach.fullname }}</strong>
+                <span class="profile-identity-card__phone">{{ coach.phone }}</span>
+            </div>
+            <div class="profile-identity-card__avatar" aria-hidden="true">
+                {% if coach.profile_picture %}
+                    <img src="{{ coach.profile_picture|public_media_url }}" alt="{{ coach.fullname }}" loading="lazy">
+                {% else %}
+                    <img src="{% static 'images/avatars/download.png' %}" alt="{{ coach.fullname }}" loading="lazy">
+                {% endif %}
+            </div>
+        </article>
+    {% else %}
+        <article class="analysis-empty">
+            <strong>{% trans 'هنوز مربی اختصاصی ثبت نشده است.' %}</strong>
+            <p>{% trans 'وقتی مربی برای حساب شما تعریف شود، اطلاعات و دسترسی‌های او در این بخش نمایش داده می‌شود.' %}</p>
+        </article>
+    {% endif %}
+
+    <section class="profile-panel-card profile-coach-choice" aria-labelledby="profile-coach-choice-title">
+        <div class="profile-coach-choice__intro">
+            <span class="profile-coach-choice__eyebrow">{% trans 'همراه تمرینی شما' %}</span>
+            <h2 class="profile-screen__title" id="profile-coach-choice-title">{% trans 'انتخاب مربی' %}</h2>
+            <p class="profile-screen__lead">
+                {% trans 'مربی موردنظرتان را انتخاب کنید تا درخواست‌های برنامه و شاگردی شما در پنل او قرار بگیرد.' %}
+            </p>
+        </div>
+        {% if coaches %}
+            <form method="post" class="profile-coach-choice__form">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="select_coach">
+                <div class="field-group">
+                    <label for="{{ coach_selection_form.coach.id_for_label }}">{{ coach_selection_form.coach.label }}</label>
+                    {{ coach_selection_form.coach }}
+                    {{ coach_selection_form.coach.errors }}
+                </div>
+                <button type="submit" class="cta-primary cta-primary--strong profile-coach-choice__submit">
+                    {% trans 'انتخاب مربی' %}
+                    <span aria-hidden="true">✓</span>
+                </button>
+            </form>
+        {% else %}
+            <div class="analysis-empty" role="status">
+                <strong>{% trans 'در حال حاضر مربی فعالی برای انتخاب وجود ندارد.' %}</strong>
+                <p>{% trans 'بعد از فعال‌شدن مربیان، می‌توانید از همین بخش مربی خود را انتخاب کنید.' %}</p>
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="profile-panel-card profile-panel-card--coach-application">
+        <h2 class="profile-screen__title">{% trans 'درخواست مربی شدن' %}</h2>
+        <p class="profile-screen__lead">
+            {% trans 'اگر قصد دارید به‌عنوان مربی در ایگوفیت فعالیت کنید، بیوگرافی و رزومه خود را برای بررسی ادمین ارسال کنید.' %}
+        </p>
+        <a class="cta-primary cta-primary--strong profile-coach-application-link" href="{% url 'register:profile_coach_application' %}">
+            {% trans 'ثبت و پیگیری درخواست مربی شدن' %}
+            <span class="profile-coach-application-link__icon" aria-hidden="true">↗</span>
+        </a>
+    </section>
+
+    <section class="profile-panel-card">
+        <h2 class="profile-screen__title">{% trans 'درخواست برنامه از مربی' %}</h2>
+        <p class="profile-screen__lead">{% trans 'با ثبت این فرم، درخواست شما برای مربی ارسال می‌شود.' %}</p>
+
+        {% if pending_request %}
+            <div class="coach-edit-banner" role="status">
+                <span aria-hidden="true">✎</span>
+                <p>{% blocktrans with created_at=pending_request.created_at|to_jalali %}یک درخواست در انتظار بررسی دارید (ثبت‌شده در {{ created_at }}). تا پیش از بررسی مربی می‌توانید آن را ویرایش کنید.{% endblocktrans %}</p>
+            </div>
+        {% endif %}
+
+        <form method="post" enctype="multipart/form-data" class="coach-request-form" data-coach-form data-coach-wizard novalidate>
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+
+            <div class="coach-wizard">
+                <div class="coach-wizard__progress">
+                    <div class="coach-wizard__track"><div class="coach-wizard__bar" data-coach-progress></div></div>
+                    <span class="coach-wizard__counter" data-coach-counter>{% trans 'مرحله' %} ۱ {% trans 'از' %} ۷</span>
+                </div>
+
+                <section class="coach-wizard__step is-active" data-coach-step data-coach-title="{% trans 'نوع برنامه' %}">
+                    <div class="coach-wizard__step-head">
+                        <strong>{% trans 'نوع برنامه' %}</strong>
+                        <span>{% trans 'برنامه‌تان را مشخص کنید تا مربی مسیر درست را انتخاب کند.' %}</span>
+                    </div>
+                    <fieldset class="coach-fieldset">
+                        <div class="field-group">
+                            <label for="{{ form.sessions_per_week.id_for_label }}">{{ form.sessions_per_week.label }}</label>
+                            {{ form.sessions_per_week }}
+                            {{ form.sessions_per_week.errors }}
+                        </div>
+                        <div class="coach-check-row" data-coach-request-types>
+                            <label class="coach-check"><input type="checkbox" name="wants_diet" {% if form.wants_diet.value %}checked{% endif %}> <span>{{ form.fields.wants_diet.label }}</span></label>
+                            <label class="coach-check"><input type="checkbox" name="wants_workout" {% if form.wants_workout.value %}checked{% endif %}> <span>{{ form.fields.wants_workout.label }}</span></label>
+                            <label class="coach-check"><input type="checkbox" name="save_only" {% if form.save_only.value %}checked{% endif %}> <span>{{ form.fields.save_only.label }}</span></label>
+                        </div>
+                        <div class="field-group coach-workout-types-field">
+                            <span id="coach-workout-types-label" class="coach-workout-types-field__label">{{ form.workout_types.label }}</span>
+                            {{ form.workout_types }}
+                            <small id="coach-workout-types-help" class="coach-fieldset__hint">{% trans 'هر تعداد گزینه که برای برنامه‌تان مناسب است لمس کنید؛ گزینه‌های انتخاب‌شده با رنگ و علامت مشخص می‌شوند.' %}</small>
+                            {{ form.workout_types.errors }}
+                        </div>
+                        <div class="field-group coach-equipment-field">
+                            <span id="coach-equipment-label" class="coach-equipment-field__label">{{ form.available_equipment.label }}</span>
+                            <div class="coach-equipment-options" role="group" aria-labelledby="coach-equipment-label">
+                                {% for checkbox in form.available_equipment %}
+                                    <label class="coach-equipment-option">{{ checkbox.tag }}<span>{{ checkbox.choice_label }}</span></label>
+                                {% empty %}
+                                    <small>{% trans 'تجهیزاتی در کتابخانه ثبت نشده است.' %}</small>
+                                {% endfor %}
+                            </div>
+                            <small class="coach-fieldset__hint">{% trans 'تجهیزات در دسترس را انتخاب کنید تا مربی برنامه تمرینی را با امکانات شما تنظیم کند.' %}</small>
+                            {{ form.available_equipment.errors }}
+                        </div>
+                    </fieldset>
+                </section>
+
+                <section class="coach-wizard__step" data-coach-step data-coach-title="{% trans 'قد و وزن' %}">
+                    <div class="coach-wizard__step-head">
+                        <strong>{% trans 'قد و وزن' %}</strong>
+                        <span>{% trans 'این دو مقدار برای محاسبه شاخص‌های بدنی ضروری هستند.' %}</span>
+                    </div>
+                    <fieldset class="coach-fieldset">
+                        <div class="coach-measure-grid coach-measure-grid--pair">
+                            {% include 'account/_coach_field.html' with field=form.height_cm %}
+                            {% include 'account/_coach_field.html' with field=form.weight_kg %}
+                        </div>
+                    </fieldset>
+                </section>
+
+                <section class="coach-wizard__step" data-coach-step data-coach-title="{% trans 'دورسنجی' %}">
+                    <div class="coach-wizard__step-head">
+                        <strong>{% trans 'دورسنجی (سانتی‌متر)' %}</strong>
+                        <span>{% trans 'فیلدهای ستاره‌دار اجباری هستند؛ بقیه را می‌توانید خالی بگذارید.' %}</span>
+                    </div>
+                    <fieldset class="coach-fieldset">
+                        <div class="coach-measure-grid">
+                            {% include 'account/_coach_field.html' with field=form.wrist_cm %}
+                            {% include 'account/_coach_field.html' with field=form.forearm_cm %}
+                            {% include 'account/_coach_field.html' with field=form.arm_rest_cm %}
+                            {% include 'account/_coach_field.html' with field=form.arm_flexed_cm %}
+                            {% include 'account/_coach_field.html' with field=form.chest_cm %}
+                            {% include 'account/_coach_field.html' with field=form.shoulders_cm %}
+                            {% include 'account/_coach_field.html' with field=form.waist_cm %}
+                            {% include 'account/_coach_field.html' with field=form.abdomen_cm %}
+                            {% include 'account/_coach_field.html' with field=form.hips_cm %}
+                            {% include 'account/_coach_field.html' with field=form.thigh_cm %}
+                            {% include 'account/_coach_field.html' with field=form.calf_cm %}
+                            {% include 'account/_coach_field.html' with field=form.thigh_left_cm %}
+                            {% include 'account/_coach_field.html' with field=form.calf_left_cm %}
+                        </div>
+                    </fieldset>
+                </section>
+
+                <section class="coach-wizard__step" data-coach-step data-coach-title="{% trans 'کالیپر' %}">
+                    <div class="coach-wizard__step-head">
+                        <strong>{% trans 'سنجش با کالیپر' %}</strong>
+                        <span>{% trans 'همه فیلدها اختیاری هستند و مقدارها را بر حسب میلی‌متر وارد کنید.' %}</span>
+                    </div>
+                    <fieldset class="coach-fieldset">
+                        <div class="coach-measure-grid">
+                            {% include 'account/_coach_field.html' with field=form.chest_armpit_men_mm %}
+                            {% include 'account/_coach_field.html' with field=form.axilla_mm %}
+                            {% include 'account/_coach_field.html' with field=form.subscapular_mm %}
+                            {% include 'account/_coach_field.html' with field=form.abdominal_mm %}
+                            {% include 'account/_coach_field.html' with field=form.suprailiac_mm %}
+                            {% include 'account/_coach_field.html' with field=form.chest_mm %}
+                            {% include 'account/_coach_field.html' with field=form.biceps_mm %}
+                            {% include 'account/_coach_field.html' with field=form.triceps_mm %}
+                            {% include 'account/_coach_field.html' with field=form.thigh_mm %}
+                            {% include 'account/_coach_field.html' with field=form.calf_mm %}
+                        </div>
+                    </fieldset>
+                </section>
+
+                <section class="coach-wizard__step" data-coach-step data-coach-title="{% trans 'سلامتی' %}">
+                    <div class="coach-wizard__step-head">
+                        <strong>{% trans 'سلامتی و محدودیت‌ها' %}</strong>
+                        <span>{% trans 'اگر درد، بیماری زمینه‌ای یا محدودیت غذایی دارید برای مربی بنویسید.' %}</span>
+                    </div>
+                    <fieldset class="coach-fieldset">
+                        <div class="field-group">
+                            <label for="{{ form.pain_notes.id_for_label }}">{{ form.pain_notes.label }}</label>
+                            {{ form.pain_notes }}
+                        </div>
+                        <div class="field-group">
+                            <label for="{{ form.illness_notes.id_for_label }}">{{ form.illness_notes.label }}</label>
+                            {{ form.illness_notes }}
+                        </div>
+                        <div class="field-group">
+                            <label for="{{ form.diet_restrictions.id_for_label }}">{{ form.diet_restrictions.label }}</label>
+                            {{ form.diet_restrictions }}
+                        </div>
+                    </fieldset>
+                </section>
+
+                <section class="coach-wizard__step" data-coach-step data-coach-title="{% trans 'سوابق تمرینی' %}">
+                    <div class="coach-wizard__step-head">
+                        <strong>{% trans 'سوابق تمرینی' %}</strong>
+                        <span>{% trans 'سابقه تمرین و ورزش‌هایی را که انجام داده‌اید برای مربی بنویسید.' %}</span>
+                    </div>
+                    <fieldset class="coach-fieldset">
+                        <div class="coach-measure-grid coach-measure-grid--pair">
+                            {% include 'account/_coach_field.html' with field=form.training_experience_years %}
+                        </div>
+                        <div class="field-group">
+                            <label for="{{ form.training_sports.id_for_label }}">{{ form.training_sports.label }}</label>
+                            {{ form.training_sports }}
+                            {{ form.training_sports.errors }}
+                        </div>
+                    </fieldset>
+                </section>
+
+                <section class="coach-wizard__step" data-coach-step data-coach-title="{% trans 'فایل‌های پیوست' %}">
+                    <div class="coach-wizard__step-head">
+                        <strong>{% trans 'فایل‌های پیوست (اختیاری)' %}</strong>
+                        <span>{% trans 'ارسال عکس، ویدیو یا فایل اجباری نیست؛ فقط در صورت تمایل اضافه کنید.' %}</span>
+                    </div>
+                    <fieldset class="coach-fieldset">
+                        <label class="coach-dropzone" for="coach-attachments">
+                            <span class="coach-dropzone__icon" aria-hidden="true">⬆</span>
+                            <span class="coach-dropzone__title">{% trans 'افزودن عکس، ویدیو، صدا یا PDF' %}</span>
+                            <span class="coach-dropzone__hint">{% trans 'می‌توانید چند فایل را هم‌زمان انتخاب کنید — حداکثر ۱۵ مگابایت برای هر فایل.' %}</span>
+                            <input id="coach-attachments" type="file" name="attachments" multiple
+                                   accept="image/*,video/*,audio/*,application/pdf" data-coach-file-input>
+                        </label>
+                        <ul class="coach-file-chips" data-coach-file-chips></ul>
+
+                        {% if attachments %}
+                            <div class="coach-attachments">
+                                <span class="coach-attachments__title">{% trans 'فایل‌های ثبت‌شده' %}</span>
+                                <ul class="coach-attachments__list">
+                                    {% for attachment in attachments %}
+                                        <li><a href="{{ attachment.file|public_media_url }}" target="_blank" rel="noopener">{{ attachment.file.name|cut:'coach_requests/' }}</a></li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        {% endif %}
+                    </fieldset>
+                </section>
+
+                <div class="coach-wizard__error" data-coach-error role="alert"></div>
+
+                <div class="coach-wizard__nav">
+                    <button type="button" class="coach-wizard__back" data-coach-back hidden>{% trans 'مرحله قبل' %}</button>
+                    <div class="coach-wizard__nav-group">
+                        <button type="button" class="coach-wizard__next" data-coach-next>{% trans 'مرحله بعد' %}</button>
+                        <button type="submit" class="coach-wizard__submit" data-coach-submit hidden>
+                            <span aria-hidden="true">➜</span>
+                            <span>{% if pending_request %}{% trans 'به‌روزرسانی درخواست' %}{% else %}{% trans 'ارسال درخواست' %}{% endif %}</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </section>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+    {{ block.super }}
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            var form = document.querySelector("[data-coach-wizard]");
+            if (!form) {
+                return;
+            }
+            var steps = Array.prototype.slice.call(form.querySelectorAll("[data-coach-step]"));
+            var progress = form.querySelector("[data-coach-progress]");
+            var counter = form.querySelector("[data-coach-counter]");
+            var back = form.querySelector("[data-coach-back]");
+            var next = form.querySelector("[data-coach-next]");
+            var submit = form.querySelector("[data-coach-submit]");
+            var errorBox = form.querySelector("[data-coach-error]");
+            var current = 0;
+
+            function faNumber(value) {
+                return String(value).replace(/\d/g, function (digit) {
+                    return "۰۱۲۳۴۵۶۷۸۹"[Number(digit)];
+                });
+            }
+
+            function clearErrors(step) {
+                step.querySelectorAll(".is-invalid").forEach(function (node) {
+                    node.classList.remove("is-invalid");
+                });
+                if (errorBox) {
+                    errorBox.classList.remove("is-visible");
+                    errorBox.textContent = "";
+                }
+            }
+
+            function showError(message) {
+                if (!errorBox) {
+                    return;
+                }
+                errorBox.textContent = message;
+                errorBox.classList.add("is-visible");
+            }
+
+            function validateStep(step) {
+                clearErrors(step);
+                var invalid = [];
+                step.querySelectorAll("input, select, textarea").forEach(function (field) {
+                    if (field.disabled || field.type === "hidden" || field.type === "file") {
+                        return;
+                    }
+                    if (field.type === "checkbox" || field.type === "radio") {
+                        return;
+                    }
+                    var value = (field.value || "").trim();
+                    var isRequired = field.required;
+                    if (isRequired && !value) {
+                        invalid.push(field);
+                        return;
+                    }
+                    if (value && field.type === "number" && !field.checkValidity()) {
+                        invalid.push(field);
+                    }
+                });
+
+                var requestTypes = step.querySelector("[data-coach-request-types]");
+                if (requestTypes) {
+                    var checked = requestTypes.querySelectorAll('input[type="checkbox"]:checked');
+                    if (!checked.length) {
+                        requestTypes.classList.add("is-invalid");
+                        showError("{% trans 'حداقل یکی از نوع درخواست‌ها را انتخاب کنید.' %}");
+                        return false;
+                    }
+                    requestTypes.classList.remove("is-invalid");
+                }
+
+                if (invalid.length) {
+                    invalid.forEach(function (field) {
+                        var group = field.closest(".field-group");
+                        if (group) {
+                            group.classList.add("is-invalid");
+                        }
+                    });
+                    showError("{% trans 'لطفاً فیلدهای مشخص‌شده را به‌درستی تکمیل کنید.' %}");
+                    invalid[0].focus();
+                    invalid[0].scrollIntoView({ behavior: "smooth", block: "center" });
+                    return false;
+                }
+                return true;
+            }
+
+            function showStep(index) {
+                current = Math.max(0, Math.min(index, steps.length - 1));
+                steps.forEach(function (step, i) {
+                    step.classList.toggle("is-active", i === current);
+                });
+                if (progress) {
+                    progress.style.width = ((current + 1) / steps.length * 100) + "%";
+                }
+                if (counter) {
+                    counter.textContent = "{% trans 'مرحله' %} " + faNumber(current + 1) + " {% trans 'از' %} " + faNumber(steps.length);
+                }
+                if (back) {
+                    back.hidden = current === 0;
+                }
+                if (next) {
+                    next.hidden = current === steps.length - 1;
+                }
+                if (submit) {
+                    submit.hidden = current !== steps.length - 1;
+                }
+                clearErrors(steps[current]);
+            }
+
+            if (next) {
+                next.addEventListener("click", function () {
+                    if (validateStep(steps[current])) {
+                        showStep(current + 1);
+                        form.scrollIntoView({ behavior: "smooth", block: "start" });
+                    }
+                });
+            }
+            if (back) {
+                back.addEventListener("click", function () {
+                    showStep(current - 1);
+                    form.scrollIntoView({ behavior: "smooth", block: "start" });
+                });
+            }
+            form.addEventListener("submit", function (event) {
+                if (!validateStep(steps[current])) {
+                    event.preventDefault();
+                    return;
+                }
+                if (current !== steps.length - 1) {
+                    event.preventDefault();
+                    showStep(current + 1);
+                }
+            });
+
+            // Server-side validation errors: jump to the step that contains them.
+            steps.forEach(function (step, index) {
+                if (step.querySelector(".errorlist, .form-message.is-error, .field-group.is-invalid")) {
+                    showStep(index);
+                }
+            });
+            showStep(current);
+        });
+    </script>
+{% endblock %}

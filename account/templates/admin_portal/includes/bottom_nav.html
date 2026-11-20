@@ -1,0 +1,145 @@
+{% load i18n %}
+<nav class="admin-bottom-nav{% if is_coach_only %} admin-bottom-nav--coach{% endif %}" aria-label="{% trans 'پنل ادمین' %}">
+    <a href="{% url 'register:admin_search' %}" class="admin-bottom-nav__item {% if active_section == 'search' %}is-active{% endif %}">
+        <span class="admin-bottom-nav__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.8"/><path d="M16 16L20 20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </span>
+        <span class="admin-bottom-nav__label">{% if is_coach_only %}{% trans 'شاگردان' %}{% else %}{% trans 'پنل ادمین' %}{% endif %}</span>
+    </a>
+    {% if is_coach_only %}
+    <details class="admin-bottom-nav__group">
+        <summary class="admin-bottom-nav__item admin-bottom-nav__group-toggle {% if active_section == 'coach_dashboard' or active_section == 'coach_analysis' or active_section == 'coach_profile' or active_section == 'coach_blog' or active_section == 'coach_suggestions' or active_section == 'recommendations' or active_section == 'automatic' %}is-active{% endif %}" aria-controls="coach-nav-menu">
+            <span class="admin-bottom-nav__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><path d="M4 12.5L12 5L20 12.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M6.5 11V19H17.5V11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </span>
+            <span class="admin-bottom-nav__label">{% trans 'پنل مربی' %}</span>
+            <span class="admin-bottom-nav__chevron" aria-hidden="true">⌄</span>
+        </summary>
+        <ul class="admin-bottom-nav__submenu" id="coach-nav-menu">
+            <li>
+                <a href="{% url 'register:coach_dashboard' %}" class="admin-bottom-nav__submenu-item {% if active_section == 'coach_dashboard' %}is-active{% endif %}">
+                    <span>{% trans 'داشبورد مربی' %}</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'register:profile_analysis' %}" class="admin-bottom-nav__submenu-item {% if active_section == 'coach_analysis' %}is-active{% endif %}">
+                    <span>{% trans 'آنالیز بدنی من' %}</span>
+                </a>
+            </li>
+            <li>
+                {% if request.user.can_use_automatic_programming %}
+                <a href="{% url 'register:admin_automatic_programming' %}" class="admin-bottom-nav__submenu-item {% if active_section == 'automatic' %}is-active{% endif %}">
+                    <span>{% trans 'برنامه‌ریزی خودکار' %}</span>
+                </a>
+                {% else %}
+                <span class="admin-bottom-nav__submenu-item is-disabled" aria-disabled="true" title="{% trans 'این قابلیت باید توسط ادمین فعال شود.' %}">
+                    <span>{% trans 'برنامه‌ریزی خودکار' %} · {% trans 'غیرفعال' %}</span>
+                </span>
+                {% endif %}
+            </li>
+            <li>
+                <a href="{% url 'register:admin_training_recommendations' %}" class="admin-bottom-nav__submenu-item {% if active_section == 'recommendations' %}is-active{% endif %}">
+                    <span>{% trans 'بازبینی پیشرفت تمرین' %}</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'register:coach_profile' %}" class="admin-bottom-nav__submenu-item {% if active_section == 'coach_profile' %}is-active{% endif %}">
+                    <span>{% trans 'پروفایل مربی' %}</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'register:coach_blog' %}" class="admin-bottom-nav__submenu-item {% if active_section == 'coach_blog' %}is-active{% endif %}">
+                    <span>{% trans 'بلاگ من' %}</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'register:coach_exercise_suggestions' %}" class="admin-bottom-nav__submenu-item {% if active_section == 'coach_suggestions' %}is-active{% endif %}">
+                    <span>{% trans 'پیشنهاد حرکت' %}</span>
+                </a>
+            </li>
+        </ul>
+    </details>
+    {% endif %}
+    <details class="admin-bottom-nav__group">
+        <summary class="admin-bottom-nav__item admin-bottom-nav__group-toggle {% if active_section == 'analysis' or active_section == 'records' or active_section == 'clients' or active_section == 'coaches' %}is-active{% endif %}" aria-controls="admin-user-nav-menu">
+            <span class="admin-bottom-nav__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 19V18C3.5 15.8 5.3 14 7.5 14H10.5C12.7 14 14.5 15.8 14.5 18V19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="17" cy="8.5" r="2.3" stroke="currentColor" stroke-width="1.8"/><path d="M15.5 14.2C18 14.2 20 16 20 18.2V19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </span>
+            <span class="admin-bottom-nav__label">{% trans 'کاربر' %}</span>
+            <span class="admin-bottom-nav__chevron" aria-hidden="true">⌄</span>
+        </summary>
+        <ul class="admin-bottom-nav__submenu" id="admin-user-nav-menu">
+            <li>
+                <a href="{% if target_user %}{% url 'register:admin_user_analysis' target_user.id %}{% else %}{% url 'register:admin_search' %}{% endif %}" class="admin-bottom-nav__submenu-item {% if active_section == 'analysis' %}is-active{% endif %}">
+                    <span class="admin-bottom-nav__submenu-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none"><path d="M5 17L9 12L13 14L19 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </span>
+                    <span>{% trans 'آنالیز' %}</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% if target_user %}{% url 'register:admin_user_hub' target_user.id %}{% else %}{% url 'register:admin_search' %}{% endif %}" class="admin-bottom-nav__submenu-item {% if active_section == 'records' %}is-active{% endif %}">
+                    <span class="admin-bottom-nav__submenu-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none"><path d="M7 5.5H17A2.5 2.5 0 0 1 19.5 8V17A2.5 2.5 0 0 1 17 19.5H7A2.5 2.5 0 0 1 4.5 17V8A2.5 2.5 0 0 1 7 5.5Z" stroke="currentColor" stroke-width="1.8"/></svg>
+                    </span>
+                    <span>{% trans 'ثبت اطلاعات' %}</span>
+                </a>
+            </li>
+            {% if not is_coach_only %}
+            <li>
+                <a href="{% url 'register:admin_user_list' %}" class="admin-bottom-nav__submenu-item {% if active_section == 'clients' %}is-active{% endif %}">
+                    <span class="admin-bottom-nav__submenu-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 19V18C3.5 15.8 5.3 14 7.5 14H10.5C12.7 14 14.5 15.8 14.5 18V19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="17" cy="8.5" r="2.3" stroke="currentColor" stroke-width="1.8"/><path d="M15.5 14.2C18 14.2 20 16 20 18.2V19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    </span>
+                    <span>{% trans 'کاربران' %}</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'register:admin_coach_management' %}" class="admin-bottom-nav__submenu-item {% if active_section == 'coaches' %}is-active{% endif %}">
+                    <span class="admin-bottom-nav__submenu-icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8" r="3" stroke="currentColor" stroke-width="1.8"/><path d="M3.5 19V18C3.5 15.8 5.3 14 7.5 14H10.5C12.7 14 14.5 15.8 14.5 18V19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="17" cy="8.5" r="2.3" stroke="currentColor" stroke-width="1.8"/><path d="M15.5 14.2C18 14.2 20 16 20 18.2V19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                    </span>
+                    <span>{% trans 'مدیریت مربیان' %}</span>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </details>
+    {% if not is_coach_only %}
+    <a href="{% url 'register:admin_gym_library' %}" class="admin-bottom-nav__item {% if active_section == 'library' %}is-active{% endif %}">
+        <span class="admin-bottom-nav__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M6 4.5V19.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M18 4.5V19.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M6 9H18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M6 15H18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </span>
+        <span class="admin-bottom-nav__label">{% trans 'کتابخانه' %}</span>
+    </a>
+    <a href="{% url 'register:admin_automatic_programming' %}" class="admin-bottom-nav__item {% if active_section == 'automatic' %}is-active{% endif %}">
+        <span class="admin-bottom-nav__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M12 3.5L13.7 9.3L19.5 11L13.7 12.7L12 18.5L10.3 12.7L4.5 11L10.3 9.3L12 3.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="admin-bottom-nav__label">{% trans 'خودکار' %}</span>
+    </a>
+    <details class="admin-bottom-nav__group">
+        <summary class="admin-bottom-nav__item admin-bottom-nav__group-toggle {% if active_section == 'notifications' or active_section == 'analytics' or active_section == 'coach_applications' or active_section == 'exercise_suggestions' or active_section == 'settings' or active_section == 'recommendations' %}is-active{% endif %}" aria-controls="admin-more-nav-menu">
+            <span class="admin-bottom-nav__icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg>
+            </span>
+            <span class="admin-bottom-nav__label">{% trans 'بیشتر' %}</span>
+            <span class="admin-bottom-nav__chevron" aria-hidden="true">⌄</span>
+        </summary>
+        <ul class="admin-bottom-nav__submenu" id="admin-more-nav-menu">
+            <li><a href="{% url 'register:admin_training_recommendations' %}" class="admin-bottom-nav__submenu-item {% if active_section == 'recommendations' %}is-active{% endif %}"><span>{% trans 'بازبینی پیشرفت تمرین' %}</span></a></li>
+            <li><a href="{% url 'register:admin_notifications' %}" class="admin-bottom-nav__submenu-item {% if active_section == 'notifications' %}is-active{% endif %}"><span>{% trans 'اعلانات' %}</span></a></li>
+            <li><a href="{% url 'register:admin_analytics' %}" class="admin-bottom-nav__submenu-item {% if active_section == 'analytics' %}is-active{% endif %}"><span>{% trans 'آنالیز کل سایت' %}</span></a></li>
+            <li><a href="{% url 'register:admin_coach_applications' %}" class="admin-bottom-nav__submenu-item {% if active_section == 'coach_applications' %}is-active{% endif %}"><span>{% trans 'درخواست مربی شدن' %}</span></a></li>
+            <li><a href="{% url 'register:admin_exercise_suggestions' %}" class="admin-bottom-nav__submenu-item {% if active_section == 'exercise_suggestions' %}is-active{% endif %}"><span>{% trans 'پیشنهادهای حرکتی' %}</span></a></li>
+            <li><a href="{% url 'register:admin_password_change' %}" class="admin-bottom-nav__submenu-item {% if active_section == 'settings' %}is-active{% endif %}"><span>{% trans 'تغییر رمز عبور' %}</span></a></li>
+        </ul>
+    </details>
+    {% endif %}
+    <a href="{% url 'register:logout' %}" class="admin-bottom-nav__item">
+        <span class="admin-bottom-nav__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M10 7.5H6.5A2.5 2.5 0 0 0 4 10V14A2.5 2.5 0 0 0 6.5 16.5H10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M14 12H20" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M17.5 9.5L20 12L17.5 14.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <span class="admin-bottom-nav__label">{% trans 'خروج' %}</span>
+    </a>
+</nav>

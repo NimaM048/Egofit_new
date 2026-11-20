@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block header %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block skip_link %}{% endblock %}
+
+{% block public_ui_css %}{% endblock %}
+{% block public_ui_js %}{% endblock %}
+
+{% block body_class %}account-dashboard{% endblock %}
+
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/account.css' %}">
+    {% if is_coach_only %}<link rel="stylesheet" href="{% static 'css/admin-portal.css' %}">{% endif %}
+    <link rel="stylesheet" href="{% static 'css/dashboard-polish.css' %}">
+    <link rel="stylesheet" href="{% static 'css/account-mobile.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="account-app {% if hide_account_chrome %}account-app--compact{% endif %}">
+    {% if not hide_account_chrome %}
+        <header class="dashboard-glass-header dashboard-glass-header--account" aria-label="{% trans 'سربرگ پنل کاربری' %}">
+            <div class="dashboard-glass-header__inner">
+                <a href="{% url 'home:home' %}" class="dashboard-glass-header__brand" aria-label="{% trans 'بازگشت به صفحه اصلی' %}">
+                    <span class="dashboard-glass-header__logo" aria-hidden="true">
+                        <img src="{% static 'images/logoimageego.webp' %}" alt="">
+                    </span>
+                    <span class="dashboard-glass-header__brand-copy">
+                        <span>{% trans 'ایگوفیت' %}</span>
+                        <strong>{% trans 'پنل کاربری' %}</strong>
+                    </span>
+                </a>
+
+                <div class="dashboard-glass-header__title">
+                    <span>{% trans 'حساب کاربری' %}</span>
+                    {% trans 'پروفایل' as default_account_title %}
+                    <h1>{{ account_title|default:default_account_title }}</h1>
+                </div>
+
+                <div class="dashboard-glass-header__actions">
+                    <a href="{% url 'home:series' %}" class="dashboard-glass-header__action">{% trans 'دوره‌ها' %}</a>
+                    {% include 'includes/theme_toggle.html' %}
+                    <a href="{% url 'register:logout' %}" class="dashboard-glass-header__icon-action" aria-label="{% trans 'خروج از حساب' %}">
+                        <span aria-hidden="true">↵</span>
+                    </a>
+                </div>
+            </div>
+        </header>
+    {% endif %}
+
+    <div class="account-app__layout{% if is_coach_only %} account-app__layout--coach{% endif %} {% if hide_account_chrome %}account-app__layout--compact{% endif %}">
+        {% if not hide_account_chrome %}
+            <aside class="{% if is_coach_only %}admin-app__sidebar{% else %}account-app__sidebar{% endif %}">
+                {% if is_coach_only %}
+                    {% include 'admin_portal/includes/sidebar_nav.html' with active_section=active_section|default:'coach_dashboard' %}
+                {% else %}
+                    {% include 'includes/account_sidebar.html' with active_section=active_section|default:'dashboard' %}
+                {% endif %}
+            </aside>
+        {% endif %}
+
+        <section class="account-app__content {% if hide_account_chrome %}account-app__content--compact{% endif %}">
+            {% if messages %}
+                <div class="account-toast-stack" role="status" aria-live="polite">
+                    {% for message in messages %}
+                        <div class="account-toast {% if message.tags %}account-toast--{{ message.tags }}{% endif %}" data-account-toast>
+                            <span>{{ message }}</span>
+                            <button type="button" class="account-toast__close" data-account-toast-close aria-label="{% trans 'بستن' %}">×</button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% block account_content %}{% endblock %}
+        </section>
+    </div>
+
+    {% if not hide_account_chrome %}
+        {% if is_coach_only %}
+            {% include 'admin_portal/includes/bottom_nav.html' with active_section=active_section|default:'coach_dashboard' %}
+        {% else %}
+            {% include 'includes/account_bottom_nav.html' with active_section=active_section|default:'dashboard' %}
+        {% endif %}
+    {% endif %}
+</main>
+{% endblock %}
+
+{% block extra_js %}
+    {{ block.super }}
+    <script src="{% static 'js/account-user.js' %}"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            document.querySelectorAll("[data-account-toast]").forEach(function (toast) {
+                var timer = window.setTimeout(function () {
+                    toast.classList.add("is-dismissed");
+                }, 5000);
+                var closeBtn = toast.querySelector("[data-account-toast-close]");
+                if (closeBtn) {
+                    closeBtn.addEventListener("click", function () {
+                        window.clearTimeout(timer);
+                        toast.classList.add("is-dismissed");
+                    });
+                }
+            });
+            document.querySelectorAll("[data-dashboard-feed]").forEach(function (feed) {
+                var closeBtn = feed.querySelector("[data-dashboard-feed-close]");
+                if (closeBtn) {
+                    closeBtn.addEventListener("click", function () {
+                        feed.classList.add("is-dismissed");
+                    });
+                }
+            });
+
+            // Keep the mobile "more" toolbar collapsed on every load/navigation;
+            // it only opens when the user taps it.
+            var bottomNavGroups = document.querySelectorAll("[data-bottom-nav-group]");
+            function collapseBottomNavGroups() {
+                bottomNavGroups.forEach(function (group) {
+                    group.open = false;
+                });
+            }
+            collapseBottomNavGroups();
+            window.addEventListener("pageshow", collapseBottomNavGroups);
+            document.addEventListener("click", function (event) {
+                bottomNavGroups.forEach(function (group) {
+                    if (group.open && !group.contains(event.target)) {
+                        group.open = false;
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}

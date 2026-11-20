@@ -1,0 +1,12 @@
+{% extends 'admin_portal/_shell.html' %}
+{% load i18n %}
+{% block title %}{% trans 'قالب‌های برنامه | ایگوفیت' %}{% endblock %}
+{% block admin_content %}
+<section class="admin-screen admin-library-screen">
+    <header class="admin-screen__header admin-screen__header--split"><div><h1 class="admin-screen__title">{% trans 'قالب‌های برنامه خودکار' %}</h1><p>{% trans 'قالب‌ها تقسیم‌بندی و هدف را پیشنهاد می‌کنند؛ حرکت‌ها برای هر ورزشکار دوباره با محدودیت‌ها و تجهیزات او انتخاب می‌شوند.' %}</p></div><a class="admin-primary-btn" href="{% url 'register:admin_program_template_add' %}">+ {% trans 'ساخت قالب' %}</a></header>
+    <div class="admin-result-list admin-result-list--grid">
+        {% for item in templates %}<article class="admin-result-card"><div class="admin-result-card__meta"><strong>{{ item.title }}</strong><span>{{ item.get_training_goal_display }} · {{ item.difficulty.name }} · {{ item.days_per_week }} {% trans 'روز' %} · {{ item.weeks }} {% trans 'هفته' %}</span><span>{% if item.is_shared_with_enabled_coaches %}{% trans 'مشترک با مربیان مجاز' %}{% elif item.shared_with.exists %}{% trans 'اشتراک‌گذاری انتخابی' %}{% else %}{% trans 'خصوصی' %}{% endif %}</span></div>{% if request.user.is_admin or item.owner_id == request.user.pk %}<a class="admin-secondary-btn admin-secondary-btn--small" href="{% url 'register:admin_program_template_edit' item.pk %}">{% trans 'ویرایش' %}</a>{% endif %}</article>
+        {% empty %}<p>{% trans 'قالبی ثبت نشده است.' %}</p>{% endfor %}
+    </div>
+</section>
+{% endblock %}

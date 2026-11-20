@@ -1,0 +1,5491 @@
+.account-app {
+    min-height: 100vh;
+    padding: 24px 0 96px;
+}
+
+.account-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 70;
+    padding: 12px 0 0;
+    margin-bottom: 16px;
+}
+
+.account-topbar__inner {
+    width: min(1440px, calc(100% - 32px));
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 14px 18px;
+    border-radius: 24px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.dark .account-topbar__inner {
+    background: rgba(2, 6, 23, 0.88);
+}
+
+.account-topbar__back,
+.account-topbar__home {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 14px;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    background: rgba(37, 99, 235, 0.06);
+    color: hsl(var(--primary));
+    font-size: 1.2rem;
+    font-weight: 900;
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.account-topbar__back:hover,
+.account-topbar__home:hover {
+    transform: translateY(-1px);
+    background: rgba(37, 99, 235, 0.1);
+    border-color: rgba(37, 99, 235, 0.2);
+}
+
+.account-topbar__title-wrap {
+    min-width: 0;
+    text-align: center;
+    flex: 1 1 auto;
+}
+
+.account-topbar__eyebrow {
+    margin: 0;
+    color: hsl(var(--muted));
+    font-size: 0.8rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.account-topbar__title {
+    margin: 4px 0 0;
+    color: hsl(var(--foreground));
+    font-size: 1rem;
+    font-weight: 900;
+    line-height: 1.3;
+}
+
+.account-app__layout {
+    width: min(1440px, calc(100% - 32px));
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 320px minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+}
+
+.account-app__sidebar {
+    position: sticky;
+    top: 24px;
+}
+
+.account-app__content {
+    min-width: 0;
+}
+
+.account-app--compact {
+    padding: 0;
+}
+
+.account-app--compact .account-app__layout {
+    width: min(100%, calc(100% - 16px));
+    min-height: calc(100vh - 32px);
+    grid-template-columns: 1fr;
+    align-items: start;
+    padding-top: 8px;
+}
+
+.account-app--compact .account-app__content--compact {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+}
+
+.account-app--compact .account-app__sidebar,
+.account-app--compact .account-topbar,
+.account-app--compact .account-bottom-nav {
+    display: none;
+}
+
+.account-page-panel,
+.account-panel,
+.account-card,
+.auth-card,
+.auth-shell {
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    border-radius: 28px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.dark .account-page-panel,
+.dark .account-panel,
+.dark .account-card,
+.dark .auth-card,
+.dark .auth-shell {
+    background: rgba(2, 6, 23, 0.76);
+    border-color: rgba(148, 163, 184, 0.12);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+}
+
+.account-sidebar {
+    padding: 20px;
+    border-radius: 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.account-user {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.account-user__avatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 20px;
+    overflow: hidden;
+    background: linear-gradient(135deg, rgba(37, 99, 235, 0.1), rgba(22, 163, 74, 0.08));
+    flex: 0 0 auto;
+}
+
+.account-user__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.account-user__meta {
+    min-width: 0;
+}
+
+.account-user__meta h2,
+.account-user__meta p {
+    margin: 0;
+}
+
+.account-user__phone {
+    margin-top: 4px;
+    color: hsl(var(--muted));
+    font-size: 0.9rem;
+}
+
+.account-user__badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.account-user__badges span,
+.account-sidebar__status span,
+.account-nav__item,
+.account-bottom-nav__label,
+.auth-meta,
+.dashboard-stat__label,
+.account-chip {
+    font-size: 0.82rem;
+}
+
+.account-user__badges span,
+.account-sidebar__status span,
+.account-chip {
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, 0.08);
+    color: hsl(var(--primary));
+    font-weight: 700;
+}
+
+.account-chip.is-active {
+    background: rgba(22, 163, 74, 0.1);
+    color: #166534;
+}
+
+.account-sidebar__status {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+    align-items: stretch;
+}
+
+.account-sidebar__status > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 10px;
+    border-radius: 20px;
+    background: rgba(248, 250, 252, 0.92);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    min-width: 0;
+}
+
+/* Match both status chips to the same size regardless of label length. */
+.account-sidebar__status > div span {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+}
+
+.dark .account-sidebar__status > div {
+    background: rgba(15, 23, 42, 0.75);
+}
+
+.account-sidebar__status strong {
+    display: block;
+    margin-top: 0;
+    font-size: 0.95rem;
+    text-align: center;
+    color: hsl(var(--foreground));
+}
+
+.account-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.account-nav__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 48px;
+    padding: 0 16px;
+    border-radius: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    background: rgba(255, 255, 255, 0.74);
+    color: hsl(var(--foreground));
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.account-nav__item:hover,
+.account-nav__item.is-active {
+    transform: translateY(-1px);
+    border-color: rgba(37, 99, 235, 0.24);
+    background: rgba(37, 99, 235, 0.08);
+}
+
+.account-nav__item.is-active {
+    font-weight: 800;
+    color: hsl(var(--primary));
+}
+
+.account-nav__item.is-danger {
+    color: #dc2626;
+}
+
+.account-bottom-nav {
+    --bottom-nav-icon-size: 22px;
+    --bottom-nav-label-size: 0.82rem;
+    position: fixed;
+    inset-inline: 12px;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    z-index: 60;
+    display: none;
+    gap: 8px;
+    padding: 10px;
+    padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    box-shadow: 0 20px 44px rgba(15, 23, 42, 0.16);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.dark .account-bottom-nav {
+    background: rgba(2, 6, 23, 0.9);
+}
+
+.account-bottom-nav__item {
+    flex: 1 1 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-height: 62px;
+    padding: 8px 6px;
+    border-radius: 16px;
+    color: hsl(var(--muted));
+    font-size: var(--bottom-nav-label-size);
+    font-weight: 700;
+    line-height: 1.2;
+    text-decoration: none;
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+.cta-primary--strong{
+    border-radius: 16px;
+    color: hsl(var(--muted));
+    font-size: var(--bottom-nav-label-size);
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.account-bottom-nav__item.is-active {
+    background: rgba(37, 99, 235, 0.1);
+    color: hsl(var(--primary));
+    font-weight: 800;
+}
+
+.account-bottom-nav__icon {
+    width: var(--bottom-nav-icon-size);
+    height: var(--bottom-nav-icon-size);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.account-bottom-nav__icon svg {
+    width: var(--bottom-nav-icon-size);
+    height: var(--bottom-nav-icon-size);
+    display: block;
+}
+
+.account-bottom-nav__group {
+    position: relative;
+    flex: 1 1 0;
+    min-width: 0;
+}
+
+.account-bottom-nav__group-toggle {
+    width: 100%;
+    border: 0;
+    background: transparent;
+    font: inherit;
+    cursor: pointer;
+    list-style: none;
+}
+
+.account-bottom-nav__group-toggle::-webkit-details-marker {
+    display: none;
+}
+
+.account-bottom-nav__group-toggle::marker {
+    content: "";
+}
+
+.account-bottom-nav__group-toggle:focus-visible {
+    outline: 2px solid rgba(52, 84, 209, 0.5);
+    outline-offset: 2px;
+}
+
+.account-bottom-nav__chevron {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 12px;
+    height: 12px;
+    margin-inline-start: -2px;
+    font-size: 0.9rem;
+    line-height: 1;
+    transition: transform 180ms ease;
+}
+
+.account-bottom-nav__group[open] .account-bottom-nav__chevron {
+    transform: rotate(180deg);
+}
+
+.account-bottom-nav__group[open] .account-bottom-nav__group-toggle:not(.is-active) {
+    background: rgba(52, 84, 209, 0.06);
+    color: hsl(var(--foreground));
+}
+
+.account-bottom-nav__submenu {
+    position: absolute;
+    inset-inline-start: 50%;
+    inset-inline-end: auto;
+    inset-block-end: calc(100% + 10px);
+    z-index: 70;
+    display: grid;
+    gap: 5px;
+    width: min(220px, calc(100vw - 32px));
+    padding: 8px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.97);
+    box-shadow: 0 18px 42px rgba(15, 23, 42, 0.2);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    transform: translateX(50%);
+    list-style: none;
+    margin: 0;
+}
+
+.account-bottom-nav__submenu > li {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.account-bottom-nav__submenu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 46px;
+    padding: 0 12px;
+    border-radius: 12px;
+    color: hsl(var(--muted));
+    font: inherit;
+    font-size: var(--bottom-nav-label-size);
+    font-weight: 700;
+    line-height: 1.2;
+    text-align: start;
+    text-decoration: none;
+}
+
+.account-bottom-nav__submenu-item:hover,
+.account-bottom-nav__submenu-item:focus-visible {
+    background: rgba(52, 84, 209, 0.07);
+    color: hsl(var(--foreground));
+}
+
+.account-bottom-nav__submenu-item.is-active {
+    background: rgba(52, 84, 209, 0.1);
+    color: var(--account-brand);
+}
+
+.account-bottom-nav__submenu-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--bottom-nav-icon-size);
+    height: var(--bottom-nav-icon-size);
+    flex: 0 0 auto;
+    line-height: 1;
+}
+
+.account-bottom-nav__submenu-icon svg {
+    width: var(--bottom-nav-icon-size);
+    height: var(--bottom-nav-icon-size);
+}
+
+.account-bottom-nav__label {
+    line-height: 1;
+}
+
+.dark .account-bottom-nav__submenu {
+    background: rgba(15, 23, 42, 0.96);
+    border-color: rgba(148, 163, 184, 0.28);
+}
+
+.dark .account-bottom-nav__submenu-item {
+    color: #cbd5e1;
+}
+
+.dark .account-bottom-nav__submenu-item:hover,
+.dark .account-bottom-nav__submenu-item:focus-visible {
+    background: rgba(14, 165, 233, 0.12);
+    color: #e5eefb;
+}
+
+.dark .account-bottom-nav__submenu-item.is-active {
+    background: rgba(14, 165, 233, 0.18);
+    color: #7dd3fc;
+}
+
+#account-learning-nav-menu {
+    inset-block-end: calc(100% + 10px);
+}
+
+#account-learning-nav-menu .account-bottom-nav__submenu-icon,
+#account-learning-nav-menu .account-bottom-nav__submenu-icon svg {
+    width: var(--bottom-nav-icon-size);
+    height: var(--bottom-nav-icon-size);
+}
+
+#account-learning-nav-menu .account-bottom-nav__submenu-item {
+    font-size: var(--bottom-nav-label-size);
+    line-height: 1.2;
+}
+
+.account-page-header,
+.account-section,
+.account-summary-grid,
+.account-grid,
+.course-library-grid,
+.profile-form-grid,
+.stack-form {
+    display: grid;
+    gap: 16px;
+}
+
+.profile-screen,
+.analysis-screen,
+.metric-screen,
+.account-mobile-screen {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    display: grid;
+    gap: 14px;
+}
+
+.profile-screen__header,
+.analysis-screen__header {
+    display: none;
+}
+
+.profile-screen__title,
+.analysis-screen__title {
+    margin: 0;
+    color: var(--account-text, #111827);
+    font-size: 1.15rem;
+    font-weight: 900;
+    line-height: 1.3;
+}
+
+.profile-screen__analysis-link,
+.analysis-screen__back-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, 0.08);
+    color: hsl(var(--primary));
+    font-size: 0.82rem;
+    font-weight: 800;
+}
+
+.analysis-screen__header {
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.analysis-screen__back-link {
+    min-width: 28px;
+    min-height: 28px;
+    padding: 0;
+    border-radius: 999px;
+    justify-content: center;
+    background: transparent;
+    color: var(--account-text, #111827);
+    font-size: 1.1rem;
+    font-weight: 900;
+}
+
+.profile-identity-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 16px;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+}
+
+.dark .profile-identity-card,
+.dark .analysis-summary-card,
+.dark .analysis-metric-card,
+.dark .analysis-chart-card,
+.dark .analysis-empty,
+.dark .analysis-measurements,
+.dark .profile-metric-card,
+.dark .profile-blood-card,
+.dark .metric-sheet {
+    background: rgba(2, 6, 23, 0.82);
+    border-color: rgba(148, 163, 184, 0.12);
+}
+
+.dark .analysis-summary-card__content strong,
+.dark .analysis-summary-card__content p,
+.dark .analysis-metric-card__top strong,
+.dark .analysis-metric-card__top span,
+.dark .analysis-chart-card__head strong,
+.dark .analysis-chart-card__head span,
+.dark .analysis-empty strong,
+.dark .analysis-empty p,
+.dark .analysis-filter-field > span,
+.dark .analysis-summary-card__ring {
+    color: #f8fafc;
+}
+
+.profile-identity-card__meta {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+}
+
+.profile-identity-card__label,
+.profile-metric-card__label,
+.profile-blood-card__label {
+    color: hsl(var(--muted));
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.profile-identity-card__meta strong {
+    font-size: 0.98rem;
+    font-weight: 900;
+}
+
+.profile-identity-card__phone {
+    color: hsl(var(--foreground));
+    font-size: 0.86rem;
+    font-weight: 700;
+}
+
+.profile-identity-card__avatar {
+    width: 44px;
+    height: 44px;
+    border-radius: 14px;
+    overflow: hidden;
+    background: rgba(37, 99, 235, 0.1);
+    flex: 0 0 auto;
+}
+
+.profile-identity-card__avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-metric-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.profile-metric-card,
+.profile-blood-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.06);
+}
+
+.profile-metric-card--wide,
+.profile-blood-card {
+    grid-column: 1 / -1;
+}
+
+.profile-metric-card__icon,
+.profile-blood-card__icon {
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(37, 99, 235, 0.1);
+    color: hsl(var(--primary));
+    font-size: 1rem;
+    flex: 0 0 auto;
+}
+
+.profile-metric-card__content,
+.profile-blood-card__content {
+    min-width: 0;
+    display: grid;
+    gap: 4px;
+}
+
+.profile-metric-card__value,
+.profile-blood-card__value {
+    font-size: 0.92rem;
+    font-weight: 900;
+    color: hsl(var(--foreground));
+}
+
+.profile-actions {
+    display: grid;
+    gap: 10px;
+}
+
+.profile-actions__primary,
+.profile-actions__secondary {
+    min-height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 99999px;
+    font-weight: 800;
+}
+
+.profile-actions__primary {
+    background: linear-gradient(180deg, #3454d1 0%, #2f4ecc 100%);
+    color: #fff;
+    box-shadow: 0 16px 28px rgba(47, 78, 204, 0.24);
+}
+
+.profile-actions__secondary {
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    color: hsl(var(--primary));
+}
+
+.secondary-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 0 12px;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, 0.08);
+    color: hsl(var(--primary));
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+.workout-program-pdf-download {
+    gap: 7px;
+    border: 1px solid rgba(52, 84, 209, 0.18);
+    box-shadow: 0 8px 18px rgba(52, 84, 209, 0.1);
+}
+
+.workout-program-pdf-download__icon {
+    font-size: 1rem;
+    line-height: 1;
+}
+
+.analysis-filters {
+    display: grid;
+    gap: 10px;
+}
+
+.analysis-select,
+.analysis-date {
+    width: 100%;
+    min-height: 46px;
+    border-radius: 16px;
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    background: rgba(255, 255, 255, 0.92);
+    padding: 0 14px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    color: hsl(var(--foreground));
+    font-weight: 700;
+}
+
+.analysis-filters__row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.analysis-filters__row--stack {
+    grid-template-columns: 1fr;
+}
+
+@media (max-width: 767px) {
+    .analysis-filters__row {
+        grid-template-columns: 1fr;
+    }
+}
+
+.analysis-filter-field {
+    display: grid;
+    gap: 6px;
+}
+
+.analysis-filter-field > span {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: hsl(var(--muted-foreground));
+}
+
+.analysis-select--native {
+    appearance: auto;
+    cursor: pointer;
+    justify-content: flex-start;
+}
+
+.admin-panel-card {
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    border-radius: 18px;
+    padding: 16px;
+    margin-bottom: 16px;
+    background: rgba(255, 255, 255, 0.92);
+}
+
+.admin-panel-card__title {
+    margin: 0 0 12px;
+    font-size: 1rem;
+}
+
+.admin-coach-inline-form {
+    display: grid;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.analysis-summary-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+}
+
+.analysis-summary-card__ring {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 7px solid #43c59e;
+    color: hsl(var(--foreground));
+    font-size: 0.92rem;
+    font-weight: 900;
+    flex: 0 0 auto;
+}
+
+.analysis-summary-card__content strong {
+    display: block;
+    font-size: 0.96rem;
+    font-weight: 900;
+}
+
+.analysis-summary-card__content p,
+.analysis-chart-card__head span,
+.analysis-empty p {
+    margin: 6px 0 0;
+    color: hsl(var(--muted));
+    font-size: 0.83rem;
+    line-height: 1.8;
+}
+
+.analysis-metrics {
+    display: grid;
+    gap: 10px;
+}
+
+.analysis-metric-card {
+    padding: 14px 16px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.analysis-metric-card__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.analysis-metric-card__top strong {
+    font-size: 0.92rem;
+    font-weight: 900;
+}
+
+.analysis-metric-card__top span {
+    color: hsl(var(--muted));
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.analysis-metric-card__bar {
+    margin-top: 12px;
+    width: 100%;
+    height: 14px;
+    border-radius: 999px;
+    background: rgba(148, 163, 184, 0.18);
+    overflow: hidden;
+}
+
+.analysis-metric-card__bar span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+}
+
+.analysis-metric-card__bar .tone-green {
+    background: #12b981;
+}
+
+.analysis-metric-card__bar .tone-yellow {
+    background: #fde047;
+}
+
+.analysis-chart-card,
+.analysis-empty,
+.metric-sheet {
+    padding: 16px;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+}
+
+.analysis-chart-card__head {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.analysis-chart-card__head strong {
+    font-size: 0.96rem;
+    font-weight: 900;
+}
+
+.analysis-chart-card__svg {
+    width: 100%;
+    height: auto;
+    margin-top: 10px;
+}
+
+.analysis-empty {
+    text-align: center;
+}
+
+.analysis-empty--chart {
+    margin-bottom: 12px;
+}
+
+.analysis-formula-badge {
+    margin: 0 0 10px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(52, 84, 209, 0.1);
+    color: #3454d1;
+    font-size: 0.78rem;
+    font-weight: 800;
+    text-align: center;
+}
+
+.analysis-measurements {
+    display: grid;
+    gap: 14px;
+    padding: 16px;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    box-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+}
+
+.analysis-measurements__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.analysis-measurements__head strong {
+    font-size: 0.95rem;
+    font-weight: 900;
+}
+
+.analysis-measurements__head span,
+.analysis-measurements__group h3 {
+    color: hsl(var(--muted));
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.analysis-measurements__group {
+    display: grid;
+    gap: 10px;
+}
+
+.analysis-measurements__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.analysis-measurements__item {
+    display: grid;
+    gap: 4px;
+    padding: 10px 12px;
+    border-radius: 14px;
+    background: rgba(248, 250, 252, 0.9);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.analysis-measurements__item span {
+    color: hsl(var(--muted));
+    font-size: 0.74rem;
+    font-weight: 700;
+}
+
+.analysis-measurements__item strong {
+    font-size: 0.86rem;
+    font-weight: 900;
+}
+
+.dark .analysis-measurements,
+.dark .analysis-formula-badge {
+    background: rgba(15, 23, 42, 0.82);
+    border-color: rgba(148, 163, 184, 0.28);
+    color: #e2e8f0;
+}
+
+.dark .analysis-formula-badge {
+    color: #7dd3fc;
+}
+
+.dark .analysis-measurements__item {
+    background: rgba(2, 6, 23, 0.58);
+    border-color: rgba(148, 163, 184, 0.22);
+}
+
+.dark .analysis-select,
+.dark .analysis-date,
+.dark .analysis-select--native {
+    background: rgba(2, 6, 23, 0.58);
+    border-color: rgba(148, 163, 184, 0.32);
+    color: #f8fafc;
+}
+
+.dark .analysis-measurements__head strong,
+.dark .analysis-measurements__head span,
+.dark .analysis-measurements__group h3,
+.dark .analysis-measurements__item span,
+.dark .analysis-measurements__item strong {
+    color: #f8fafc;
+}
+
+.analysis-empty strong {
+    display: block;
+    font-size: 0.98rem;
+    font-weight: 900;
+}
+
+.metric-screen {
+    gap: 0;
+}
+
+.account-mobile-screen {
+    align-content: start;
+}
+
+.metric-sheet {
+    display: grid;
+    gap: 14px;
+}
+
+.metric-sheet__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.metric-sheet__header h1 {
+    margin: 6px 0 0;
+    font-size: 1.15rem;
+    font-weight: 900;
+}
+
+.metric-sheet__close {
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.16);
+    color: hsl(var(--foreground));
+    font-size: 1.2rem;
+    font-weight: 900;
+}
+
+.metric-sheet__description {
+    margin: 0;
+    color: hsl(var(--muted));
+    font-size: 0.85rem;
+    line-height: 1.9;
+}
+
+.metric-sheet__form {
+    display: grid;
+    gap: 14px;
+}
+
+.metric-sheet__submit {
+    min-height: 52px;
+    border: 0;
+    border-radius: 99999px;
+    background: linear-gradient(180deg, #3454d1 0%, #2f4ecc 100%);
+    color: #fff;
+    font-weight: 800;
+    box-shadow: 0 16px 28px rgba(47, 78, 204, 0.24);
+}
+
+.blood-group-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.blood-group-chip {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(255, 255, 255, 0.94);
+    color: hsl(var(--foreground));
+    font-size: 0.82rem;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.blood-group-chip input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.blood-group-chip.is-active,
+.blood-group-chip:has(input:checked) {
+    background: rgba(37, 99, 235, 0.1);
+    color: hsl(var(--primary));
+    border-color: rgba(37, 99, 235, 0.22);
+}
+
+.metric-sheet--blood .metric-sheet__form {
+    gap: 18px;
+}
+
+.account-page-header {
+    margin-bottom: 20px;
+    padding: 0 2px;
+}
+
+.account-page-header h1,
+.account-page-header h2,
+.dashboard-title,
+.auth-title {
+    margin: 0;
+    font-size: clamp(1.35rem, 2vw, 1.8rem);
+    font-weight: 900;
+    color: hsl(var(--foreground));
+}
+
+.account-page-header p,
+.auth-lead,
+.dashboard-lead {
+    margin: 0;
+    color: hsl(var(--muted));
+    line-height: 1.9;
+}
+
+.account-summary-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.account-summary-card {
+    padding: 18px 20px;
+    border-radius: 22px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(238, 245, 255, 0.92));
+    border: 1px solid rgba(148, 163, 184, 0.14);
+}
+
+.dark .account-summary-card {
+    background: linear-gradient(180deg, rgba(15, 23, 42, 0.88), rgba(30, 41, 59, 0.86));
+}
+
+.account-summary-card__label,
+.dashboard-stat__label {
+    display: block;
+    color: hsl(var(--muted));
+    font-weight: 700;
+}
+
+.account-summary-card__value,
+.dashboard-stat__value {
+    display: block;
+    margin-top: 12px;
+    font-size: 1.6rem;
+    font-weight: 900;
+}
+
+.account-grid {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    margin-top: 20px;
+}
+
+.course-library-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.profile-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.field-group--full {
+    grid-column: 1 / -1;
+}
+
+.account-card,
+.account-panel,
+.auth-card,
+.auth-shell {
+    padding: 24px;
+}
+
+.dashboard-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+    gap: 18px;
+    align-items: stretch;
+}
+
+.dashboard-hero__card {
+    padding: 24px;
+    border-radius: 28px;
+    background: linear-gradient(135deg, rgba(239, 246, 255, 0.9), rgba(236, 253, 245, 0.9));
+    border: 1px solid rgba(148, 163, 184, 0.16);
+}
+
+.dashboard-hero__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+    margin-top: 18px;
+}
+
+.account-list,
+.timeline-list {
+    display: grid;
+    gap: 12px;
+}
+
+.account-list-item,
+.timeline-item {
+    padding: 16px;
+    border-radius: 20px;
+    background: rgba(248, 250, 252, 0.9);
+    border: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.dark .account-list-item,
+.dark .timeline-item {
+    background: rgba(15, 23, 42, 0.78);
+}
+
+.account-list-item__title,
+.timeline-item strong {
+    display: block;
+    font-size: 1rem;
+    font-weight: 800;
+    margin-bottom: 6px;
+}
+
+.profile-notification__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.profile-notification__header strong {
+    min-width: 0;
+    margin-bottom: 0;
+}
+
+.profile-notification__dismiss-form {
+    flex: 0 0 auto;
+}
+
+.profile-notification__dismiss {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    border-radius: 999px;
+    color: hsl(var(--muted));
+    background: transparent;
+    cursor: pointer;
+    transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease;
+}
+
+.profile-notification__dismiss svg {
+    width: 17px;
+    height: 17px;
+}
+
+.profile-notification__dismiss:hover,
+.profile-notification__dismiss:focus-visible {
+    color: hsl(var(--destructive, 0 72% 51%));
+    border-color: currentColor;
+    background: rgba(239, 68, 68, 0.08);
+}
+
+.account-list-item__meta,
+.timeline-item p,
+.timeline-item span {
+    color: hsl(var(--muted));
+    line-height: 1.8;
+}
+
+.auth-page {
+    background: linear-gradient(180deg, rgba(241, 245, 249, 0.96), rgba(248, 250, 252, 0.98));
+}
+
+.auth-main {
+    min-height: calc(100vh - 48px);
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 20px;
+    padding: 24px 16px 72px;
+}
+
+.auth-mobile-main {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0;
+    background: #f3f4f6;
+}
+
+.auth-mobile-screen {
+    width: min(393px, 100%);
+    min-height: min(852px, 100vh);
+    display: grid;
+    grid-template-rows: auto auto auto 1fr auto;
+    gap: 22px;
+    padding: 12px 16px 18px;
+    background: #fff;
+}
+
+.auth-mobile-status {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #111827;
+    line-height: 1;
+}
+
+.auth-mobile-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    color: #111827;
+    font-size: 1.05rem;
+    font-weight: 900;
+}
+
+.auth-mobile-logo-wrap {
+    display: flex;
+    justify-content: center;
+    padding-top: 24px;
+}
+
+.auth-mobile-logo {
+    width: 108px;
+    height: 108px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.auth-mobile-copy {
+    display: grid;
+    gap: 8px;
+    text-align: center;
+    padding: 0 8px;
+}
+
+.auth-mobile-eyebrow {
+    margin: 0;
+    color: #111827;
+    font-size: 1.05rem;
+    font-weight: 700;
+}
+
+.auth-mobile-title {
+    margin: 0;
+    color: #111827;
+    font-size: 1.55rem;
+    font-weight: 900;
+    line-height: 1.3;
+}
+
+.auth-mobile-description {
+    margin: 0;
+    color: #6b7280;
+    font-size: 0.95rem;
+    line-height: 1.8;
+}
+
+.auth-mobile-form {
+    align-self: end;
+    display: grid;
+    gap: 12px;
+}
+
+.auth-mobile-form__stack {
+    gap: 12px;
+}
+
+.auth-mobile-links {
+    display: grid;
+    gap: 8px;
+    margin-top: 8px;
+    text-align: center;
+    font-size: 0.82rem;
+}
+
+.auth-mobile-links a {
+    color: var(--account-brand);
+    font-weight: 700;
+}
+
+.auth-mobile-screen .field-group {
+    gap: 6px;
+}
+
+.auth-mobile-screen .form-input,
+.auth-mobile-screen .enterprise-input,
+.auth-mobile-screen .account-input,
+.auth-mobile-screen .auth-input {
+    height: 48px;
+    border-radius: 14px;
+    border: 1px solid rgba(209, 213, 219, 1);
+    background: #fff;
+    padding-inline: 16px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+}
+
+.auth-mobile-screen .form-input:focus,
+.auth-mobile-screen .enterprise-input:focus,
+.auth-mobile-screen .account-input:focus,
+.auth-mobile-screen .auth-input:focus {
+    border-color: rgba(52, 84, 209, 0.35);
+    box-shadow: 0 0 0 4px rgba(52, 84, 209, 0.08);
+}
+
+.auth-mobile-primary,
+.auth-mobile-secondary {
+    width: 100%;
+    min-height: 56px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    font-weight: 800;
+    font-size: 1rem;
+}
+
+.auth-mobile-primary {
+    border: 0;
+    background: linear-gradient(180deg, #3454d1 0%, #2f4ecc 100%);
+    color: #fff;
+    box-shadow: 0 16px 28px rgba(47, 78, 204, 0.22);
+}
+
+.auth-mobile-secondary {
+    border: 1px solid rgba(229, 231, 235, 1);
+    background: #fff;
+    color: #3454d1;
+}
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+.auth-brand {
+    display: flex;
+    justify-content: center;
+    width: min(1060px, 100%);
+}
+
+.auth-brand__link {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.72);
+    border: 1px solid rgba(148, 163, 184, 0.14);
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+.dark .auth-brand__link {
+    background: rgba(2, 6, 23, 0.72);
+}
+
+.auth-brand__logo {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 14px;
+}
+
+.auth-brand__text {
+    font-size: 1rem;
+    font-weight: 900;
+    color: hsl(var(--foreground));
+}
+
+.auth-shell {
+    width: min(1060px, 100%);
+    display: grid;
+    grid-template-columns: minmax(0, 0.92fr) minmax(360px, 1fr);
+    gap: 24px;
+    align-items: center;
+}
+
+.auth-shell__hero {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    min-width: 0;
+}
+
+.auth-shell__hero h1 {
+    margin: 0;
+    font-size: clamp(2rem, 3vw, 3.4rem);
+    line-height: 1.12;
+    font-weight: 900;
+}
+
+.auth-shell__hero p {
+    margin: 0;
+    color: hsl(var(--muted));
+    line-height: 2;
+    max-width: 42ch;
+}
+
+.auth-shell__chips,
+.auth-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.auth-shell__chips span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 36px;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, 0.08);
+    color: hsl(var(--foreground));
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.auth-card {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.auth-card__head h2,
+.auth-card h1 {
+    margin: 0;
+    font-size: 1.55rem;
+    font-weight: 900;
+}
+
+.auth-card__head p {
+    margin: 8px 0 0;
+    color: hsl(var(--muted));
+    line-height: 1.8;
+}
+
+.stack-form {
+    gap: 14px;
+}
+
+.field-group {
+    display: grid;
+    gap: 8px;
+}
+
+.field-group label {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: hsl(var(--foreground));
+}
+
+.form-input,
+.form-textarea,
+.enterprise-input,
+.account-input,
+.auth-input {
+    width: 100%;
+    height: 48px;
+    border-radius: 18px;
+    border: 1px solid rgba(148, 163, 184, 0.18);
+    background: rgba(255, 255, 255, 0.82);
+    padding: 0 16px;
+    color: hsl(var(--foreground));
+}
+
+.form-textarea {
+    min-height: 140px;
+    height: auto;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    line-height: 1.9;
+    resize: vertical;
+}
+
+.form-input:focus,
+.form-textarea:focus {
+    outline: none;
+    border-color: rgba(37, 99, 235, 0.36);
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+.auth-links,
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+}
+
+.auth-links {
+    justify-content: center;
+}
+
+.auth-links a {
+    color: hsl(var(--primary));
+    font-weight: 700;
+}
+
+.form-messages {
+    display: grid;
+    gap: 10px;
+}
+
+.form-message {
+    padding: 12px 14px;
+    border-radius: 16px;
+    background: rgba(37, 99, 235, 0.08);
+    color: hsl(var(--foreground));
+}
+
+.form-message.is-error,
+.form-message.is-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #b91c1c;
+}
+
+.form-message.is-success {
+    background: rgba(22, 163, 74, 0.1);
+    color: #166534;
+}
+
+.form-message.is-warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: #92400e;
+}
+
+.empty-state {
+    padding: 20px;
+    border-radius: 20px;
+    border: 1px dashed rgba(148, 163, 184, 0.28);
+    background: rgba(248, 250, 252, 0.8);
+    text-align: center;
+}
+
+.empty-state h3,
+.empty-state p {
+    margin: 0;
+}
+
+.empty-state p {
+    margin-top: 8px;
+    color: hsl(var(--muted));
+}
+
+.profile-courses-empty-button {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 16px;
+    padding: 0 15px;
+    border: 1px solid rgba(52, 84, 209, 0.16);
+    border-radius: 15px;
+    background: rgba(255, 255, 255, 0.68);
+    color: #3454d1;
+    font-size: 0.84rem;
+    font-weight: 850;
+    text-decoration: none;
+    transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease, box-shadow 180ms ease;
+}
+
+.profile-courses-empty-button:hover {
+    transform: translateY(-1px);
+    border-color: rgba(52, 84, 209, 0.28);
+    background: rgba(52, 84, 209, 0.08);
+    box-shadow: 0 12px 26px rgba(52, 84, 209, 0.12);
+}
+
+.profile-courses-empty-button:focus-visible {
+    outline: 3px solid rgba(52, 84, 209, 0.18);
+    outline-offset: 3px;
+}
+
+.workout-program-empty-request {
+    display: grid;
+    justify-items: center;
+    gap: 14px;
+    margin-top: 16px;
+}
+
+.workout-program-empty-request p {
+    margin: 0;
+}
+
+.workout-program-empty-request__button {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 18px;
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(52, 84, 209, 0.96), rgba(37, 99, 235, 0.84));
+    box-shadow: 0 12px 26px rgba(37, 99, 235, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.24);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    color: #fff;
+    font-size: 0.88rem;
+    font-weight: 850;
+    text-decoration: none;
+    transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.workout-program-empty-request__button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 32px rgba(37, 99, 235, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.workout-program-empty-request__button:focus-visible {
+    outline: 3px solid rgba(52, 84, 209, 0.28);
+    outline-offset: 3px;
+}
+
+.dark .profile-courses-empty-button {
+    border-color: rgba(125, 211, 252, 0.24);
+    background: rgba(2, 6, 23, 0.48);
+    color: #7dd3fc;
+}
+
+.dark .profile-courses-empty-button:hover {
+    border-color: rgba(125, 211, 252, 0.38);
+    background: rgba(14, 165, 233, 0.16);
+    box-shadow: 0 14px 30px rgba(14, 165, 233, 0.16);
+}
+
+.otp-timer {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    min-height: 34px;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: rgba(37, 99, 235, 0.08);
+    color: hsl(var(--primary));
+    font-size: 0.82rem;
+    font-weight: 800;
+}
+
+@media (max-width: 1180px) {
+    .account-app__layout {
+        grid-template-columns: 280px minmax(0, 1fr);
+    }
+
+    .account-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .dashboard-hero,
+    .auth-shell,
+    .account-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .course-library-grid,
+    .profile-form-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 900px) {
+    .account-app {
+        padding-top: 12px;
+    }
+
+    .account-topbar {
+        padding-top: 8px;
+        margin-bottom: 12px;
+    }
+
+    .account-topbar__inner {
+        width: min(100%, calc(100% - 16px));
+        padding: 12px 14px;
+        border-radius: 20px;
+    }
+
+    .account-app__layout {
+        width: min(100%, calc(100% - 16px));
+        grid-template-columns: 1fr;
+    }
+
+    .account-app__sidebar {
+        display: none;
+    }
+
+    .account-bottom-nav {
+        display: flex;
+    }
+
+    .auth-main {
+        min-height: calc(100vh - 24px);
+        padding: 12px 12px 92px;
+    }
+
+    .auth-brand__link {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .auth-shell,
+    .account-card,
+    .account-panel,
+    .auth-card {
+        padding: 18px;
+        border-radius: 24px;
+    }
+
+    .account-summary-grid,
+    .account-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .field-group--full {
+        grid-column: auto;
+    }
+
+    .profile-screen,
+    .analysis-screen,
+    .metric-screen {
+        width: 100%;
+    }
+}
+
+@media (max-width: 640px) {
+    .account-page-header h1,
+    .dashboard-title,
+    .auth-title {
+        font-size: 1.25rem;
+    }
+
+    .account-summary-card__value,
+    .dashboard-stat__value {
+        font-size: 1.35rem;
+    }
+
+    .auth-shell__hero h1 {
+        font-size: 1.7rem;
+    }
+}
+
+/* User section refinements (Figma-aligned) */
+:root {
+    --account-brand: #3454d1;
+    --account-brand-dark: #2f4ecc;
+    --account-surface: #ffffff;
+    --account-muted: #6b7280;
+    --account-border: rgba(209, 213, 219, 0.95);
+    --account-shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+}
+
+.dark .admin-dashboard,
+.dark .account-dashboard {
+    --account-surface: rgba(15, 23, 42, 0.95);
+    --account-border: rgba(148, 163, 184, 0.28);
+    --account-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.auth-page .site-shell,
+.auth-page .site-content {
+    min-height: 100vh;
+}
+
+.auth-mobile-frame {
+    width: min(393px, 100%);
+}
+
+.auth-mobile-status__icons {
+    letter-spacing: 0.08em;
+    font-size: 0.72rem;
+    color: #111827;
+}
+
+.profile-metric-card__icon svg,
+.profile-identity-card__avatar svg {
+    width: 18px;
+    height: 18px;
+}
+
+.profile-metric-card--blood .profile-metric-card__icon {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.analysis-desktop-grid {
+    display: grid;
+    gap: 14px;
+}
+
+.analysis-panel {
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+}
+
+.analysis-metric-menu {
+    display: grid;
+    overflow: hidden;
+    border-radius: 18px;
+    border: 1px solid var(--account-border);
+    background: var(--account-surface);
+    box-shadow: var(--account-shadow);
+}
+
+.analysis-metric-menu__item {
+    min-height: 48px;
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    border: 0;
+    border-bottom: 1px solid rgba(229, 231, 235, 0.9);
+    background: transparent;
+    color: #111827;
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-align: right;
+}
+
+.analysis-metric-menu__item:last-child {
+    border-bottom: 0;
+}
+
+.dark .analysis-metric-menu {
+    background: rgba(15, 23, 42, 0.96);
+    border-color: rgba(148, 163, 184, 0.28);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+}
+
+.dark .analysis-metric-menu__item {
+    color: #e2e8f0;
+    border-bottom-color: rgba(148, 163, 184, 0.16);
+}
+
+.dark .analysis-metric-menu__item:hover {
+    background: rgba(14, 165, 233, 0.16);
+    color: #7dd3fc;
+}
+
+.dark button.analysis-select[data-analysis-metric-toggle],
+.dark .analysis-select[data-analysis-metric-toggle] {
+    background: rgba(2, 6, 23, 0.72);
+    border-color: rgba(148, 163, 184, 0.32);
+    color: #f8fafc;
+}
+
+.analysis-calendar {
+    display: grid;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 22px;
+    border: 1px solid var(--account-border);
+    background: var(--account-surface);
+    box-shadow: var(--account-shadow);
+}
+
+.analysis-calendar__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.analysis-calendar__head strong {
+    font-size: 0.95rem;
+    font-weight: 900;
+}
+
+.analysis-calendar__nav {
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: 999px;
+    background: rgba(52, 84, 209, 0.1);
+    color: var(--account-brand);
+    font-size: 1.1rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.analysis-calendar__grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 6px;
+}
+
+.analysis-calendar__day {
+    min-height: 36px;
+    border: 0;
+    border-radius: 999px;
+    background: transparent;
+    color: #111827;
+    font-size: 0.82rem;
+    font-weight: 700;
+}
+
+.analysis-calendar__day.is-in-range {
+    background: rgba(52, 84, 209, 0.12);
+    color: var(--account-brand);
+}
+
+.analysis-calendar__day.is-start,
+.analysis-calendar__day.is-end {
+    background: var(--account-brand);
+    color: #fff;
+}
+
+.analysis-calendar__confirm {
+    min-height: 44px;
+    border: 0;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--account-brand) 0%, var(--account-brand-dark) 100%);
+    color: #fff;
+    font-weight: 800;
+}
+
+.analysis-summary-card__ring {
+    background:
+        radial-gradient(closest-side, #fff 78%, transparent 80% 100%),
+        conic-gradient(#43c59e calc(var(--ring-progress, 23) * 1%), rgba(229, 231, 235, 0.95) 0);
+}
+
+.analysis-metric-card__bar {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    overflow: visible;
+}
+
+.analysis-metric-card__bar span {
+    display: block;
+    height: 100%;
+}
+
+.analysis-metric-card__bar .tone-orange {
+    background: #fb923c;
+}
+
+.analysis-metric-card__marker {
+    position: absolute;
+    top: -5px;
+    width: 3px;
+    height: 22px;
+    border-radius: 999px;
+    background: #111827;
+    transform: translateX(-50%);
+}
+
+.metric-screen--modal {
+    position: fixed;
+    inset: 0;
+    z-index: 80;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+}
+
+.metric-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.42);
+}
+
+.metric-screen--modal .metric-sheet {
+    position: relative;
+    z-index: 1;
+    width: min(393px, 100%);
+    border-radius: 24px 24px 0 0;
+    margin: 0;
+    box-shadow: 0 -10px 40px rgba(15, 23, 42, 0.18);
+}
+
+.metric-screen--modal .metric-sheet__header h1 {
+    margin: 0;
+    width: 100%;
+    text-align: center;
+    font-size: 1.05rem;
+    font-weight: 900;
+}
+
+.metric-screen--modal .metric-sheet__header {
+    align-items: center;
+}
+
+.metric-screen--modal .metric-sheet__close {
+    position: absolute;
+    inset-inline-start: 16px;
+    top: 16px;
+}
+
+.account-bottom-nav__item.is-active {
+    background: transparent;
+    color: var(--account-muted);
+    font-weight: 700;
+}
+
+.account-bottom-nav__item.is-active .account-bottom-nav__icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 12px;
+    background: rgba(52, 84, 209, 0.12);
+    color: var(--account-brand);
+}
+
+.account-bottom-nav__item.is-active .account-bottom-nav__label {
+    color: var(--account-brand);
+    font-weight: 800;
+}
+
+@media (min-width: 901px) {
+    .auth-mobile-main {
+        align-items: center;
+        padding: 32px 20px;
+        background: linear-gradient(180deg, #eef2ff 0%, #f8fafc 100%);
+    }
+
+    .auth-mobile-frame,
+    .auth-mobile-screen {
+        width: min(420px, 100%);
+    }
+
+    .auth-mobile-screen {
+        min-height: auto;
+        border-radius: 28px;
+        box-shadow: 0 24px 60px rgba(15, 23, 42, 0.12);
+        border: 1px solid rgba(148, 163, 184, 0.14);
+    }
+
+    .profile-screen,
+    .analysis-screen {
+        width: 100%;
+        max-width: none;
+        gap: 18px;
+    }
+
+    .profile-screen {
+        max-width: 760px;
+    }
+
+    .analysis-desktop-grid {
+        grid-template-columns: minmax(320px, 380px) minmax(0, 1fr);
+        align-items: start;
+    }
+
+    .analysis-panel--results {
+        gap: 16px;
+    }
+
+    .metric-screen--modal {
+        align-items: center;
+        padding: 24px;
+    }
+
+    .metric-screen--modal .metric-sheet {
+        width: min(440px, 100%);
+        border-radius: 24px;
+    }
+}
+
+@media (min-width: 1180px) {
+    .profile-screen {
+        max-width: 860px;
+    }
+
+    .profile-screen--wide {
+        max-width: 1120px;
+    }
+
+    .analysis-desktop-grid {
+        grid-template-columns: minmax(360px, 420px) minmax(0, 1fr);
+        gap: 20px;
+    }
+}
+
+.profile-settings-hub {
+    display: grid;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.profile-settings-hub__title {
+    margin: 0;
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: var(--account-text, #111827);
+}
+
+.profile-settings-hub__list {
+    display: grid;
+    gap: 8px;
+}
+
+.profile-settings-hub__item {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    border-radius: 14px;
+    background: var(--account-surface, #fff);
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    color: var(--account-text, #111827);
+    font-weight: 700;
+    font-size: 0.88rem;
+}
+
+.profile-settings-hub__item::after {
+    content: "‹";
+    color: var(--account-muted, #6b7280);
+}
+
+.profile-settings-hub__item--danger {
+    color: #dc2626;
+}
+
+.admin-mobile-status,
+.auth-mobile-status[aria-hidden="true"] {
+    display: none;
+}
+
+.account-toast-stack {
+    display: grid;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.account-toast {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
+    color: var(--account-text, #111827);
+    font-size: 0.86rem;
+    font-weight: 700;
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.account-toast.is-dismissed {
+    opacity: 0;
+    transform: translateY(-6px);
+}
+
+.account-toast--success {
+    border-color: rgba(34, 197, 94, 0.35);
+    background: rgba(240, 253, 244, 0.98);
+}
+
+.account-toast--error {
+    border-color: rgba(239, 68, 68, 0.35);
+    background: rgba(254, 242, 242, 0.98);
+}
+
+.account-toast__close {
+    border: 0;
+    background: transparent;
+    color: var(--account-muted, #6b7280);
+    font-size: 1.2rem;
+    line-height: 1;
+    padding: 0;
+    cursor: pointer;
+}
+
+.profile-screen__title {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 900;
+    color: var(--account-text, #111827);
+}
+
+.profile-screen__lead {
+    margin: 0;
+    color: var(--account-muted, #6b7280);
+    font-size: 0.88rem;
+    line-height: 1.8;
+}
+
+.profile-composition {
+    display: grid;
+    gap: 16px;
+    margin-block: 8px 24px;
+}
+
+.profile-composition__header {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.profile-composition__eyebrow {
+    display: block;
+    margin-bottom: 4px;
+    color: #0f8f83;
+    font-size: .72rem;
+    font-weight: 900;
+}
+
+.profile-composition__header h2 {
+    margin: 0;
+    color: var(--account-text, #111827);
+    font-size: 1rem;
+    font-weight: 950;
+}
+
+.profile-composition__all-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    flex: 0 0 auto;
+    min-height: 40px;
+    padding: 0 13px;
+    border: 1px solid rgba(52, 84, 209, .14);
+    border-radius: 13px;
+    background: rgba(52, 84, 209, .06);
+    color: #3454d1;
+    font-size: .76rem;
+    font-weight: 850;
+    text-decoration: none;
+}
+
+.profile-composition__all-link:hover,
+.profile-composition__all-link:focus-visible {
+    border-color: rgba(52, 84, 209, .32);
+    background: rgba(52, 84, 209, .1);
+}
+
+.profile-composition__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.profile-composition-card {
+    display: grid;
+    align-content: start;
+    gap: 14px;
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid rgba(148, 163, 184, .17);
+    border-radius: 22px;
+    background:
+        radial-gradient(circle at 100% 0, rgba(45, 212, 191, .08), transparent 34%),
+        var(--account-surface, #fff);
+    box-shadow: 0 14px 32px rgba(15, 23, 42, .055);
+}
+
+.profile-composition-card__heading {
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    min-width: 0;
+}
+
+.profile-composition-card__icon {
+    display: inline-grid;
+    place-items: center;
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    border-radius: 15px;
+    font-size: 1.25rem;
+    font-weight: 900;
+}
+
+.profile-composition-card__icon--compare {
+    background: linear-gradient(135deg, #e0e7ff, #dbeafe);
+    color: #3454d1;
+}
+
+.profile-composition-card__icon--progress {
+    background: linear-gradient(135deg, #ccfbf1, #dcfce7);
+    color: #0f766e;
+}
+
+.profile-composition-card__heading h3 {
+    margin: 0;
+    color: var(--account-text, #111827);
+    font-size: .9rem;
+    font-weight: 950;
+}
+
+.profile-composition-card__heading p {
+    margin: 3px 0 0;
+    color: var(--account-muted, #6b7280);
+    font-size: .72rem;
+    line-height: 1.7;
+}
+
+.profile-composition-card__chart {
+    position: relative;
+    min-width: 0;
+    height: 260px;
+}
+
+.profile-composition-card__chart--compare {
+    height: 210px;
+    padding: 4px 0;
+}
+
+.profile-composition-card__caption {
+    margin: 0;
+    color: var(--account-muted, #6b7280);
+    font-size: .7rem;
+    line-height: 1.7;
+}
+
+.profile-composition-empty {
+    display: grid;
+    align-content: center;
+    justify-items: start;
+    gap: 13px;
+    min-height: 194px;
+    padding: 18px;
+    border: 1px dashed rgba(15, 118, 110, .24);
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(240, 253, 250, .84), rgba(239, 246, 255, .68));
+}
+
+.profile-composition-empty p {
+    margin: 0;
+    color: #475569;
+    font-size: .8rem;
+    font-weight: 700;
+    line-height: 1.9;
+}
+
+.profile-composition-empty__action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 9px;
+    min-height: 43px;
+    padding: 0 15px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #0f766e, #0d9488 58%, #3454d1 145%);
+    box-shadow: 0 9px 20px rgba(15, 118, 110, .18);
+    color: #fff;
+    font-size: .76rem;
+    font-weight: 900;
+    text-decoration: none;
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.profile-composition-empty__action:hover,
+.profile-composition-empty__action:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: 0 13px 25px rgba(15, 118, 110, .24);
+}
+
+.dark .profile-composition-card {
+    border-color: rgba(148, 163, 184, .18);
+    background:
+        radial-gradient(circle at 100% 0, rgba(45, 212, 191, .09), transparent 34%),
+        var(--account-surface, rgba(15, 23, 42, .86));
+}
+
+.dark .profile-composition__header h2,
+.dark .profile-composition-card__heading h3 {
+    color: #e5e7eb;
+}
+
+.dark .profile-composition-empty {
+    border-color: rgba(94, 234, 212, .24);
+    background: linear-gradient(135deg, rgba(15, 118, 110, .14), rgba(30, 41, 59, .58));
+}
+
+.dark .profile-composition-empty p {
+    color: #cbd5e1;
+}
+
+@media (max-width: 760px) {
+    .profile-composition__grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .profile-composition-card__chart {
+        height: 250px;
+    }
+
+    .profile-composition-card__chart--compare {
+        height: 190px;
+    }
+}
+
+@media (max-width: 420px) {
+    .profile-composition__header {
+        align-items: flex-start;
+    }
+
+    .profile-composition__all-link {
+        min-height: 36px;
+        gap: 4px;
+        padding-inline: 9px;
+        font-size: .68rem;
+    }
+
+    .profile-composition-card {
+        padding: 14px;
+        border-radius: 19px;
+    }
+}
+
+@media (min-width: 901px) {
+    .profile-screen__header,
+    .analysis-screen__header {
+        display: none;
+    }
+}
+
+.profile-panel-card {
+    padding: 14px;
+    border-radius: 18px;
+    background: var(--account-surface, #fff);
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    box-shadow: var(--account-shadow, 0 10px 22px rgba(15, 23, 42, 0.05));
+}
+
+.workout-plans-shortcut {
+    position: relative;
+    isolation: isolate;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+    min-height: 184px;
+    margin-bottom: 18px;
+    overflow: hidden;
+    padding: 24px;
+    background:
+        radial-gradient(circle at 92% 12%, rgba(45, 212, 191, 0.25), transparent 27%),
+        linear-gradient(135deg, #152a62 0%, #253c87 54%, #1f766f 140%);
+    border-color: rgba(125, 211, 252, 0.28);
+    box-shadow: 0 24px 48px rgba(30, 64, 175, 0.2);
+    color: #fff;
+}
+
+.workout-plans-shortcut__glow {
+    position: absolute;
+    z-index: -1;
+    width: 180px;
+    height: 180px;
+    left: -62px;
+    bottom: -108px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 50%;
+    box-shadow: 0 0 0 20px rgba(255, 255, 255, 0.04), 0 0 0 44px rgba(255, 255, 255, 0.035);
+}
+
+.workout-plans-shortcut__content {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    max-width: 690px;
+}
+
+.workout-plans-shortcut__icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 46px;
+    height: 46px;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.14);
+    color: #99f6e4;
+    font-size: 1.55rem;
+    font-weight: 900;
+}
+
+.workout-plans-shortcut h2 {
+    margin: 4px 0 0;
+    color: #fff;
+    font-size: clamp(1.1rem, 2vw, 1.42rem);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+}
+
+.workout-plans-shortcut p {
+    max-width: 620px;
+    margin: 6px 0 0;
+    color: rgba(239, 246, 255, 0.78);
+    font-size: 0.84rem;
+    line-height: 1.8;
+}
+
+.workout-plans-shortcut__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 16px;
+    margin-top: 14px;
+    color: rgba(239, 246, 255, 0.78);
+    font-size: 0.72rem;
+    font-weight: 700;
+}
+
+.workout-plans-shortcut__stats strong {
+    color: #fff;
+    font-size: 0.9rem;
+}
+
+.workout-plans-shortcut__stats i {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    margin-inline-end: 0;
+    border-radius: 50%;
+    background: #5eead4;
+    box-shadow: 0 0 0 4px rgba(94, 234, 212, 0.13);
+}
+
+.workout-plans-shortcut__stat {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    padding-inline: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 999px;
+    background: #fff;
+    color: #1e3a8a;
+    box-shadow: 0 12px 22px rgba(15, 23, 42, 0.16);
+    white-space: nowrap;
+    -webkit-border-radius: 999px;
+    -moz-border-radius: 999px;
+    -ms-border-radius: 999px;
+    -o-border-radius: 999px;
+}
+
+.workout-plans-shortcut__actions {
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    flex: 0 0 auto;
+    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 20px;
+    background: rgba(15, 23, 42, 0.16);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 12px 24px rgba(15, 23, 42, 0.08);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+.workout-plans-shortcut__actions:focus-within {
+    border-color: rgba(153, 246, 228, 0.52);
+    background: rgba(15, 23, 42, 0.24);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 16px 28px rgba(15, 23, 42, 0.12);
+}
+
+.workout-plans-shortcut__actions label {
+    display: grid;
+    gap: 5px;
+    min-width: 190px;
+    color: rgba(239, 246, 255, 0.8);
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+.workout-plans-shortcut__actions select {
+    width: 100%;
+    min-height: 40px;
+    padding: 0 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    font: inherit;
+    cursor: pointer;
+    transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
+}
+
+.workout-plans-shortcut__actions select:hover {
+    border-color: rgba(153, 246, 228, 0.5);
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.workout-plans-shortcut__actions select:focus-visible {
+    outline: 3px solid rgba(153, 246, 228, 0.28);
+    outline-offset: 2px;
+    border-color: rgba(153, 246, 228, 0.72);
+    box-shadow: 0 0 0 1px rgba(153, 246, 228, 0.3);
+}
+
+.workout-plans-shortcut__actions select option {
+    color: #111827;
+    background: #fff;
+}
+
+.workout-plans-shortcut__cta {
+    display: inline-flex;
+    font-size: 0.90rem;
+    align-items: center;
+    gap: 10px;
+    min-height: 40px;
+    padding-inline: 12px;
+    white-space: nowrap;
+    background: #fff;
+    color: #1e3a8a;
+    border-radius: 12px;
+    box-shadow: 0 12px 22px rgba(15, 23, 42, 0.16);
+    transition: transform 180ms ease, background-color 180ms ease, color 180ms ease, box-shadow 180ms ease;
+    -webkit-border-radius: 12px;
+    -moz-border-radius: 12px;
+    -ms-border-radius: 12px;
+    -o-border-radius: 12px;
+}
+
+.workout-plans-shortcut__cta:hover,
+.workout-plans-shortcut__cta:focus-visible {
+    background: #ccfbf1;
+    color: #134e4a;
+    transform: translateY(-2px);
+}
+
+.dark .workout-plans-shortcut {
+    background:
+        radial-gradient(circle at 92% 12%, rgba(45, 212, 191, 0.2), transparent 27%),
+        linear-gradient(135deg, #0f1d45 0%, #172554 54%, #115e59 140%);
+}
+
+@media (max-width: 820px) {
+    .workout-plans-shortcut {
+        align-items: stretch;
+        flex-direction: column;
+        min-height: 0;
+    }
+
+    .workout-plans-shortcut__actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .workout-plans-shortcut__actions select,
+    .workout-plans-shortcut__actions .cta-primary {
+        width: 100%;
+    }
+}
+
+/* Bodybuilding program screens. */
+.workout-program-screen {
+    max-width: 1120px;
+}
+
+.workout-program-list {
+    display: grid;
+    gap: 14px;
+    margin-bottom: 6px;
+}
+
+.workout-program-list__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    padding: 20px 22px;
+    border-radius: 24px;
+    background:
+        radial-gradient(circle at 100% 0%, rgba(52, 84, 209, 0.16), transparent 42%),
+        linear-gradient(135deg, rgba(52, 84, 209, 0.1), rgba(20, 184, 166, 0.07));
+    border: 1px solid rgba(52, 84, 209, 0.14);
+}
+
+.dark .workout-program-list__header {
+    background:
+        radial-gradient(circle at 100% 0%, rgba(96, 165, 250, 0.2), transparent 42%),
+        linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 118, 110, 0.18));
+    border-color: rgba(125, 211, 252, 0.18);
+}
+
+.workout-program-list__heading {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+}
+
+.workout-program-list__heading > div {
+    min-width: 0;
+}
+
+.workout-program-list__icon {
+    width: 48px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.72);
+    color: var(--account-brand, #3454d1);
+    box-shadow: 0 10px 24px rgba(52, 84, 209, 0.14);
+    font-size: 1.35rem;
+    font-weight: 900;
+}
+
+.dark .workout-program-list__icon {
+    background: rgba(15, 23, 42, 0.76);
+    color: #7dd3fc;
+}
+
+.workout-program-list__header h2 {
+    margin: 4px 0 0;
+    color: var(--account-text, #111827);
+    font-size: 1.05rem;
+    font-weight: 900;
+}
+
+.workout-program-list__header p {
+    max-width: 700px;
+    margin: 5px 0 0;
+    color: var(--account-muted, #6b7280);
+    font-size: 0.8rem;
+    line-height: 1.8;
+}
+
+.workout-program-list__count {
+    flex: 0 0 auto;
+    min-height: 34px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0 13px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.72);
+    color: var(--account-brand, #3454d1);
+    font-size: 0.78rem;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.dark .workout-program-list__count {
+    background: rgba(15, 23, 42, 0.76);
+    color: #7dd3fc;
+}
+
+.workout-program-list-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 17px 18px;
+    border-radius: 22px;
+    background: var(--account-surface, #fff);
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    color: var(--account-text, #111827);
+    text-decoration: none;
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.045);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.dark .workout-program-list-item {
+    background: rgba(15, 23, 42, 0.78);
+    border-color: rgba(148, 163, 184, 0.18);
+}
+
+.workout-program-list-item:hover,
+.workout-program-list-item:focus-visible {
+    transform: translateY(-2px);
+    border-color: rgba(52, 84, 209, 0.3);
+    box-shadow: 0 16px 32px rgba(52, 84, 209, 0.12);
+}
+
+.workout-program-list-item:focus-visible {
+    outline: 3px solid rgba(52, 84, 209, 0.18);
+    outline-offset: 2px;
+}
+
+.workout-program-list-item__index {
+    width: 42px;
+    height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    border-radius: 14px;
+    background: linear-gradient(145deg, rgba(52, 84, 209, 0.14), rgba(20, 184, 166, 0.12));
+    color: var(--account-brand, #3454d1);
+    font-size: 0.86rem;
+    font-weight: 950;
+}
+
+.workout-program-list-item__title {
+    display: block;
+    margin-bottom: 7px;
+    font-size: 1rem;
+    font-weight: 900;
+    color: var(--account-text, #111827);
+}
+
+.workout-program-list-item__body {
+    min-width: 0;
+    flex: 1 1 auto;
+}
+
+.workout-program-list-item__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 14px;
+    color: var(--account-muted, #6b7280);
+    font-size: 0.82rem;
+}
+
+.workout-program-list-item__meta span {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 5px;
+}
+
+.workout-program-list-item__meta strong {
+    color: var(--account-text, #475569);
+    font-size: 0.72rem;
+    font-weight: 900;
+}
+
+.workout-program-list-item__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    color: #15803d;
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+.workout-program-list-item__status span {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #22c55e;
+    box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.12);
+}
+
+.workout-program-list-item__arrow {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    background: rgba(52, 84, 209, 0.08);
+    color: var(--account-brand, #3454d1);
+    font-size: 1.05rem;
+    font-weight: 900;
+    transition: transform 0.18s ease, background-color 0.18s ease;
+}
+
+.workout-program-list-item:hover .workout-program-list-item__arrow,
+.workout-program-list-item:focus-visible .workout-program-list-item__arrow {
+    transform: translateX(-3px);
+    background: rgba(52, 84, 209, 0.14);
+}
+
+.workout-program-card__back {
+    display: flex;
+}
+
+.workout-program-list[hidden],
+.workout-program-card[hidden] {
+    display: none;
+}
+
+.workout-program-card {
+    display: grid;
+    gap: 18px;
+    padding: 18px;
+    border-radius: 22px;
+    background: var(--account-surface, #fff);
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    box-shadow: var(--account-shadow, 0 10px 22px rgba(15, 23, 42, 0.05));
+}
+
+.workout-program-card > section:not(.account-card) {
+    position: relative;
+    padding: 20px;
+    border: 1px solid rgba(52, 84, 209, 0.12);
+    border-radius: 24px;
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.82), rgba(248, 250, 252, 0.64)),
+        var(--account-surface, #fff);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.045), inset 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.workout-program-card > section:not(.account-card)::before {
+    position: absolute;
+    inset-block: 20px;
+    inset-inline-start: 0;
+    width: 3px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--account-brand, #3454d1), #14b8a6);
+    content: "";
+}
+
+.dark .workout-program-card > section:not(.account-card) {
+    border-color: rgba(125, 211, 252, 0.18);
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.72), rgba(15, 23, 42, 0.5));
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.workout-day {
+    position: relative;
+    padding: 20px;
+    gap: 16px;
+    border: 1px solid rgba(52, 84, 209, 0.12);
+    border-radius: 24px;
+    background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.82), rgba(248, 250, 252, 0.64)),
+        var(--account-surface, #fff);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.045), inset 0 1px 0 rgba(255, 255, 255, 0.72);
+    scroll-margin-top: 24px;
+}
+
+.workout-day__summary {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    cursor: pointer;
+    list-style: none;
+}
+
+.workout-day__summary::-webkit-details-marker {
+    display: none;
+}
+
+.workout-day__chevron {
+    flex: 0 0 auto;
+    order: 2;
+    color: var(--account-brand, #3454d1);
+    font-size: 1.25rem;
+    transition: transform 180ms ease;
+}
+
+.workout-day[open] .workout-day__chevron {
+    transform: rotate(180deg);
+}
+
+.workout-day__content {
+    display: grid;
+    gap: 16px;
+    padding-top: 16px;
+}
+
+.workout-day__summary .workout-day__heading {
+    order: 1;
+    flex: 1 1 auto;
+}
+
+.workout-day__summary .workout-day-completions {
+    order: 3;
+    flex: 1 1 100%;
+}
+
+.workout-day-completions {
+    display: grid;
+    gap: 10px;
+    padding: 12px 14px;
+    border: 1px solid rgba(52, 84, 209, 0.14);
+    border-radius: 14px;
+    background: rgba(52, 84, 209, 0.05);
+}
+
+.workout-day-completions__heading,
+.workout-day-completions__list {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.workout-day-completions__heading {
+    justify-content: space-between;
+    color: var(--account-text, #334155);
+    font-size: 0.82rem;
+}
+
+.workout-day-completions__heading span {
+    color: var(--account-brand, #3454d1);
+    font-weight: 900;
+}
+
+.workout-day-completions__list label {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--account-muted, #6b7280);
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+.workout-day-completions__list input {
+    accent-color: var(--account-brand, #3454d1);
+}
+
+.workout-day::before {
+    position: absolute;
+    inset-block: 20px;
+    inset-inline-start: 0;
+    width: 3px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, var(--account-brand, #3454d1), #14b8a6);
+    content: "";
+}
+
+.dark .workout-day {
+    border-color: rgba(125, 211, 252, 0.18);
+    background: linear-gradient(145deg, rgba(15, 23, 42, 0.72), rgba(15, 23, 42, 0.5));
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.workout-day__title {
+    min-width: 0;
+}
+
+.workout-day__eyebrow {
+    margin-bottom: 4px;
+}
+
+.workout-program-card__header,
+.workout-day__heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.workout-program-card__header h2,
+.workout-day__heading h3,
+.workout-corrective h3 {
+    margin: 0;
+    color: var(--account-text, #111827);
+    font-weight: 900;
+}
+
+.workout-program-card__header h2 {
+    font-size: 1.2rem;
+}
+
+.workout-program-card__header p,
+.workout-day__heading p {
+    margin: 5px 0 0;
+    color: var(--account-muted, #6b7280);
+    font-size: 0.8rem;
+}
+
+.account-eyebrow {
+    display: block;
+    color: var(--account-brand, #3454d1);
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+.workout-program-card__notes,
+.workout-program-card__extra {
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(52, 84, 209, 0.06);
+    color: var(--account-text, #334155);
+    font-size: 0.86rem;
+    line-height: 1.9;
+}
+
+.workout-program-card__extra {
+    display: grid;
+    gap: 12px;
+    background: transparent;
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+}
+
+.workout-program-card__extra p {
+    margin: 4px 0 0;
+}
+
+.workout-day,
+.workout-corrective {
+    display: grid;
+    gap: 16px;
+}
+
+.workout-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    border-radius: 14px;
+    background: var(--account-surface, #fff);
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.035);
+    scrollbar-color: rgba(52, 84, 209, 0.42) transparent;
+}
+
+.workout-table {
+    width: 100%;
+    min-width: 780px;
+    border-collapse: collapse;
+    color: var(--account-text, #111827);
+    font-size: 0.82rem;
+}
+
+.workout-record-input {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+}
+
+.workout-record-input input {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    padding-inline: 3px;
+    font-size: 0.68rem;
+    text-align: center;
+}
+
+.workout-table th,
+.workout-table td {
+    padding: 11px 10px;
+    text-align: right;
+    vertical-align: top;
+    border-bottom: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+}
+
+.workout-table th:last-child,
+.workout-table td:last-child {
+    width: 60px;
+    min-width: 60px;
+    max-width: 65px;
+    padding-inline: 4px;
+}
+
+.workout-table th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: rgba(52, 84, 209, 0.08);
+    color: var(--account-text, #334155);
+    font-size: 0.75rem;
+    font-weight: 900;
+}
+
+.workout-table tr:last-child td {
+    border-bottom: 0;
+}
+
+.workout-performance-form {
+    display: grid;
+    gap: 18px;
+    padding: 16px;
+    border: 1px solid rgba(52, 84, 209, 0.12);
+    border-radius: 20px;
+    background:
+        linear-gradient(145deg, rgba(248, 250, 252, 0.94), rgba(239, 246, 255, 0.68));
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.76), 0 10px 22px rgba(15, 23, 42, 0.035);
+}
+
+.workout-performance-grid {
+    display: grid;
+    gap: 12px;
+}
+
+.workout-performance-card {
+    display: grid;
+    gap: 14px;
+    padding: 14px;
+    border-radius: 16px;
+    background: rgba(52, 84, 209, 0.035);
+    border: 1px solid rgba(52, 84, 209, 0.14);
+}
+
+.workout-performance-card__header,
+.workout-program-feedback__heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.workout-performance-card__header p,
+.workout-program-feedback__heading p {
+    margin: 5px 0 0;
+    color: var(--account-muted, #6b7280);
+    font-size: 0.76rem;
+}
+
+.workout-performance-card__select {
+    display: grid;
+    flex: 0 1 220px;
+    gap: 5px;
+    color: var(--account-muted, #6b7280);
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+.workout-performance-card__select select {
+    min-height: 38px;
+    padding: 0 10px;
+    border-radius: 10px;
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    background: var(--account-surface, #fff);
+    color: var(--account-text, #111827);
+    font: inherit;
+}
+
+.workout-performance-mode {
+    display: grid;
+    gap: 12px;
+}
+
+.workout-performance-mode[hidden] {
+    display: none !important;
+}
+
+.workout-performance-mode__summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 10px 12px;
+    border-radius: 11px;
+    background: rgba(16, 185, 129, 0.08);
+    color: var(--account-text, #334155);
+    font-size: 0.78rem;
+}
+
+.workout-performance-mode__summary small {
+    color: var(--account-muted, #6b7280);
+    font-size: 0.7rem;
+}
+
+.workout-set-inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+}
+
+.workout-set-inputs label {
+    display: grid;
+    gap: 5px;
+    color: var(--account-muted, #6b7280);
+    font-size: 0.72rem;
+    font-weight: 800;
+}
+
+.workout-set-inputs label small {
+    font-size: 0.66rem;
+    font-weight: 700;
+}
+
+.workout-set-inputs input {
+    width: 100%;
+    min-height: 40px;
+    padding: 0 10px;
+    border-radius: 10px;
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    background: var(--account-surface, #fff);
+    color: var(--account-text, #111827);
+    font: inherit;
+}
+
+.workout-set-inputs input:focus,
+.workout-performance-card__select select:focus {
+    outline: 3px solid rgba(52, 84, 209, 0.14);
+    border-color: rgba(52, 84, 209, 0.4);
+}
+
+.workout-program-feedback {
+    display: grid;
+    gap: 10px;
+    padding: 16px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(52, 84, 209, 0.06));
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.workout-program-feedback__heading h3 {
+    margin: 3px 0 0;
+    color: var(--account-text, #111827);
+    font-size: 0.98rem;
+    font-weight: 900;
+}
+
+.workout-program-feedback output {
+    min-width: 58px;
+    color: var(--account-brand, #3454d1);
+    font-size: 1.35rem;
+    font-weight: 950;
+    text-align: center;
+}
+
+.workout-program-feedback input[type="range"] {
+    width: 100%;
+    accent-color: var(--account-brand, #3454d1);
+    cursor: pointer;
+}
+
+.workout-program-feedback__scale {
+    display: flex;
+    justify-content: space-between;
+    color: var(--account-muted, #6b7280);
+    font-size: 0.7rem;
+    font-weight: 800;
+}
+
+.workout-performance-submit {
+    width: min(100%, 340px);
+    min-height: 50px;
+    justify-self: start;
+    border: 0;
+    border-radius: 12px;
+    cursor: pointer;
+    background: linear-gradient(135deg, #3454d1 0%, #2f4ecc 55%, #14b8a6 140%);
+    color: #fff;
+    box-shadow: 0 14px 28px rgba(52, 84, 209, 0.24);
+    font-size: 0.9rem;
+    font-weight: 900;
+    transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+    -webkit-border-radius: 12px;
+    -moz-border-radius: 12px;
+    -ms-border-radius: 12px;
+    -o-border-radius: 12px;
+}
+
+.workout-performance-submit:hover {
+    filter: saturate(1.12);
+    transform: translateY(-1px);
+    box-shadow: 0 18px 34px rgba(52, 84, 209, 0.3);
+}
+
+.workout-performance-submit:focus-visible {
+    outline: 3px solid rgba(52, 84, 209, 0.2);
+    outline-offset: 3px;
+}
+
+.workout-performance-submit span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    margin-inline-end: 7px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.18);
+}
+
+.workout-movement-link {
+    color: var(--account-brand, #3454d1);
+    font-weight: 800;
+    text-decoration: underline;
+    text-decoration-color: rgba(52, 84, 209, 0.28);
+    text-underline-offset: 3px;
+}
+
+.workout-superset-label {
+    display: block;
+    margin: 5px 0 2px;
+    color: var(--account-muted, #6b7280);
+    font-size: 0.68rem;
+}
+
+.workout-corrective {
+    padding: 14px;
+    border-radius: 16px;
+    background: rgba(16, 185, 129, 0.06);
+    border: 1px solid rgba(16, 185, 129, 0.18);
+}
+
+.workout-corrective__item {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 8px;
+    color: var(--account-text, #334155);
+    font-size: 0.84rem;
+}
+
+.workout-corrective__item small {
+    flex-basis: 100%;
+    color: var(--account-muted, #6b7280);
+}
+
+@media (max-width: 640px) {
+    .workout-plans-shortcut {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .workout-plans-shortcut__actions {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .workout-plans-shortcut__actions select,
+    .workout-plans-shortcut__actions .cta-primary {
+        width: 100%;
+    }
+
+    .workout-performance-card__header,
+    .workout-program-feedback__heading {
+        display: grid;
+    }
+
+    .workout-performance-card__select {
+        max-width: none;
+        width: 100%;
+    }
+
+    .workout-performance-submit {
+        width: 100%;
+        justify-self: stretch;
+    }
+
+    .workout-performance-form {
+        padding: 12px;
+    }
+}
+
+.workout-movement-screen {
+    max-width: 760px;
+}
+
+.account-back-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    color: var(--account-brand, #3454d1);
+    font-size: 1.2rem;
+    font-weight: 900;
+}
+
+.workout-movement-card {
+    overflow: hidden;
+    padding: 0;
+}
+
+.workout-movement-dialog {
+    width: min(900px, calc(100vw - 32px));
+    max-width: none;
+    max-height: 90vh;
+    margin: auto;
+    padding: 0;
+    overflow: hidden;
+    border: 0;
+    border-radius: 22px;
+    background: var(--account-surface, #fff);
+    color: var(--account-text, #111827);
+    box-shadow: 0 24px 80px rgba(15, 23, 42, 0.28);
+}
+
+.workout-movement-dialog::backdrop {
+    background: rgba(15, 23, 42, 0.58);
+    backdrop-filter: blur(4px);
+}
+
+.workout-movement-dialog__panel {
+    display: flex;
+    max-height: 90vh;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.workout-movement-dialog__header {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    background: var(--account-surface, #fff);
+}
+
+.workout-movement-dialog__header h2 {
+    min-width: 0;
+    margin: 0;
+    color: var(--account-text, #111827);
+    font-size: 1rem;
+    font-weight: 900;
+}
+
+.workout-movement-dialog__close {
+    display: inline-grid;
+    width: 38px;
+    height: 38px;
+    flex: 0 0 auto;
+    place-items: center;
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    border-radius: 12px;
+    background: var(--account-surface, #fff);
+    color: var(--account-text, #334155);
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.workout-movement-dialog__close:focus-visible {
+    outline: 3px solid rgba(52, 84, 209, 0.25);
+    outline-offset: 2px;
+}
+
+.workout-movement-dialog__content {
+    min-height: 72px;
+    overflow: auto;
+    overscroll-behavior: contain;
+}
+
+.workout-movement-dialog__content[aria-busy="true"] {
+    display: grid;
+    min-height: 160px;
+    place-items: center;
+    padding: 24px;
+    color: var(--account-muted, #6b7280);
+}
+
+.workout-movement-dialog__content .workout-movement-card {
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.workout-movement-card__return {
+    padding: 14px 18px 0;
+}
+
+.workout-movement-return {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 0 14px;
+    border: 1px solid rgba(52, 84, 209, 0.16);
+    border-radius: 999px;
+    background: rgba(52, 84, 209, 0.07);
+    color: var(--account-brand, #3454d1);
+    font-size: 0.82rem;
+    font-weight: 900;
+    text-decoration: none;
+    transition: transform 180ms ease, background-color 180ms ease, border-color 180ms ease;
+}
+
+.workout-movement-return:hover {
+    transform: translateY(-1px);
+    background: rgba(52, 84, 209, 0.12);
+    border-color: rgba(52, 84, 209, 0.28);
+}
+
+.workout-movement-video,
+.workout-movement-image {
+    display: block;
+    width: 100%;
+    max-height: 540px;
+    background: #0b1220;
+    object-fit: contain;
+}
+
+.workout-movement-videos {
+    display: grid;
+    gap: 14px;
+    padding: 18px;
+    background: rgba(148, 163, 184, 0.08);
+}
+
+.workout-movement-video-card {
+    overflow: hidden;
+    border: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+    border-radius: 14px;
+    background: var(--account-surface, #fff);
+}
+
+.workout-movement-video-card__label {
+    display: block;
+    padding: 9px 12px;
+    color: var(--account-muted, #6b7280);
+    font-size: 0.76rem;
+    font-weight: 800;
+}
+
+.workout-movement-video-card .workout-movement-video {
+    max-height: 500px;
+}
+
+@media (max-width: 640px) {
+    .workout-movement-dialog {
+        width: calc(100vw - 16px);
+        max-height: calc(100vh - 16px);
+        border-radius: 18px;
+    }
+
+    .workout-movement-dialog__panel {
+        max-height: calc(100vh - 16px);
+    }
+
+    .workout-movement-dialog__header {
+        padding: 11px 12px;
+    }
+
+    .workout-movement-dialog__header h2 {
+        font-size: 0.92rem;
+    }
+}
+
+.workout-movement-image {
+    max-height: 620px;
+    background: var(--account-surface, #fff);
+}
+
+.workout-movement-empty {
+    display: grid;
+    min-height: 180px;
+    place-items: center;
+    padding: 24px;
+    color: var(--account-muted, #6b7280);
+    background: rgba(148, 163, 184, 0.1);
+    text-align: center;
+}
+
+.workout-movement-card__body {
+    display: grid;
+    gap: 8px;
+    padding: 18px;
+    color: var(--account-text, #334155);
+    line-height: 1.8;
+}
+
+.workout-movement-card__body p {
+    margin: 0;
+}
+
+.workout-muscle-card {
+    display: grid;
+    gap: 16px;
+    margin: 0 18px 18px;
+    padding: 16px;
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 16px;
+    background: rgba(16, 185, 129, 0.06);
+}
+
+.workout-muscle-card__heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+}
+
+.workout-muscle-card__heading h3 {
+    margin: 4px 0 0;
+    color: var(--account-text, #111827);
+    font-size: 1rem;
+    font-weight: 900;
+}
+
+.workout-muscle-card__heading p {
+    margin: 4px 0 0;
+    color: var(--account-muted, #6b7280);
+    font-size: 0.78rem;
+}
+
+.workout-muscle-card__image {
+    width: 84px;
+    height: 84px;
+    flex: 0 0 auto;
+    border-radius: 14px;
+    object-fit: cover;
+}
+
+.workout-muscle-details {
+    display: grid;
+    gap: 10px;
+    margin: 0;
+}
+
+.workout-muscle-details > div {
+    display: grid;
+    grid-template-columns: minmax(70px, 0.3fr) minmax(0, 1fr);
+    gap: 12px;
+    padding-top: 10px;
+    border-top: 1px solid rgba(16, 185, 129, 0.14);
+}
+
+.workout-muscle-details dt {
+    color: var(--account-muted, #6b7280);
+    font-size: 0.76rem;
+    font-weight: 900;
+}
+
+.workout-muscle-details dd {
+    margin: 0;
+    color: var(--account-text, #334155);
+    font-size: 0.82rem;
+    line-height: 1.8;
+}
+
+.workout-movement-description {
+    margin-top: 4px;
+    padding-top: 10px;
+    border-top: 1px solid var(--account-border, rgba(229, 231, 235, 0.95));
+}
+
+.dark .account-dashboard .workout-performance-form {
+    background: rgba(15, 23, 42, 0.42);
+    border-color: rgba(125, 211, 252, 0.2);
+}
+
+.dark .account-dashboard .workout-performance-card,
+.dark .account-dashboard .workout-program-feedback {
+    border-color: rgba(125, 211, 252, 0.22);
+}
+
+.dark .account-dashboard .workout-movement-return {
+    background: rgba(14, 165, 233, 0.12);
+    border-color: rgba(125, 211, 252, 0.26);
+    color: #7dd3fc;
+}
+
+@media (min-width: 901px) {
+    .profile-settings-hub {
+        display: none;
+    }
+}
+
+
+.mood-screen { display: grid; gap: 18px; max-width: 1120px; margin: 0 auto; }
+.mood-screen__header, .mood-form-card, .mood-chart-card, .mood-history-card { padding: 22px; border: 1px solid rgba(148, 163, 184, 0.16); border-radius: 24px; background: rgba(255, 255, 255, 0.9); box-shadow: 0 16px 36px rgba(15, 23, 42, 0.07); }
+.mood-screen__header h2, .mood-section-heading h3 { margin: 0; color: hsl(var(--foreground)); font-size: 1.25rem; font-weight: 900; }
+.mood-screen__header p:not(.eyebrow), .mood-section-heading p { margin: 7px 0 0; color: hsl(var(--muted)); font-size: .84rem; }
+.mood-form { display: grid; gap: 18px; }
+.mood-form__date { max-width: 280px; display: grid; gap: 7px; }
+.mood-form label { color: hsl(var(--foreground)); font-size: .82rem; font-weight: 800; }
+.mood-form input { width: 100%; }
+.mood-score-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; }
+.mood-score-field { display: grid; gap: 7px; }
+.mood-score-field small { color: hsl(var(--muted)); font-size: .72rem; }
+.mood-form__submit {
+    min-height: 52px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    justify-self: start;
+    border: 0;
+    border-radius: 999px;
+    padding: 0 18px;
+    background: linear-gradient(180deg, #3454d1 0%, #2f4ecc 100%);
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 800;
+    box-shadow: 0 16px 28px rgba(47, 78, 204, 0.22);
+    cursor: pointer;
+}
+
+.mood-form__submit.is-loading,
+.admin-app .admin-primary-btn.is-loading {
+    position: relative;
+    overflow: hidden;
+    color: transparent !important;
+    cursor: wait;
+    opacity: 0.86;
+    pointer-events: none;
+}
+
+.mood-form__submit.is-loading::after,
+.admin-app .admin-primary-btn.is-loading::after {
+    content: "";
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: 18px;
+    height: 18px;
+    margin: -9px 0 0 -9px;
+    border: 2px solid rgba(255, 255, 255, 0.42);
+    border-top-color: #fff;
+    border-radius: 999px;
+    animation: accountButtonSpin 0.72s linear infinite;
+}
+
+@keyframes accountButtonSpin {
+    to { transform: rotate(360deg); }
+}
+.mood-heart-rate-field { display: grid; grid-template-columns: minmax(0, 1fr) minmax(180px, 280px); align-items: end; gap: 16px; padding: 16px; border: 1px solid rgba(245, 158, 11, .24); border-radius: 18px; background: rgba(245, 158, 11, .06); }
+.mood-heart-rate-field > div { display: grid; gap: 7px; }
+.mood-heart-rate-field small { color: hsl(var(--muted)); font-size: .76rem; }
+.mood-heart-rate-field input { width: 100%; }
+.mood-section-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 15px; }
+.mood-chart-wrap { position: relative; height: 360px; }
+.mood-chart-wrap--heart-rate { min-height: 320px; }
+.mood-heart-rate-card .mood-section-heading h3 { color: #b45309; }
+.mood-history-table-wrap { overflow-x: auto; }
+.mood-history-table { width: 100%; min-width: 680px; border-collapse: collapse; font-size: .8rem; }
+.mood-history-table th, .mood-history-table td { padding: 12px 10px; border-bottom: 1px solid rgba(148, 163, 184, .15); text-align: center; white-space: nowrap; }
+.mood-history-table th { color: hsl(var(--muted)); font-weight: 800; }
+.mood-history-table td { color: hsl(var(--foreground)); }
+.mood-empty { padding: 30px 15px; color: hsl(var(--muted)); text-align: center; }
+.mood-heart-rate-table td:last-child { color: #b45309; font-weight: 800; }
+.account-app .account-nav__item { border-radius: 14px; box-shadow: 0 5px 14px rgba(15, 23, 42, .03); }
+.account-app .account-nav__item:hover,
+.account-app .account-nav__item:focus-visible { border-color: rgba(37, 99, 235, .34); background: rgba(37, 99, 235, .1); box-shadow: 0 10px 22px rgba(37, 99, 235, .1); }
+.dark .mood-screen__header, .dark .mood-form-card, .dark .mood-chart-card, .dark .mood-history-card { background: rgba(15, 23, 42, .82); border-color: rgba(148, 163, 184, .18); }
+@media (max-width: 900px) { .mood-score-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 520px) { .mood-screen__header, .mood-form-card, .mood-chart-card, .mood-history-card { padding: 16px; border-radius: 20px; } .mood-score-grid { grid-template-columns: 1fr; } .mood-heart-rate-field { grid-template-columns: 1fr; } .mood-chart-wrap { height: 300px; } }
+
+
+/* Account UI interaction system */
+.account-app,
+.admin-app,
+.auth-main,
+.auth-mobile-main {
+    --account-radius-card: 24px;
+    --account-radius-control: 15px;
+    --account-focus-ring: rgba(52, 84, 209, 0.28);
+    --account-control-border: rgba(148, 163, 184, 0.26);
+    --account-control-bg: rgba(255, 255, 255, 0.84);
+    --account-interaction-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.account-app :is(a, button, input, select, textarea, summary):focus-visible,
+.admin-app :is(a, button, input, select, textarea, summary):focus-visible,
+.auth-main :is(a, button, input, select, textarea):focus-visible,
+.auth-mobile-main :is(a, button, input, select, textarea):focus-visible {
+    outline: 3px solid var(--account-focus-ring);
+    outline-offset: 3px;
+}
+
+.account-app :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea),
+.admin-app :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea),
+.auth-main :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea),
+.auth-mobile-main :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea) {
+    border-radius: var(--account-radius-control);
+    border-color: var(--account-control-border);
+    transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease, transform 180ms var(--account-interaction-ease);
+}
+
+.account-app :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea):hover,
+.admin-app :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea):hover,
+.auth-main :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea):hover,
+.auth-mobile-main :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea):hover {
+    border-color: rgba(52, 84, 209, 0.4);
+}
+
+.account-app :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea):focus,
+.admin-app :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea):focus,
+.auth-main :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea):focus,
+.auth-mobile-main :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea):focus {
+    border-color: rgba(52, 84, 209, 0.62);
+    box-shadow: 0 0 0 4px rgba(52, 84, 209, 0.11), 0 8px 20px rgba(15, 23, 42, 0.05);
+    outline: none;
+}
+
+.account-app :is(button, .cta-primary, .secondary-action, .coach-submit-btn, .workout-performance-submit),
+.admin-app :is(button, .admin-primary-btn, .admin-secondary-btn),
+.auth-main :is(button, .cta-primary),
+.auth-mobile-main :is(button, .auth-mobile-primary, .auth-mobile-secondary) {
+    transition: transform 180ms var(--account-interaction-ease), box-shadow 180ms ease, border-color 180ms ease, background-color 180ms ease, color 180ms ease;
+}
+
+.account-app :is(button, .cta-primary, .secondary-action, .coach-submit-btn, .workout-performance-submit):not(:disabled):hover,
+.admin-app :is(button, .admin-primary-btn, .admin-secondary-btn):not(:disabled):hover,
+.auth-main :is(button, .cta-primary):not(:disabled):hover,
+.auth-mobile-main :is(button, .auth-mobile-primary, .auth-mobile-secondary):not(:disabled):hover {
+    transform: translateY(-2px);
+}
+
+.account-app :is(button, .cta-primary, .secondary-action, .coach-submit-btn, .workout-performance-submit):disabled,
+.admin-app :is(button, .admin-primary-btn, .admin-secondary-btn):disabled,
+.auth-main :is(button, .cta-primary):disabled,
+.auth-mobile-main :is(button, .auth-mobile-primary, .auth-mobile-secondary):disabled {
+    cursor: not-allowed;
+    opacity: 0.58;
+    transform: none;
+}
+
+.account-app :is(.account-card, .account-panel, .account-page-panel, .profile-panel-card, .analysis-chart-card, .mood-form-card, .mood-chart-card, .mood-history-card),
+.admin-app :is(.admin-form-panel, .admin-result-card, .admin-user-summary, .admin-recent-panel, .admin-notification-card),
+.auth-main :is(.auth-card, .auth-shell),
+.auth-mobile-main :is(.auth-mobile-screen, .auth-mobile-frame) {
+    border-radius: var(--account-radius-card);
+}
+
+.account-app :is(.profile-metric-card, .profile-settings-hub__item, .dashboard-course-card, .workout-program-list-item, .workout-plans-shortcut__cta, .account-nav__item, .account-bottom-nav__item, .account-bottom-nav__submenu-item, .account-topbar__back, .account-topbar__home),
+.admin-app :is(.admin-menu-item, .admin-result-card, .admin-sidebar-nav__item, .admin-bottom-nav__item, .admin-bottom-nav__submenu-item, .admin-sort-bar__item) {
+    transition: transform 180ms var(--account-interaction-ease), border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease, color 180ms ease;
+}
+
+.account-app :is(.profile-metric-card, .profile-settings-hub__item, .dashboard-course-card, .workout-program-list-item, .workout-plans-shortcut__cta, .account-nav__item, .account-bottom-nav__item, .account-bottom-nav__submenu-item, .account-topbar__back, .account-topbar__home):hover,
+.account-app :is(.profile-metric-card, .profile-settings-hub__item, .dashboard-course-card, .workout-program-list-item, .workout-plans-shortcut__cta, .account-nav__item, .account-bottom-nav__item, .account-bottom-nav__submenu-item, .account-topbar__back, .account-topbar__home):focus-visible,
+.admin-app :is(.admin-menu-item, .admin-result-card, .admin-sidebar-nav__item, .admin-bottom-nav__item, .admin-bottom-nav__submenu-item, .admin-sort-bar__item):hover,
+.admin-app :is(.admin-menu-item, .admin-result-card, .admin-sidebar-nav__item, .admin-bottom-nav__item, .admin-bottom-nav__submenu-item, .admin-sort-bar__item):focus-visible {
+    transform: translateY(-2px);
+    border-color: rgba(52, 84, 209, 0.34);
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.1);
+}
+
+.account-app :is(.account-nav__item, .account-bottom-nav__item, .account-bottom-nav__submenu-item),
+.admin-app :is(.admin-menu-item, .admin-sidebar-nav__item, .admin-bottom-nav__item, .admin-bottom-nav__submenu-item) {
+    border-radius: var(--account-radius-control);
+}
+
+.account-app :is(a:not(.account-nav__item):not(.account-bottom-nav__item):not(.account-bottom-nav__submenu-item)):not([class*="button"]):not([class*="cta"]),
+.auth-main a,
+.auth-mobile-main a {
+    transition: color 180ms ease, opacity 180ms ease, text-decoration-color 180ms ease;
+}
+
+.account-app :is(a:not(.account-nav__item):not(.account-bottom-nav__item):not(.account-bottom-nav__submenu-item)):not([class*="button"]):not([class*="cta"]):hover,
+.auth-main a:hover,
+.auth-mobile-main a:hover {
+    color: var(--account-brand, var(--primary));
+}
+
+.dark .account-app,
+.dark .admin-app,
+.dark .auth-main,
+.dark .auth-mobile-main {
+    --account-focus-ring: rgba(125, 211, 252, 0.42);
+    --account-control-border: rgba(148, 163, 184, 0.3);
+    --account-control-bg: rgba(15, 23, 42, 0.78);
+}
+
+/* Coach request actions and step navigation */
+.profile-panel-card--coach-application {
+    position: relative;
+    display: grid;
+    justify-items: start;
+    gap: 12px;
+    overflow: hidden;
+    padding: clamp(18px, 2.6vw, 30px);
+    border-color: rgba(52, 84, 209, 0.2);
+    background:
+        radial-gradient(circle at 7% 0%, rgba(45, 212, 191, 0.12), transparent 34%),
+        linear-gradient(135deg, var(--account-surface, #fff), rgba(238, 243, 255, 0.86));
+}
+
+.profile-panel-card--coach-application .profile-screen__title {
+    margin: 0;
+}
+
+.profile-panel-card--coach-application .profile-screen__lead {
+    max-width: 68ch;
+    margin: 0;
+    line-height: 1.9;
+}
+
+.profile-coach-application-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    width: min(100%, 420px);
+    min-height: 54px;
+    margin-top: 4px;
+    padding: 12px 18px;
+    border: 1px solid rgba(255, 255, 255, 0.28);
+    border-radius: 17px;
+    background: linear-gradient(135deg, var(--account-brand, #3454d1), #258b86);
+    box-shadow: 0 12px 25px rgba(45, 84, 171, 0.22);
+    color: #fff !important;
+    font-weight: 800;
+    line-height: 1.55;
+    text-align: start;
+    text-decoration: none;
+}
+
+.profile-coach-application-link:hover,
+.profile-coach-application-link:focus-visible {
+    box-shadow: 0 16px 30px rgba(45, 84, 171, 0.3);
+    color: #fff !important;
+    transform: translateY(-2px);
+}
+
+.profile-coach-application-link__icon {
+    display: inline-grid;
+    flex: 0 0 34px;
+    width: 34px;
+    height: 34px;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 11px;
+    background: rgba(255, 255, 255, 0.14);
+    font-size: 1.12rem;
+    line-height: 1;
+}
+
+.coach-wizard {
+    display: grid;
+    gap: 18px;
+}
+
+.coach-wizard__progress {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    border: 1px solid var(--account-border, rgba(209, 213, 219, 0.95));
+    border-radius: 16px;
+    background: var(--account-surface, #fff);
+}
+
+.coach-wizard__track {
+    height: 8px;
+    overflow: hidden;
+    border-radius: 99px;
+    background: rgba(148, 163, 184, 0.2);
+}
+
+.coach-wizard__bar {
+    width: 14.28%;
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, #2a9d8f, var(--account-brand, #3454d1));
+    transition: width 240ms ease;
+}
+
+.coach-wizard__counter {
+    color: var(--text-muted, #64748b);
+    font-size: 0.82rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.coach-wizard__step {
+    display: grid;
+    gap: 18px;
+    padding: clamp(16px, 2.2vw, 24px);
+    border: 1px solid var(--account-border, rgba(209, 213, 219, 0.95));
+    border-radius: 20px;
+    background: var(--account-surface, #fff);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, 0.045);
+}
+
+.coach-wizard__step:not(.is-active) {
+    display: none;
+}
+
+.coach-wizard__step-head {
+    display: grid;
+    gap: 5px;
+}
+
+.coach-wizard__step-head strong {
+    color: var(--text-primary, #172554);
+    font-size: 1.05rem;
+}
+
+.coach-wizard__step-head span {
+    color: var(--text-muted, #64748b);
+    font-size: 0.88rem;
+    line-height: 1.8;
+}
+
+.coach-wizard__nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    width: 100%;
+    margin: 0;
+}
+
+.coach-wizard__back,
+.coach-wizard__next,
+.coach-wizard__submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: auto;
+    min-width: 0;
+    min-height: 52px;
+    padding: 10px;
+    border: 1px solid transparent;
+    border-radius: 15px;
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.coach-wizard__back[hidden],
+.coach-wizard__next[hidden],
+.coach-wizard__submit[hidden] {
+    display: none;
+}
+
+.coach-wizard__back {
+    border-color: var(--account-border, rgba(148, 163, 184, 0.35));
+    background: var(--account-surface, #fff);
+    color: var(--text-primary, #172554);
+}
+
+.coach-wizard__nav-group {
+    display: flex;
+    width: max-content;
+    min-width: 0;
+}
+
+.coach-wizard__next,
+.coach-wizard__submit {
+    background: linear-gradient(135deg, var(--account-brand, #3454d1), #258b86);
+    box-shadow: 0 10px 22px rgba(45, 84, 171, 0.18);
+    color: #fff;
+}
+
+.dark .profile-panel-card--coach-application {
+    border-color: rgba(125, 211, 252, 0.2);
+    background:
+        radial-gradient(circle at 7% 0%, rgba(45, 212, 191, 0.1), transparent 34%),
+        linear-gradient(135deg, var(--account-surface, #0f172a), rgba(30, 41, 74, 0.92));
+}
+
+.dark .coach-wizard__step-head strong {
+    color: var(--text-primary, #f1f5f9);
+}
+
+.dark .coach-wizard__back {
+    color: var(--text-primary, #f1f5f9);
+}
+
+/* Coach application form */
+.coach-application-screen {
+    gap: 18px;
+}
+
+.coach-application-screen__header {
+    display: grid;
+    justify-items: start;
+    gap: 10px;
+    overflow: hidden;
+    padding: clamp(22px, 3.5vw, 38px);
+    border: 1px solid rgba(52, 84, 209, 0.16);
+    border-radius: 24px;
+    background:
+        radial-gradient(circle at 8% 5%, rgba(45, 212, 191, 0.2), transparent 30%),
+        linear-gradient(135deg, #fff 0%, #f2f6ff 62%, #effaf8 100%);
+    box-shadow: 0 18px 40px rgba(31, 58, 120, 0.08);
+}
+
+.coach-application-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 5px 12px;
+    border: 1px solid rgba(52, 84, 209, 0.14);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.76);
+    color: var(--account-brand, #3454d1);
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+.coach-application-screen__header .profile-screen__title {
+    font-size: clamp(1.35rem, 2.3vw, 1.8rem);
+}
+
+.coach-application-screen__header .profile-screen__lead {
+    max-width: 66ch;
+    font-size: 0.95rem;
+}
+
+.coach-application-status {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: start;
+    gap: 16px;
+    padding: clamp(18px, 2.5vw, 26px);
+    border-color: rgba(52, 84, 209, 0.2);
+    background: linear-gradient(135deg, rgba(239, 246, 255, 0.98), rgba(240, 253, 250, 0.92));
+}
+
+.coach-application-status__icon {
+    display: grid;
+    width: 46px;
+    height: 46px;
+    place-items: center;
+    border-radius: 15px;
+    background: rgba(52, 84, 209, 0.12);
+    color: var(--account-brand, #3454d1);
+    font-size: 1.5rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.coach-application-status__content {
+    display: grid;
+    justify-items: start;
+    gap: 7px;
+    min-width: 0;
+}
+
+.coach-application-status__eyebrow {
+    color: var(--account-muted, #64748b);
+    font-size: 0.75rem;
+    font-weight: 800;
+}
+
+.coach-application-status__heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.coach-application-status__heading h3,
+.coach-application-form-card__header h3 {
+    margin: 0;
+    color: var(--account-text, #172554);
+    font-size: 1.05rem;
+    font-weight: 900;
+}
+
+.coach-application-status__value {
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 4px 11px;
+    border: 1px solid rgba(52, 84, 209, 0.18);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--account-brand, #3454d1);
+    font-size: 0.78rem;
+}
+
+.coach-application-status__date {
+    margin: 0;
+    color: var(--account-muted, #64748b);
+    font-size: 0.8rem;
+}
+
+.coach-application-status__note {
+    width: 100%;
+    margin: 5px 0 0;
+    padding: 12px 14px;
+    border: 1px solid rgba(52, 84, 209, 0.12);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.66);
+    color: var(--account-text, #334155);
+    font-size: 0.86rem;
+    line-height: 1.8;
+}
+
+.coach-application-status__note p {
+    margin: 4px 0 0;
+}
+
+.coach-application-status--approved {
+    border-color: rgba(22, 163, 74, 0.24);
+    background: linear-gradient(135deg, rgba(240, 253, 244, 0.98), rgba(236, 253, 245, 0.9));
+}
+
+.coach-application-status--approved .coach-application-status__icon,
+.coach-application-status--approved .coach-application-status__value {
+    border-color: rgba(22, 163, 74, 0.2);
+    background: rgba(22, 163, 74, 0.1);
+    color: #15803d;
+}
+
+.coach-application-status--rejected {
+    border-color: rgba(220, 38, 38, 0.22);
+    background: linear-gradient(135deg, rgba(254, 242, 242, 0.98), rgba(255, 247, 237, 0.9));
+}
+
+.coach-application-status--rejected .coach-application-status__icon,
+.coach-application-status--rejected .coach-application-status__value {
+    border-color: rgba(220, 38, 38, 0.18);
+    background: rgba(220, 38, 38, 0.09);
+    color: #b91c1c;
+}
+
+.coach-application-status--pending .coach-application-status__icon,
+.coach-application-status--pending .coach-application-status__value {
+    border-color: rgba(217, 119, 6, 0.2);
+    background: rgba(245, 158, 11, 0.12);
+    color: #a16207;
+}
+
+.coach-application-form-card {
+    display: grid;
+    gap: 24px;
+    padding: clamp(20px, 3vw, 34px);
+}
+
+.coach-application-form-card__header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--account-border, rgba(148, 163, 184, 0.22));
+}
+
+.coach-application-form-card__step {
+    display: grid;
+    flex: 0 0 46px;
+    width: 46px;
+    height: 46px;
+    place-items: center;
+    border-radius: 15px;
+    background: linear-gradient(135deg, rgba(52, 84, 209, 0.12), rgba(37, 139, 134, 0.13));
+    color: var(--account-brand, #3454d1);
+    font-weight: 900;
+}
+
+.coach-application-form-card__header > div {
+    display: grid;
+    gap: 4px;
+}
+
+.coach-application-form-card__header p {
+    margin: 0;
+    color: var(--account-muted, #64748b);
+    font-size: 0.84rem;
+    line-height: 1.7;
+}
+
+.coach-application-fields {
+    display: grid;
+    gap: 20px;
+}
+
+.coach-application-fields__row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.coach-application-form .field-group {
+    min-width: 0;
+    gap: 9px;
+}
+
+.coach-application-form .field-group label {
+    color: var(--account-text, #1e293b);
+    font-size: 0.88rem;
+    font-weight: 800;
+}
+
+.coach-application-form .field-group input:not([type="file"]),
+.coach-application-form .field-group textarea {
+    width: 100%;
+    min-height: 52px;
+    padding: 12px 15px;
+    border: 1px solid var(--account-control-border, rgba(148, 163, 184, 0.28));
+    border-radius: 15px;
+    background: var(--account-control-bg, #f8fafc);
+    color: var(--account-text, #172554);
+    font: inherit;
+    font-size: 0.9rem;
+    transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+}
+
+.coach-application-form .field-group textarea {
+    min-height: 156px;
+    line-height: 1.9;
+    resize: vertical;
+}
+
+.coach-application-form .field-group input:not([type="file"]):focus,
+.coach-application-form .field-group textarea:focus {
+    border-color: rgba(52, 84, 209, 0.68);
+    background: var(--account-surface, #fff);
+    box-shadow: 0 0 0 4px rgba(52, 84, 209, 0.11);
+    outline: none;
+}
+
+.coach-application-form .field-group input[type="file"] {
+    width: 100%;
+    min-height: 56px;
+    padding: 9px;
+    border: 1px dashed var(--account-control-border, rgba(148, 163, 184, 0.34));
+    border-radius: 15px;
+    background: rgba(248, 250, 252, 0.82);
+    color: var(--account-muted, #64748b);
+    font: inherit;
+    font-size: 0.78rem;
+}
+
+.coach-application-form .field-group input[type="file"]::file-selector-button {
+    margin-inline-end: 10px;
+    padding: 9px 12px;
+    border: 0;
+    border-radius: 10px;
+    background: rgba(52, 84, 209, 0.1);
+    color: var(--account-brand, #3454d1);
+    font: inherit;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.coach-application-form .field-group small {
+    color: var(--account-muted, #64748b);
+    font-size: 0.76rem;
+    line-height: 1.7;
+}
+
+.coach-application-form .errorlist {
+    margin: 0;
+    padding-inline-start: 20px;
+    color: #b91c1c;
+    font-size: 0.78rem;
+    line-height: 1.7;
+}
+
+.coach-application-form__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px 18px;
+    padding-top: 20px;
+    border-top: 1px solid var(--account-border, rgba(148, 163, 184, 0.22));
+}
+
+.coach-application-submit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    min-width: 220px;
+    min-height: 54px;
+    padding: 10px 16px;
+    border: 1px solid rgba(52, 84, 209, 0.2);
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--account-brand, #3454d1), #258b86);
+    box-shadow: 0 12px 24px rgba(45, 84, 171, 0.2);
+    color: #fff;
+    font: inherit;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.coach-application-submit:hover,
+.coach-application-submit:focus-visible {
+    box-shadow: 0 16px 30px rgba(45, 84, 171, 0.28);
+    color: #fff;
+    transform: translateY(-2px);
+}
+
+.coach-application-submit__icon {
+    display: grid;
+    width: 30px;
+    height: 30px;
+    place-items: center;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.14);
+    font-size: 1.1rem;
+    line-height: 1;
+}
+
+.coach-application-back-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    min-height: 46px;
+    padding: 8px 13px;
+    border: 1px solid var(--account-border, rgba(148, 163, 184, 0.26));
+    border-radius: 14px;
+    background: var(--account-surface, #fff);
+    color: var(--account-text, #334155);
+    font-size: 0.84rem;
+    font-weight: 800;
+    text-decoration: none;
+    transition: border-color 180ms ease, background-color 180ms ease, color 180ms ease, transform 180ms ease;
+}
+
+.coach-application-back-link:hover,
+.coach-application-back-link:focus-visible {
+    border-color: rgba(52, 84, 209, 0.34);
+    background: rgba(52, 84, 209, 0.06);
+    color: var(--account-brand, #3454d1);
+    transform: translateY(-1px);
+}
+
+.dark .coach-application-screen__header {
+    border-color: rgba(125, 211, 252, 0.2);
+    background:
+        radial-gradient(circle at 8% 5%, rgba(45, 212, 191, 0.12), transparent 30%),
+        linear-gradient(135deg, #0f172a 0%, #172554 68%, #103b3b 140%);
+}
+
+.dark .coach-application-eyebrow,
+.dark .coach-application-status__value {
+    background: rgba(15, 23, 42, 0.72);
+}
+
+.dark .coach-application-status {
+    background: linear-gradient(135deg, rgba(30, 41, 74, 0.94), rgba(15, 61, 61, 0.68));
+}
+
+.dark .coach-application-status--approved {
+    background: linear-gradient(135deg, rgba(20, 83, 45, 0.34), rgba(15, 61, 61, 0.58));
+}
+
+.dark .coach-application-status--rejected {
+    background: linear-gradient(135deg, rgba(127, 29, 29, 0.32), rgba(69, 26, 3, 0.42));
+}
+
+.dark .coach-application-status__note,
+.dark .coach-application-form .field-group input[type="file"],
+.dark .coach-application-back-link {
+    border-color: rgba(148, 163, 184, 0.24);
+    background: rgba(15, 23, 42, 0.7);
+    color: #e2e8f0;
+}
+
+.dark .coach-application-status__heading h3,
+.dark .coach-application-form-card__header h3,
+.dark .coach-application-form .field-group label {
+    color: var(--text-primary, #f1f5f9);
+}
+
+.dark .coach-application-form .field-group input[type="file"]::file-selector-button {
+    background: rgba(125, 211, 252, 0.12);
+    color: #bae6fd;
+}
+
+.dark .account-app :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea),
+.dark .admin-app :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea),
+.dark .auth-main :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea),
+.dark .auth-mobile-main :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), select, textarea) {
+    background: var(--account-control-bg);
+    border-color: var(--account-control-border);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .account-app *,
+    .admin-app *,
+    .auth-main *,
+    .auth-mobile-main * {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+    }
+}
+
+
+/* Final touch targets for navigation and compact actions */
+.account-app .account-bottom-nav__group-toggle,
+.admin-app .admin-bottom-nav__group-toggle,
+.admin-app .admin-back-link,
+.auth-main .auth-brand__link,
+.auth-mobile-main .auth-mobile-edit-phone {
+    border-radius: var(--account-radius-control);
+    transition: transform 180ms var(--account-interaction-ease), border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease, color 180ms ease;
+}
+
+.account-app .account-bottom-nav__group-toggle:hover,
+.admin-app .admin-bottom-nav__group-toggle:hover,
+.admin-app .admin-back-link:hover,
+.auth-main .auth-brand__link:hover,
+.auth-mobile-main .auth-mobile-edit-phone:hover {
+    transform: translateY(-2px);
+    border-color: rgba(52, 84, 209, 0.34);
+    background-color: rgba(52, 84, 209, 0.08);
+    box-shadow: 0 12px 26px rgba(15, 23, 42, 0.08);
+}
+
+.admin-app .admin-back-link {
+    width: 42px;
+    height: 42px;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    background: rgba(255, 255, 255, 0.72);
+}
+
+.dark .admin-app .admin-back-link,
+.dark .auth-main .auth-brand__link,
+.dark .auth-mobile-main .auth-mobile-edit-phone {
+    background: rgba(15, 23, 42, 0.72);
+    border-color: rgba(148, 163, 184, 0.28);
+}
+
+.dark .account-app .account-bottom-nav__group-toggle:hover,
+.dark .admin-app .admin-bottom-nav__group-toggle:hover,
+.dark .admin-app .admin-back-link:hover,
+.dark .auth-main .auth-brand__link:hover,
+.dark .auth-mobile-main .auth-mobile-edit-phone:hover {
+    border-color: rgba(125, 211, 252, 0.42);
+    background-color: rgba(14, 165, 233, 0.14);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.24);
+}
+
+/* Profile settings form actions */
+.account-app .profile-settings-submit {
+    appearance: none;
+    -webkit-appearance: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 190px;
+    min-height: 50px;
+    padding-inline: 24px;
+    border: 1px solid rgba(37, 99, 235, 0.22);
+    border-radius: var(--account-radius-control, 15px);
+    background: linear-gradient(135deg, #2563eb 0%, #3454d1 58%, #0f766e 140%);
+    color: #fff;
+    box-shadow: 0 12px 26px rgba(37, 99, 235, 0.2), 0 5px 12px rgba(15, 23, 42, 0.08);
+    font: inherit;
+    font-size: 0.92rem;
+    font-weight: 800;
+    line-height: 1.4;
+    cursor: pointer;
+    transition: transform 180ms var(--account-interaction-ease), box-shadow 180ms ease, border-color 180ms ease, background 180ms ease;
+}
+
+.account-app .profile-settings-submit:not(:disabled):hover {
+    transform: translateY(-2px);
+    border-color: rgba(37, 99, 235, 0.46);
+    background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 62%, #047857 140%);
+    box-shadow: 0 17px 32px rgba(37, 99, 235, 0.26), 0 8px 18px rgba(15, 23, 42, 0.12);
+}
+
+.account-app .profile-settings-submit:not(:disabled):active {
+    transform: translateY(0) scale(0.985);
+    box-shadow: 0 7px 16px rgba(37, 99, 235, 0.2);
+}
+
+.dark .account-app .profile-settings-submit {
+    border-color: rgba(125, 211, 252, 0.24);
+    background: linear-gradient(135deg, #1e40af 0%, #2563eb 58%, #0f766e 140%);
+    color: #f8fafc;
+    box-shadow: 0 14px 28px rgba(2, 6, 23, 0.36), 0 5px 14px rgba(37, 99, 235, 0.2);
+}
+
+.dark .account-app .profile-settings-submit:not(:disabled):hover {
+    border-color: rgba(125, 211, 252, 0.52);
+    background: linear-gradient(135deg, #1d4ed8 0%, #2563eb 58%, #0e7490 140%);
+    box-shadow: 0 18px 34px rgba(2, 6, 23, 0.48), 0 8px 20px rgba(14, 165, 233, 0.2);
+}
+
+.account-app .profile-settings-submit:disabled {
+    cursor: not-allowed;
+    opacity: 0.58;
+    transform: none;
+    box-shadow: none;
+}
+
+@media (max-width: 520px) {
+    .account-app .profile-settings-submit {
+        width: 100%;
+        min-width: 0;
+    }
+}
+
+/* Browser push reminder controls for the mood dashboard. */
+.account-app .mood-reminder-card {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
+    gap: 18px 28px;
+    margin: 22px 0;
+    padding: clamp(20px, 3vw, 30px);
+    overflow: hidden;
+    border: 1px solid rgba(52, 84, 209, 0.16);
+    border-radius: 24px;
+    background:
+        radial-gradient(circle at 100% 0%, rgba(52, 84, 209, 0.12), transparent 38%),
+        linear-gradient(135deg, #ffffff, #f7f9ff 68%, #f0fdfa);
+    color: #172554;
+    box-shadow: 0 16px 42px rgba(37, 64, 130, 0.09);
+}
+
+.account-app .mood-reminder-card--enabled {
+    border-color: rgba(13, 148, 136, 0.24);
+    background:
+        radial-gradient(circle at 100% 0%, rgba(13, 148, 136, 0.14), transparent 40%),
+        linear-gradient(135deg, #ffffff, #f5fffc 72%, #effcf7);
+}
+
+.mood-reminder-card__topline {
+    display: flex;
+    grid-column: 1;
+    align-items: center;
+    gap: 12px;
+}
+
+.mood-reminder-card__icon {
+    display: grid;
+    width: 50px;
+    height: 50px;
+    flex: 0 0 50px;
+    place-items: center;
+    border: 1px solid rgba(52, 84, 209, 0.14);
+    border-radius: 17px;
+    background: rgba(52, 84, 209, 0.09);
+    color: #3454d1;
+}
+
+.mood-reminder-card__icon svg {
+    width: 25px;
+    height: 25px;
+}
+
+.mood-reminder-card__state {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 12px;
+    border: 1px solid rgba(100, 116, 139, 0.17);
+    border-radius: 999px;
+    background: rgba(241, 245, 249, 0.85);
+    color: #64748b;
+    font-size: 0.78rem;
+    font-weight: 800;
+}
+
+.mood-reminder-card__state::before {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: currentColor;
+    content: "";
+}
+
+.mood-reminder-card__state.is-on {
+    border-color: rgba(13, 148, 136, 0.2);
+    background: rgba(20, 184, 166, 0.1);
+    color: #0f766e;
+}
+
+.mood-reminder-card__intro {
+    grid-column: 1;
+    grid-row: 2;
+}
+
+.mood-reminder-card__intro h2 {
+    margin: 0 0 8px;
+    color: #172554;
+    font-size: clamp(1.08rem, 2vw, 1.3rem);
+    font-weight: 900;
+}
+
+.mood-reminder-card__intro p,
+.mood-reminder-card__footnote {
+    margin: 0;
+    color: #64748b;
+    font-size: 0.88rem;
+    line-height: 1.9;
+}
+
+.mood-reminder-form {
+    display: grid;
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    gap: 17px;
+    align-content: center;
+}
+
+.mood-reminder-form__time label,
+.mood-reminder-days legend {
+    display: block;
+    margin-bottom: 9px;
+    color: #334155;
+    font-size: 0.86rem;
+    font-weight: 850;
+}
+
+.mood-reminder-form__time input {
+    width: min(100%, 190px);
+    min-height: 48px;
+    padding: 9px 14px;
+    border: 1px solid rgba(100, 116, 139, 0.25);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #172554;
+    font: inherit;
+    font-size: 1rem;
+    font-weight: 800;
+}
+
+.mood-reminder-form__time input:focus-visible,
+.mood-reminder-day:focus-within {
+    outline: 3px solid rgba(52, 84, 209, 0.24);
+    outline-offset: 2px;
+}
+
+.mood-reminder-days {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+.mood-reminder-days__grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.mood-reminder-day {
+    display: flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 9px;
+    padding: 8px 10px;
+    border: 1px solid rgba(100, 116, 139, 0.18);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.76);
+    color: #64748b;
+    cursor: pointer;
+    font-size: 0.82rem;
+    font-weight: 750;
+    text-align: start;
+    transition: border-color 160ms ease, background 160ms ease, color 160ms ease, transform 160ms ease;
+}
+
+.mood-reminder-day:hover {
+    transform: translateY(-1px);
+    border-color: rgba(52, 84, 209, 0.35);
+}
+
+.mood-reminder-day input {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 18px;
+    margin: 0;
+    accent-color: #3454d1;
+    cursor: pointer;
+}
+
+.mood-reminder-day.is-selected {
+    border-color: rgba(52, 84, 209, 0.28);
+    background: rgba(52, 84, 209, 0.09);
+    color: #2f4ecc;
+}
+
+.mood-reminder-card__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.mood-reminder-card__actions button {
+    min-height: 46px;
+    padding: 10px 18px;
+    border: 1px solid transparent;
+    border-radius: 14px;
+    font: inherit;
+    font-size: 0.88rem;
+    font-weight: 850;
+    cursor: pointer;
+    transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.mood-reminder-card__primary {
+    background: linear-gradient(135deg, #3454d1, #2563eb 65%, #0f766e 140%);
+    color: #fff;
+    box-shadow: 0 9px 19px rgba(52, 84, 209, 0.2);
+}
+
+.mood-reminder-card__primary:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 13px 24px rgba(52, 84, 209, 0.26);
+}
+
+.mood-reminder-card__secondary {
+    border-color: rgba(100, 116, 139, 0.2) !important;
+    background: rgba(255, 255, 255, 0.72);
+    color: #475569;
+}
+
+.mood-reminder-card__secondary--danger {
+    color: #b4233c;
+}
+
+.mood-reminder-card__actions button:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
+.mood-reminder-card__primary.is-loading {
+    position: relative;
+    overflow: hidden;
+    color: transparent !important;
+    pointer-events: none;
+}
+
+.mood-reminder-card__primary.is-loading::after {
+    content: "";
+    position: absolute;
+    inset: 50% auto auto 50%;
+    width: 18px;
+    height: 18px;
+    margin: -9px 0 0 -9px;
+    border: 2px solid rgba(255, 255, 255, 0.42);
+    border-top-color: #fff;
+    border-radius: 999px;
+    animation: accountButtonSpin 0.72s linear infinite;
+}
+
+.mood-reminder-card__message {
+    margin: 0;
+    color: #0f766e;
+    font-size: 0.84rem;
+    font-weight: 750;
+}
+
+.mood-reminder-card__message.is-error {
+    color: #b4233c;
+}
+
+.mood-reminder-card__footnote {
+    font-size: 0.78rem;
+}
+
+.mood-reminder-summary {
+    display: grid;
+    grid-column: 1 / -1;
+    gap: 7px;
+    padding: 14px 16px;
+    border: 1px solid rgba(13, 148, 136, 0.2);
+    border-radius: 16px;
+    background: rgba(20, 184, 166, 0.07);
+}
+
+.mood-reminder-summary strong {
+    color: #0f766e;
+    font-size: 0.9rem;
+    font-weight: 850;
+}
+
+.mood-reminder-summary p {
+    margin: 0;
+    color: #475569;
+    font-size: 0.84rem;
+    line-height: 1.8;
+}
+
+.mood-reminder-summary p span {
+    font-weight: 800;
+}
+
+.dark .account-app .mood-reminder-card {
+    border-color: rgba(129, 140, 248, 0.22);
+    background:
+        radial-gradient(circle at 100% 0%, rgba(99, 102, 241, 0.18), transparent 40%),
+        linear-gradient(135deg, #111b35, #101827 70%, #102a2b);
+    color: #e2e8f0;
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.2);
+}
+
+.dark .account-app .mood-reminder-card--enabled {
+    border-color: rgba(45, 212, 191, 0.24);
+}
+
+.dark .mood-reminder-card__intro h2,
+.dark .mood-reminder-form__time label,
+.dark .mood-reminder-days legend {
+    color: #f1f5f9;
+}
+
+.dark .mood-reminder-card__intro p,
+.dark .mood-reminder-card__footnote {
+    color: #a8b5cb;
+}
+
+.dark .mood-reminder-summary {
+    border-color: rgba(45, 212, 191, 0.2);
+    background: rgba(20, 184, 166, 0.1);
+}
+
+.dark .mood-reminder-summary strong {
+    color: #5eead4;
+}
+
+.dark .mood-reminder-summary p {
+    color: #cbd5e1;
+}
+
+.dark .mood-reminder-card__icon {
+    border-color: rgba(129, 140, 248, 0.24);
+    background: rgba(99, 102, 241, 0.17);
+    color: #a5b4fc;
+}
+
+.dark .mood-reminder-card__state {
+    border-color: rgba(148, 163, 184, 0.2);
+    background: rgba(30, 41, 59, 0.8);
+    color: #b6c2d5;
+}
+
+.dark .mood-reminder-card__state.is-on {
+    border-color: rgba(45, 212, 191, 0.24);
+    background: rgba(20, 184, 166, 0.14);
+    color: #5eead4;
+}
+
+.dark .mood-reminder-form__time input,
+.dark .mood-reminder-day,
+.dark .mood-reminder-card__secondary {
+    border-color: rgba(148, 163, 184, 0.22);
+    background: rgba(15, 23, 42, 0.68);
+    color: #dbeafe;
+}
+
+.dark .mood-reminder-day.is-selected {
+    border-color: rgba(129, 140, 248, 0.38);
+    background: rgba(99, 102, 241, 0.19);
+    color: #c7d2fe;
+}
+
+.dark .mood-reminder-day input {
+    accent-color: #818cf8;
+}
+
+.dark .mood-reminder-card__secondary--danger {
+    color: #fda4af;
+}
+
+@media (max-width: 760px) {
+    .account-app .mood-reminder-card {
+        grid-template-columns: 1fr;
+        gap: 14px;
+        padding: 20px;
+    }
+
+    .mood-reminder-card__topline,
+    .mood-reminder-card__intro,
+    .mood-reminder-form {
+        grid-column: 1;
+        grid-row: auto;
+    }
+
+    .mood-reminder-form {
+        padding-top: 4px;
+    }
+}
+
+@media (max-width: 430px) {
+    .account-app .mood-reminder-card {
+        padding: 17px;
+        border-radius: 20px;
+    }
+
+    .mood-reminder-days__grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .mood-reminder-card__actions {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .mood-reminder-card__actions button {
+        width: 100%;
+    }
+}
+
+.profile-coach-choice {
+    position: relative;
+    display: grid;
+    gap: 20px;
+    overflow: hidden;
+    border-color: rgba(13, 148, 136, .2);
+    background:
+        radial-gradient(circle at 100% 0, rgba(45, 212, 191, .15), transparent 38%),
+        linear-gradient(135deg, var(--account-surface, #fff), rgba(240, 253, 250, .9));
+}
+
+.profile-coach-choice__intro {
+    display: grid;
+    gap: 7px;
+}
+
+.profile-coach-choice__eyebrow {
+    color: #0f766e;
+    font-size: .76rem;
+    font-weight: 850;
+}
+
+.profile-coach-choice__intro .profile-screen__title,
+.profile-coach-choice__intro .profile-screen__lead {
+    margin: 0;
+}
+
+.profile-coach-choice__form {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    gap: 14px;
+}
+
+.profile-coach-choice__form .field-group {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+}
+
+.profile-coach-choice__form .field-group > label {
+    color: var(--account-text, #1f2937);
+    font-size: .86rem;
+    font-weight: 800;
+}
+
+.profile-coach-choice__form select {
+    width: 100%;
+    min-height: 52px;
+    border: 1px solid rgba(15, 118, 110, .22);
+    border-radius: 15px;
+    background: var(--account-surface, #fff);
+}
+
+.profile-coach-choice__submit {
+    display: inline-flex;
+    min-width: 150px;
+    min-height: 52px;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.dark .profile-coach-choice {
+    border-color: rgba(45, 212, 191, .2);
+    background:
+        radial-gradient(circle at 100% 0, rgba(45, 212, 191, .12), transparent 38%),
+        linear-gradient(135deg, rgba(15, 118, 110, .1), rgba(15, 23, 42, .9));
+}
+
+.dark .profile-coach-choice__eyebrow {
+    color: #99f6e4;
+}
+
+.dark .profile-coach-choice__form .field-group > label {
+    color: #e2e8f0;
+}
+
+.dark .profile-coach-choice__form select {
+    border-color: rgba(94, 234, 212, .2);
+    background: #0f172a;
+    color: #e2e8f0;
+}
+
+@media (max-width: 640px) {
+    .profile-coach-choice__form {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 12px;
+    }
+
+    .profile-coach-choice__submit {
+        width: 100%;
+    }
+}
+/* Structured athlete training preferences and session logging */
+.training-preferences-form__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+.training-preferences-form__wide { grid-column: 1 / -1; }
+.training-preferences-form ul { display: flex; flex-wrap: wrap; gap: .6rem 1rem; padding: 0; margin: .5rem 0 0; list-style: none; }
+.training-preferences-form li label { display: inline-flex; align-items: center; gap: .45rem; }
+.training-preferences-screen .profile-screen__header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+.workout-set-results { display: grid; gap: .65rem; min-width: 260px; }
+.workout-set-result { display: grid; grid-template-columns: repeat(2, minmax(90px, 1fr)); gap: .5rem; padding: .65rem; border: 1px solid var(--border, #e4e7ec); border-radius: .8rem; text-align: start; }
+.workout-set-result legend { padding: 0 .3rem; color: var(--muted-foreground, #667085); font-size: .78rem; }
+.workout-set-result label, .workout-session-meta label { display: grid; gap: .25rem; color: var(--muted-foreground, #667085); font-size: .76rem; }
+.workout-set-result input:not([type="checkbox"]), .workout-session-meta input, .workout-session-meta textarea { width: 100%; min-height: 2.5rem; padding: .5rem .65rem; border: 1px solid var(--border, #d0d5dd); border-radius: .6rem; background: var(--background, #fff); color: var(--foreground, #101828); }
+.workout-set-result .workout-set-result__completed { display: flex; align-items: center; gap: .4rem; grid-column: 1 / -1; }
+.workout-session-meta { display: grid; grid-template-columns: minmax(150px, .35fr) minmax(240px, 1fr); gap: 1rem; margin-block: 1rem; }
+.training-preferences-form > button { margin-block-start: 1.25rem; }
+
+/* Keep each exercise row compact until the athlete opens its set log. */
+.workout-table {
+    min-width: 980px;
+    table-layout: fixed;
+}
+
+.workout-table th:nth-child(1),
+.workout-table td:nth-child(1) { width: 34%; }
+.workout-table th:nth-child(2),
+.workout-table td:nth-child(2) { width: 10%; }
+.workout-table th:nth-child(3),
+.workout-table td:nth-child(3) { width: 10%; }
+.workout-table th:nth-child(4),
+.workout-table td:nth-child(4) { width: 14%; }
+.workout-table th:nth-child(5),
+.workout-table td:nth-child(5) { width: 26%; }
+.workout-table th:last-child,
+.workout-table td:last-child {
+    width: 6%;
+    min-width: 70px;
+    max-width: 75px;
+    padding-inline: 4px;
+}
+
+.workout-row-entry {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid rgba(52, 84, 209, 0.16);
+    border-radius: 12px;
+    background: rgba(52, 84, 209, 0.035);
+}
+
+.workout-row-entry__summary {
+    display: flex;
+    min-height: 48px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 7px 10px;
+    color: var(--account-text, #111827);
+    cursor: pointer;
+    list-style: none;
+}
+
+.workout-row-entry__summary::-webkit-details-marker { display: none; }
+.workout-row-entry__summary:focus-visible {
+    outline: 3px solid rgba(52, 84, 209, 0.45);
+    outline-offset: -3px;
+}
+
+.workout-row-entry__copy {
+    display: grid;
+    min-width: 0;
+    gap: 2px;
+}
+
+.workout-row-entry__copy strong {
+    color: var(--account-brand, #3454d1);
+    font-size: 0.78rem;
+    font-weight: 900;
+}
+
+.workout-row-entry__copy > span {
+    color: var(--account-muted, #667085);
+    font-size: 0.7rem;
+    line-height: 1.5;
+}
+
+.workout-row-entry__chevron {
+    flex: 0 0 auto;
+    color: var(--account-brand, #3454d1);
+    font-size: 1.1rem;
+    transition: transform 160ms ease;
+}
+
+.workout-row-entry[open] .workout-row-entry__summary {
+    border-bottom: 1px solid rgba(52, 84, 209, 0.14);
+    background: rgba(52, 84, 209, 0.055);
+}
+
+.workout-row-entry[open] .workout-row-entry__chevron { transform: rotate(180deg); }
+.workout-row-entry__content { padding: 9px; }
+.workout-set-results {
+    grid-template-columns: repeat(auto-fit, minmax(145px, 1fr));
+    min-width: 0;
+    gap: 7px;
+}
+
+.workout-set-result {
+    min-width: 0;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+    padding: 7px;
+    background: var(--account-surface, #fff);
+}
+
+.workout-set-result legend { font-size: 0.7rem; }
+.workout-set-result label { min-width: 0; font-size: 0.66rem; }
+.workout-set-result input:not([type="checkbox"]) {
+    box-sizing: border-box;
+    min-width: 0;
+    min-height: 44px;
+    padding: 6px;
+    font-size: 0.82rem;
+}
+
+.dark .workout-row-entry {
+    border-color: rgba(125, 211, 252, 0.2);
+    background: rgba(15, 23, 42, 0.55);
+}
+.dark .workout-row-entry[open] .workout-row-entry__summary {
+    border-color: rgba(125, 211, 252, 0.16);
+    background: rgba(30, 64, 175, 0.16);
+}
+.dark .workout-set-result { background: rgba(15, 23, 42, 0.72); }
+
+.account-app .workout-program-screen .workout-performance-form input[type="number"],
+.account-app .workout-program-screen .workout-performance-form input[type="number"]:hover,
+.account-app .workout-program-screen .workout-performance-form input[type="number"]:focus {
+    border: 1px solid #808080;
+}
+
+.dark .account-app .workout-program-screen .workout-performance-form input[type="number"],
+.dark .account-app .workout-program-screen .workout-performance-form input[type="number"]:hover,
+.dark .account-app .workout-program-screen .workout-performance-form input[type="number"]:focus {
+    border: 1px solid #fff;
+}

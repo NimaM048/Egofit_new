@@ -1,0 +1,63 @@
+{% extends 'account/_shell.html' %}
+{% load my_tags %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}{% blocktrans %}دوره های شما | ایگوفیت{% endblocktrans %}{% endblock %}
+
+{% block account_content %}
+<section class="profile-screen profile-screen--wide">
+    <header class="profile-screen__header">
+        <h2 class="profile-screen__title">{% trans 'دوره های شما' %}</h2>
+    </header>
+
+    <section class="course-library-grid profile-course-grid">
+        {% for item in items %}
+            <article class="account-card profile-course-card">
+                <a href="{% url 'home:series_episodes' item.id %}" class="profile-course-card__media">
+                    <img src="{{ item.image|public_media_url }}" alt="{{ item.title }}" loading="lazy">
+                    <span class="profile-course-card__media-glow" aria-hidden="true"></span>
+                    <span class="profile-course-card__media-badge {% if item.free %}is-free{% else %}is-paid{% endif %}">
+                        {% if item.free %}{% trans 'رایگان' %}{% else %}{% trans 'پولی' %}{% endif %}
+                    </span>
+                </a>
+                <div class="profile-course-card__body">
+                    <div class="profile-course-card__chips">
+                        <span class="account-chip {% if item.is_compeleted %}is-active{% endif %}">
+                            <span class="profile-course-card__dot" aria-hidden="true"></span>
+                            {% if item.is_compeleted %}{% trans 'تکمیل شده' %}{% else %}{% trans 'در حال تکمیل' %}{% endif %}
+                        </span>
+                        {% if item.language_kinds %}
+                            <span class="account-chip">{% trans 'زبان' %}: {{ item.language_kinds }}</span>
+                        {% endif %}
+                    </div>
+                    <h2 class="profile-course-card__title">{{ item.title }}</h2>
+                    <p class="profile-course-card__author">
+                        <span aria-hidden="true">✎</span>
+                        {{ item.author }}
+                    </p>
+                    <div class="profile-course-card__footer">
+                        {% if item.free %}
+                            <strong class="profile-course-card__price is-free">{% trans 'رایگان' %}</strong>
+                        {% else %}
+                            <strong class="profile-course-card__price">{% blocktrans with price=item.discount_price %}{{ price }} تومان{% endblocktrans %}</strong>
+                        {% endif %}
+                        <a href="{% url 'home:series_episodes' item.id %}" class="profile-course-card__cta">
+                            <span>{% trans 'ادامه یادگیری' %}</span>
+                            <span class="profile-course-card__cta-arrow" aria-hidden="true">←</span>
+                        </a>
+                    </div>
+                </div>
+            </article>
+        {% empty %}
+            <section class="account-card col-span-full">
+                <div class="empty-state">
+                    <h3>{% trans 'برنامه شما هنوز خالی است' %}</h3>
+                    <p>{% trans 'پس از تهیه یا افزودن دوره‌های رایگان، این بخش به صورت خودکار تکمیل می‌شود.' %}</p>
+                    <a href="{% url 'home:series' %}" class="profile-courses-empty-button">{% trans 'مشاهده دوره‌ها' %}</a>
+                </div>
+            </section>
+        {% endfor %}
+    </section>
+</section>
+{% endblock %}

@@ -1,0 +1,155 @@
+{% extends 'admin_portal/_shell.html' %}
+{% load i18n %}
+
+{% block title %}{% blocktrans %}{{ page_title }} | ایگوفیت{% endblocktrans %}{% endblock %}
+
+{% block admin_content %}
+<section class="admin-screen admin-coach-management-screen">
+    <header class="admin-screen__header admin-screen__header--split">
+        <h1 class="admin-screen__title">{{ page_title }}</h1>
+    </header>
+
+    <p class="admin-screen__lead">{% trans 'مربیان را بررسی کنید و پس از جستجوی شاگرد، مربی مناسب را برای او تعیین کنید.' %}</p>
+
+    <section class="admin-panel-card admin-coach-overview">
+        <div class="admin-coach-overview__heading">
+            <div>
+                <span class="admin-coach-eyebrow">{% trans 'تیم ایگوفیت' %}</span>
+                <h2 class="admin-panel-card__title">{% trans 'مربیان و رزومه‌ها' %}</h2>
+            </div>
+            <span class="admin-coach-count">{{ coaches|length }} {% trans 'مربی' %}</span>
+        </div>
+        <div class="admin-result-list admin-result-list--grid admin-coach-grid">
+            {% for coach in coaches %}
+                <article class="admin-coach-card">
+                    <div class="admin-coach-card__identity">
+                        {% if coach.latest_application.photo %}
+                            <img src="{{ coach.latest_application.photo.url }}" alt="" loading="lazy">
+                        {% else %}
+                            <span class="admin-coach-card__avatar" aria-hidden="true">{{ coach.fullname|slice:':1' }}</span>
+                        {% endif %}
+                        <div>
+                            <strong>{{ coach.fullname }}</strong>
+                            <span dir="ltr">{{ coach.phone|default:'—' }}</span>
+                        </div>
+                        <span class="admin-badge">{% if coach.is_admin %}{% trans 'ادمین' %}{% else %}{% trans 'مربی' %}{% endif %}</span>
+                    </div>
+                    <p class="admin-coach-card__bio">
+                        {% if coach.latest_application.biography %}
+                            {{ coach.latest_application.biography|linebreaksbr }}
+                        {% elif coach.biography %}
+                            {{ coach.biography|linebreaksbr }}
+                        {% else %}
+                            {% trans 'بیوگرافی ثبت نشده است.' %}
+                        {% endif %}
+                    </p>
+                    <div class="admin-coach-card__footer">
+                        <span class="admin-coach-card__athletes"><strong>{{ coach.active_athlete_count }}</strong> {% trans 'شاگرد فعال' %}</span>
+                        <div class="admin-coach-card__links">
+                            {% if coach.latest_application.resume %}
+                                <a href="{{ coach.latest_application.resume.url }}" target="_blank" rel="noopener">{% trans 'رزومه' %}</a>
+                            {% endif %}
+                            <a href="{% url 'register:admin_user_hub' coach.id %}">{% trans 'پروفایل' %}</a>
+                        </div>
+                    </div>
+                    {% if coach.is_coach and not coach.is_admin %}
+                        <div class="admin-coach-automatic-access">
+                            <span>{% trans 'برنامه‌ریزی خودکار:' %} <strong>{% if coach.can_use_automatic_programming %}{% trans 'فعال' %}{% else %}{% trans 'غیرفعال' %}{% endif %}</strong></span>
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="set_automatic_programming">
+                                <input type="hidden" name="coach_id" value="{{ coach.id }}">
+                                <input type="hidden" name="enabled" value="{% if coach.can_use_automatic_programming %}0{% else %}1{% endif %}">
+                                <input type="hidden" name="query" value="{{ search_query }}">
+                                <button type="submit" class="admin-secondary-btn admin-secondary-btn--small">
+                                    {% if coach.can_use_automatic_programming %}{% trans 'غیرفعال‌کردن' %}{% else %}{% trans 'فعال‌کردن برای این مربی' %}{% endif %}
+                                </button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </article>
+            {% empty %}
+                <article class="admin-empty admin-empty--center"><strong>{% trans 'مربی‌ای ثبت نشده است.' %}</strong></article>
+            {% endfor %}
+        </div>
+        <details class="admin-coach-bulk-assign">
+            <summary>{% trans 'تعیین مربی برای همه کاربران' %}</summary>
+            <form method="post" class="admin-form-grid admin-form-grid--stacked">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="bulk_assign">
+                <input type="hidden" name="query" value="{{ search_query }}">
+                <div class="field-group admin-form-grid__full">
+                    <label for="{{ bulk_form.coach.id_for_label }}">{{ bulk_form.coach.label }}</label>
+                    {{ bulk_form.coach }}
+                    {{ bulk_form.coach.errors }}
+                </div>
+                <button type="submit" class="admin-primary-btn" onclick="return confirm('{% trans "آیا مطمئن هستید که می‌خواهید این مربی برای همه کاربران تنظیم شود؟" %}');">{% trans 'تعیین مربی همه کاربران' %}</button>
+            </form>
+        </details>
+    </section>
+
+    <section class="admin-panel-card admin-coach-search-panel">
+        <span class="admin-coach-eyebrow">{% trans 'جستجوی شاگرد' %}</span>
+        <h2 class="admin-panel-card__title">{% trans 'پیدا کردن و تعیین مربی' %}</h2>
+        <p>{% trans 'نام و نام خانوادگی کامل یا شماره تماس شاگرد را وارد کنید تا فقط نتیجه یکتا نمایش داده شود.' %}</p>
+        <form method="get" action="{% url 'register:admin_coach_management' %}" class="admin-coach-search-form">
+            <label for="coach-client-query">{% trans 'نام یا شماره تماس' %}</label>
+            <div class="admin-coach-search-form__controls">
+                <input id="coach-client-query" class="admin-input" type="search" name="query" value="{{ search_query }}" placeholder="{% trans 'مثلاً نام و نام خانوادگی یا شماره تماس' %}" autocomplete="off">
+                <button type="submit" class="admin-primary-btn">{% trans 'جستجوی شاگرد' %}</button>
+                {% if search_query %}<a href="{% url 'register:admin_coach_management' %}" class="admin-secondary-btn admin-secondary-btn--small">{% trans 'پاک کردن' %}</a>{% endif %}
+            </div>
+        </form>
+    </section>
+
+    <section class="admin-result-list admin-result-list--grid admin-coach-search-results" aria-live="polite">
+        {% if search_query %}
+            {% if search_has_multiple_matches %}
+                <article class="admin-empty admin-empty--center admin-coach-search-empty">
+                    <strong>{% trans 'چند شاگرد با این مشخصات پیدا شد.' %}</strong>
+                    <p>{% trans 'نام و نام خانوادگی کامل یا شماره تماس را وارد کنید تا فرد موردنظر دقیق مشخص شود.' %}</p>
+                </article>
+            {% else %}
+            {% for client in clients %}
+                <article class="admin-coach-client-card">
+                    <div class="admin-coach-client-card__identity">
+                        <span class="admin-coach-card__avatar" aria-hidden="true">{{ client.fullname|slice:':1' }}</span>
+                        <div>
+                            <strong>{{ client.fullname }}</strong>
+                            <span dir="ltr">{{ client.phone|default:'—' }}</span>
+                        </div>
+                        <span class="admin-coach-current">{% trans 'مربی فعلی' %}<strong>{{ client.coach.fullname|default:'بدون مربی' }}</strong></span>
+                    </div>
+                    <form method="post" class="admin-coach-assign-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="update_user">
+                        <input type="hidden" name="user_id" value="{{ client.id }}">
+                        <input type="hidden" name="query" value="{{ search_query }}">
+                        <div class="field-group">
+                            <label for="coach-for-{{ client.id }}">{% trans 'انتخاب مربی' %}</label>
+                            <select id="coach-for-{{ client.id }}" name="coach" class="admin-input">
+                                <option value="">{% trans 'بدون مربی' %}</option>
+                                {% for coach in coaches %}
+                                    <option value="{{ coach.id }}" {% if client.coach_id == coach.id %}selected{% endif %}>{{ coach.fullname }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <button type="submit" class="admin-primary-btn">{% trans 'ذخیره مربی' %}</button>
+                    </form>
+                </article>
+            {% empty %}
+                <article class="admin-empty admin-empty--center admin-coach-search-empty">
+                    <strong>{% trans 'شاگردی با این مشخصات پیدا نشد.' %}</strong>
+                    <p>{% trans 'نام کامل یا شماره تماس را دوباره بررسی کنید.' %}</p>
+                </article>
+            {% endfor %}
+            {% endif %}
+        {% else %}
+            <article class="admin-empty admin-empty--center admin-coach-search-empty">
+                <strong>{% trans 'برای نمایش شاگرد، جستجو کنید.' %}</strong>
+                <p>{% trans 'نتایج فقط پس از وارد کردن نام یا شماره تماس نمایش داده می‌شوند.' %}</p>
+            </article>
+        {% endif %}
+    </section>
+</section>
+{% endblock %}

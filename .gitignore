@@ -1,0 +1,74 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.so
+.Python
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Django / local data
+.env
+.env.*
+!.env.example
+env
+db.sqlite3
+*.sqlite3
+media/
+staticfiles/
+tmp/
+
+# Logs and runtime files
+*.log
+celerybeat-schedule
+*.pid
+
+# Test and coverage artifacts
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
+# Type checking / linting caches
+.mypy_cache/
+.ruff_cache/
+.pyre/
+.tox/
+.nox/
+
+# IDE and OS
+.idea/
+.vscode/
+.cursor/
+.DS_Store
+Thumbs.db
+
+# Packaging / build output
+build/
+dist/
+*.egg-info/
+.eggs/
+node_modules/
+test-results/
+playwright-report/
+
+# Project-specific generated files
+account.zip
+data.json
+*.zip
+*.dump
+egofitir_EgoFit_App.sql
+
+# Local agent config (private per-machine settings)
+.codex/
+
+# Local build artifacts and private backups
+.gradle/
+backups/
+.tmp_*
+celerybeat-schedule.*
