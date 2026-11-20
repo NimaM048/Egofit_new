@@ -47,7 +47,16 @@
         nodes.forEach(function (node) {
             if (node.nodeName === "BR") { brs.push(node); lines.push([]); } else { lines[lines.length - 1].push(node); }
         });
-        if (!brs.length) return null;
+        if (!brs.length) {
+            // a lone divider line such as "------"
+            if (RULE.test(lineText(nodes))) {
+                var single = document.createDocumentFragment();
+                single.appendChild(document.createElement("hr"));
+                nodes.forEach(function (n) { if (n.parentNode) n.parentNode.removeChild(n); });
+                return single;
+            }
+            return null;
+        }
         var kinds = lines.map(function (ln) {
             var t = lineText(ln);
             if (RULE.test(t)) return "rule";
@@ -110,6 +119,19 @@
             if (node.nodeType === 1 && BLOCK.test(node.nodeName)) { flush(); } else { run.push(node); }
         });
         flush();
+    });
+
+    // 1c. no two dividers in a row, no divider at the very start/end of a section
+    Array.prototype.slice.call(prose.querySelectorAll("hr")).forEach(function (hr) {
+        var prev = hr.previousElementSibling, next = hr.nextElementSibling;
+        if ((prev && prev.tagName === "HR") || !prev || !next) hr.parentNode.removeChild(hr);
+    });
+
+    // 1d. mostly-Latin paragraphs (citations, English quotes) read left-to-right
+    var LATIN = /[A-Za-z]/g, PERSIAN = /[؀-ۿ]/g;
+    Array.prototype.slice.call(prose.querySelectorAll("p, li")).forEach(function (el) {
+        var t = el.textContent, lat = (t.match(LATIN) || []).length, fa = (t.match(PERSIAN) || []).length;
+        if (lat > 12 && lat > fa * 3) { el.setAttribute("dir", "ltr"); el.style.textAlign = "left"; }
     });
 
     /* ------------------------------------------------------------------ 2. table of contents */
