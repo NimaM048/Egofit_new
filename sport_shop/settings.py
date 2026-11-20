@@ -388,7 +388,7 @@ STORAGES = {
       "BACKEND": "sport_shop.storage_backends.ResilientMediaStorage",
   },
   "staticfiles": {
-      "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+      "BACKEND": "sport_shop.static_storage.VersionedStaticFilesStorage",
   },
 }
 
