@@ -67,6 +67,7 @@
     {% block public_ui_css %}
         <link rel="stylesheet" href="{% static 'css/home-refactor.css' %}" />
     {% endblock %}
+    <link rel="stylesheet" href="{% static 'css/cards.css' %}" />
     {% block extra_css %}{% endblock %}
     {% trans 'ایگوفیت' as default_meta_title %}
     <title>{% block title %}{{ site_settings.default_meta_title|default_cms:default_meta_title }}{% endblock %}</title>

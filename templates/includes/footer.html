@@ -113,7 +113,15 @@
 
                     <div class="footer-cert">
                         <div class="footer-cert__badge">
-                            <img src="{% static 'images/enamad-badge.svg' %}" alt="{% trans 'نماد اعتماد محلی' %}" loading="lazy">
+                            {# eNamad verifies the merchant domain from the Referer: keep referrerpolicy="origin" on both tags. #}
+                            <a referrerpolicy="origin" target="_blank" rel="noopener"
+                               href="https://trustseal.enamad.ir/?id=693321&amp;Code=25IU0jbngZDihPm4yKbjI5AtyRk5Havz"
+                               aria-label="{% trans 'نماد اعتماد الکترونیکی' %}">
+                                <img referrerpolicy="origin"
+                                     src="https://trustseal.enamad.ir/logo.aspx?id=693321&amp;Code=25IU0jbngZDihPm4yKbjI5AtyRk5Havz"
+                                     alt="{% trans 'نماد اعتماد الکترونیکی' %}" style="cursor:pointer"
+                                     code="25IU0jbngZDihPm4yKbjI5AtyRk5Havz" width="76" height="76" loading="lazy">
+                            </a>
                         </div>
                         <p class="text-sm text-muted leading-7">
                             {% trans 'این وب‌سایت دارای نماد اعتماد الکترونیکی بوده و فرآیند خرید و ثبت‌نام با ساختاری امن و استاندارد ارائه می‌شود.' as default_trust_text %}

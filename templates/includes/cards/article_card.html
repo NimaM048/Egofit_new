@@ -1,0 +1,39 @@
+{% load my_tags i18n %}
+{# Article card. Context: blog (ArticleBlogModel). #}
+<article class="ef-card ef-card--article">
+    <div class="ef-card__media">
+        <img class="ef-card__media-backdrop" src="{{ blog.image|public_media_url }}" alt="" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="ef-card__media-img" src="{{ blog.image|public_media_url }}" alt="{{ blog.title }}" loading="lazy" decoding="async">
+        {% if blog.language_kinds %}
+            <div class="ef-card__chips">
+                <a href="{% url 'home:blog' %}?category={{ blog.language_kinds.title|urlencode }}" class="ef-chip">{{ blog.language_kinds }}</a>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="ef-card__body">
+        <h3 class="ef-card__title">
+            <a href="{% url 'home:article_detail' blog.slug %}">{{ blog.title }}</a>
+        </h3>
+
+        {% if blog.article_excerpt %}
+            <p class="ef-card__excerpt">{{ blog.article_excerpt|striptags }}</p>
+        {% endif %}
+
+        <div class="ef-card__footer">
+            <div class="ef-person">
+                <img src="{{ blog|author_image_url }}" alt="" loading="lazy" decoding="async">
+                <span class="ef-person__text">
+                    <span class="ef-person__label">{% trans 'نویسنده' %}</span>
+                    <span class="ef-person__name">{{ blog.author }}</span>
+                </span>
+            </div>
+            {% if blog.reading_time %}
+                <span class="ef-meta">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                    {% blocktrans with reading_time=blog.reading_time %}{{ reading_time }} دقیقه مطالعه{% endblocktrans %}
+                </span>
+            {% endif %}
+        </div>
+    </div>
+</article>

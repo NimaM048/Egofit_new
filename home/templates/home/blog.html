@@ -66,37 +66,9 @@
                     </aside>
 
                     <div class="space-y-5">
-                        <div class="results-grid">
+                        <div class="ef-card-grid">
                             {% for blog in blog %}
-                                <div>
-                                    <article class="modern-blog-card modern-blog-card--compact">
-                                        <div class="modern-blog-card__media">
-                                            <a href="{% url 'home:article_detail' blog.slug %}">
-                                                <img src="{{ blog.image|public_media_url }}" alt="{{ blog.title }}">
-                                            </a>
-                                        </div>
-                                        <div class="modern-blog-card__body">
-                                            <a href="{% url 'home:blog' %}" class="pill-link pill-link--compact">
-                                                <span class="font-bold text-xs">{{ blog.language_kinds }}</span>
-                                            </a>
-                                            <h2 class="modern-blog-card__title">
-                                                <a href="{% url 'home:article_detail' blog.slug %}" class="transition-colors hover:text-primary">{{ blog.title }}</a>
-                                            </h2>
-                                            {% if blog.article_excerpt %}
-                                                <div class="modern-blog-card__excerpt modern-blog-card__excerpt--block line-clamp-2">{{ blog.article_excerpt|linebreaksbr }}</div>
-                                            {% endif %}
-                                            <div class="flex items-center justify-between gap-4 flex-wrap">
-                                                <div class="modern-blog-card__author">
-                                                    <img src="{{ blog|author_image_url }}" alt="{{ blog.author }}">
-                                                    <span class="font-bold text-sm text-foreground">{{ blog.author }}</span>
-                                                </div>
-                                                <div class="modern-blog-card__meta modern-blog-card__meta--dense">
-                                                    <span class="font-semibold text-xs">{% blocktrans with reading_time=blog.reading_time %}زمان مطالعه {{ reading_time }} دقیقه{% endblocktrans %}</span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </article>
-                                </div>
+                                {% include 'includes/cards/article_card.html' with blog=blog %}
                             {% empty %}
                                 <div class="empty-state">{% trans 'هنوز مقاله‌ای برای نمایش ثبت نشده است.' %}</div>
                             {% endfor %}

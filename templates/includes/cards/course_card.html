@@ -1,0 +1,62 @@
+{% load my_tags i18n %}
+{# Course card. Context: item (SeriesModel). #}
+{% calculate_episodes_and_duration item as episode_data %}
+<article class="ef-card ef-card--course">
+    <div class="ef-card__media">
+        <img class="ef-card__media-backdrop" src="{{ item.image|public_media_url }}" alt="" aria-hidden="true" loading="lazy" decoding="async">
+        <img class="ef-card__media-img" src="{{ item.image|public_media_url }}" alt="{{ item.title }}" loading="lazy" decoding="async">
+        <div class="ef-card__chips">
+            {% if item.language_kinds %}
+                <a href="{% url 'home:series' %}" class="ef-chip">{{ item.language_kinds }}</a>
+            {% else %}<span></span>{% endif %}
+            {% if item.is_compeleted %}
+                <span class="ef-chip ef-chip--success"><span class="ef-chip__dot" aria-hidden="true"></span>{% trans 'تکمیل شده' %}</span>
+            {% else %}
+                <span class="ef-chip ef-chip--warning"><span class="ef-chip__dot" aria-hidden="true"></span>{% trans 'در حال تکمیل' %}</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="ef-card__body">
+        <h3 class="ef-card__title">
+            <a href="{% url 'home:course_detail' item.id %}">{{ item.title }}</a>
+        </h3>
+
+        <div class="ef-card__stats">
+            <span class="ef-stat">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M3.25 4A2.25 2.25 0 0 0 1 6.25v7.5A2.25 2.25 0 0 0 3.25 16h7.5A2.25 2.25 0 0 0 13 13.75v-7.5A2.25 2.25 0 0 0 10.75 4h-7.5ZM19 4.75a.75.75 0 0 0-1.28-.53l-3 3a.75.75 0 0 0-.22.53v4.5c0 .199.079.39.22.53l3 3a.75.75 0 0 0 1.28-.53V4.75Z"/></svg>
+                {{ episode_data.total_episodes }} {% trans 'جلسه' %}
+            </span>
+            <span class="ef-stat">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm.75-13a.75.75 0 0 0-1.5 0v5c0 .414.336.75.75.75h4a.75.75 0 0 0 0-1.5h-3.25V5Z" clip-rule="evenodd"/></svg>
+                {{ episode_data.total_duration }}
+            </span>
+        </div>
+
+        <div class="ef-card__footer">
+            <div class="ef-person">
+                <img src="{{ item|author_image_url }}" alt="" loading="lazy" decoding="async">
+                <span class="ef-person__text">
+                    <span class="ef-person__label">{% trans 'مدرس دوره' %}</span>
+                    <span class="ef-person__name">{{ item.author }}</span>
+                </span>
+            </div>
+            {% if item.free %}
+                <span class="ef-price__free">{% trans 'رایگان' %}</span>
+            {% else %}
+                <div class="ef-price">
+                    {% if item.main_price and item.main_price != item.discount_price %}
+                        <span class="ef-price__old">{{ item.main_price }}</span>
+                    {% endif %}
+                    <span class="ef-price__now">{{ item.discount_price|default:item.main_price }}</span>
+                    <span class="ef-price__unit">{% trans 'تومان' %}</span>
+                </div>
+            {% endif %}
+        </div>
+
+        <a href="{% url 'home:course_detail' item.id %}" class="ef-card__cta" tabindex="-1" aria-hidden="true">
+            {% trans 'مشاهده دوره' %}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M17 10a.75.75 0 0 1-.75.75H5.612l4.158 3.96a.75.75 0 1 1-1.04 1.08l-5.5-5.25a.75.75 0 0 1 0-1.08l5.5-5.25a.75.75 0 1 1 1.04 1.08L5.612 9.25H16.25A.75.75 0 0 1 17 10Z" clip-rule="evenodd"/></svg>
+        </a>
+    </div>
+</article>

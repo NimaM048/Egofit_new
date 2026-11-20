@@ -49,73 +49,9 @@
 
             {% if search %}
                 {% if product %}
-                    <div class="results-grid">
+                    <div class="ef-card-grid">
                         {% for item in product %}
-                            <article class="modern-card modern-card--compact">
-                                <div class="modern-card__media">
-                                    <a href="{% url 'home:course_detail' item.id %}">
-                                        <img src="{{ item.image|public_media_url }}" alt="{{ item.title }}" loading="lazy">
-                                    </a>
-                                    <a href="{% url 'home:series' %}" class="modern-card__badge">
-                                        <span class="font-semibold text-sm">{{ item.language_kinds }}</span>
-                                    </a>
-                                </div>
-
-                                <div class="modern-card__body">
-                                    {% calculate_episodes_and_duration item as episode_data %}
-                                    <div class="modern-card__meta">
-                                        {% if item.is_compeleted %}
-                                            <span class="inline-flex items-center gap-2 font-bold text-xs text-success">
-                                                <span class="block w-2 h-2 rounded-full bg-success"></span>
-                                                تکمیل شده
-                                            </span>
-                                        {% else %}
-                                            <span class="inline-flex items-center gap-2 font-bold text-xs text-warning">
-                                                <span class="block w-2 h-2 rounded-full bg-warning"></span>
-                                                در حال تکمیل
-                                            </span>
-                                        {% endif %}
-                                    </div>
-
-                                    <h3 class="modern-card__title">
-                                        <a href="{% url 'home:course_detail' item.id %}" class="transition-colors hover:text-primary">{{ item.title }}</a>
-                                    </h3>
-
-                                    <div class="modern-card__meta modern-card__meta--dense">
-                                        <span>{{ episode_data.total_episodes }} قسمت</span>
-                                        <span class="block w-1 h-1 rounded-full bg-border"></span>
-                                        <span>{{ episode_data.total_duration }}</span>
-                                    </div>
-
-                                    <div class="flex items-center justify-between gap-4">
-                                        <div class="modern-card__author">
-                                            <img src="{{ item|author_image_url }}" alt="{{ item.author }}" loading="lazy">
-                                            <span class="flex flex-col gap-1">
-                                                <span class="font-semibold text-xs text-muted">مدرس دوره</span>
-                                                <span class="font-bold text-sm text-foreground">{{ item.author }}</span>
-                                            </span>
-                                        </div>
-
-                                        {% if item.free %}
-                                            <div class="modern-price">
-                                                <span class="font-black text-xl text-success">رایگان</span>
-                                            </div>
-                                        {% else %}
-                                            <div class="modern-price">
-                                                {% if item.main_price %}
-                                                    <span class="line-through text-xs text-muted">{{ item.main_price }}</span>
-                                                {% endif %}
-                                                <span class="font-black text-xl text-foreground">{{ item.discount_price }}</span>
-                                                <span class="text-xs text-muted">تومان</span>
-                                            </div>
-                                        {% endif %}
-                                    </div>
-
-                                    <a href="{% url 'home:course_detail' item.id %}" class="cta-primary cta-primary--strong w-full modern-card__cta">
-                                        مشاهده دوره
-                                    </a>
-                                </div>
-                            </article>
+                            {% include 'includes/cards/course_card.html' with item=item %}
                         {% endfor %}
                     </div>
                 {% else %}

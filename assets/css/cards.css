@@ -1,0 +1,427 @@
+/* =============================================================================
+   EgoFit content cards (courses + articles)
+   Self-contained component, loaded after home-refactor.css. Uses the shared
+   design tokens (hsl(var(--token))) so light/dark themes work automatically.
+   ========================================================================== */
+
+.ef-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 268px), 1fr));
+    gap: clamp(1rem, 1.6vw, 1.5rem);
+    align-items: stretch;
+}
+
+.ef-card {
+    --ef-radius: 1.4rem;
+    --ef-pad: 1.15rem;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+    border-radius: var(--ef-radius);
+    background: hsl(var(--background));
+    border: 1px solid hsl(var(--border) / .85);
+    box-shadow: 0 1px 2px hsl(222 47% 11% / .04), 0 10px 28px -18px hsl(222 47% 11% / .28);
+    transition: transform .28s cubic-bezier(.2, .8, .2, 1), box-shadow .28s ease, border-color .28s ease;
+    isolation: isolate;
+}
+
+.ef-card:hover {
+    transform: translateY(-4px);
+    border-color: hsl(var(--primary) / .28);
+    box-shadow: 0 2px 4px hsl(222 47% 11% / .05), 0 22px 44px -22px hsl(var(--primary) / .45);
+}
+
+.ef-card:focus-within {
+    border-color: hsl(var(--primary) / .55);
+    box-shadow: 0 0 0 3px hsl(var(--primary) / .22), 0 22px 44px -24px hsl(var(--primary) / .4);
+}
+
+/* ---- media: full image, never cropped, on a blurred copy of itself ------- */
+.ef-card__media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    background: hsl(var(--secondary));
+}
+
+.ef-card__media-backdrop,
+.ef-card__media-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.ef-card__media-backdrop {
+    object-fit: cover;
+    filter: blur(22px) saturate(1.25);
+    transform: scale(1.25);
+    opacity: .55;
+}
+
+.ef-card__media-img {
+    object-fit: contain;
+    padding: .55rem;
+    filter: drop-shadow(0 10px 18px hsl(222 47% 11% / .22));
+    transition: transform .5s cubic-bezier(.2, .8, .2, 1);
+}
+
+.ef-card:hover .ef-card__media-img {
+    transform: scale(1.035);
+}
+
+.ef-card__media::after {
+    /* soft fade so overlay chips stay readable on any image */
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, hsl(222 47% 11% / .28) 0%, transparent 38%, transparent 75%, hsl(var(--background) / .35) 100%);
+    pointer-events: none;
+}
+
+.ef-card__chips {
+    position: absolute;
+    inset: .7rem .7rem auto .7rem;
+    z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: .5rem;
+    pointer-events: none;
+}
+
+.ef-chip {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    max-width: 70%;
+    padding: .32rem .7rem;
+    border-radius: 999px;
+    font-size: .74rem;
+    font-weight: 700;
+    line-height: 1.3;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #fff;
+    background: hsl(222 47% 11% / .55);
+    border: 1px solid hsl(0 0% 100% / .22);
+    backdrop-filter: blur(10px) saturate(1.4);
+    -webkit-backdrop-filter: blur(10px) saturate(1.4);
+    text-decoration: none;
+    transition: background-color .2s ease;
+}
+
+a.ef-chip:hover {
+    background: hsl(var(--primary) / .85);
+}
+
+.ef-chip__dot {
+    width: .45rem;
+    height: .45rem;
+    border-radius: 999px;
+    flex: none;
+    background: currentColor;
+    box-shadow: 0 0 0 3px hsl(0 0% 100% / .18);
+}
+
+.ef-chip--success { color: hsl(142 76% 80%); }
+.ef-chip--warning { color: hsl(45 96% 72%); }
+
+/* ---- body ---------------------------------------------------------------- */
+.ef-card__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: .75rem;
+    padding: var(--ef-pad);
+}
+
+.ef-card__title {
+    margin: 0;
+    font-size: 1.04rem;
+    font-weight: 800;
+    line-height: 1.75;
+    color: hsl(var(--foreground));
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: calc(1.75em * 2);
+}
+
+.ef-card__title a {
+    color: inherit;
+    text-decoration: none;
+    outline: none;
+}
+
+/* the title link stretches over the whole card -> one big, accessible target */
+.ef-card__title a::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: var(--ef-radius);
+}
+
+.ef-card:hover .ef-card__title a {
+    color: hsl(var(--primary));
+}
+
+.ef-card__excerpt {
+    margin: 0;
+    font-size: .86rem;
+    line-height: 1.95;
+    color: hsl(var(--muted));
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: calc(1.95em * 3);
+}
+
+.ef-card__stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+}
+
+.ef-stat {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .3rem .6rem;
+    border-radius: .65rem;
+    font-size: .76rem;
+    font-weight: 700;
+    color: hsl(var(--foreground) / .78);
+    background: hsl(var(--secondary));
+}
+
+.ef-stat svg {
+    width: 1rem;
+    height: 1rem;
+    color: hsl(var(--primary));
+    flex: none;
+}
+
+/* ---- footer (pinned to the bottom so cards in a row line up) -------------- */
+.ef-card__footer {
+    margin-top: auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .75rem;
+    padding-top: .85rem;
+    border-top: 1px dashed hsl(var(--border));
+}
+
+.ef-person {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    min-width: 0;
+}
+
+.ef-person img {
+    width: 2.25rem;
+    height: 2.25rem;
+    flex: none;
+    border-radius: 999px;
+    object-fit: cover;
+    border: 2px solid hsl(var(--background));
+    box-shadow: 0 0 0 1px hsl(var(--border)), 0 4px 10px -4px hsl(222 47% 11% / .3);
+}
+
+.ef-person__text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    line-height: 1.5;
+}
+
+.ef-person__label {
+    font-size: .7rem;
+    font-weight: 600;
+    color: hsl(var(--muted));
+}
+
+.ef-person__name {
+    font-size: .84rem;
+    font-weight: 800;
+    color: hsl(var(--foreground));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ef-meta {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    flex: none;
+    font-size: .74rem;
+    font-weight: 700;
+    color: hsl(var(--muted));
+}
+
+.ef-meta svg {
+    width: 1rem;
+    height: 1rem;
+}
+
+.ef-price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    flex: none;
+    line-height: 1.35;
+    text-align: end;
+}
+
+.ef-price__old {
+    font-size: .74rem;
+    color: hsl(var(--muted));
+    text-decoration: line-through;
+}
+
+.ef-price__now {
+    font-size: 1.05rem;
+    font-weight: 900;
+    color: hsl(var(--foreground));
+}
+
+.ef-price__unit {
+    font-size: .7rem;
+    font-weight: 600;
+    color: hsl(var(--muted));
+}
+
+.ef-price__free {
+    padding: .32rem .8rem;
+    border-radius: 999px;
+    font-size: .82rem;
+    font-weight: 900;
+    color: hsl(var(--success));
+    background: hsl(var(--success) / .12);
+    border: 1px solid hsl(var(--success) / .25);
+}
+
+.ef-card__cta {
+    position: relative;
+    z-index: 2;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
+    width: 100%;
+    min-height: 2.75rem;
+    border-radius: .95rem;
+    font-size: .88rem;
+    font-weight: 800;
+    color: hsl(var(--primary));
+    background: hsl(var(--primary) / .09);
+    border: 1px solid hsl(var(--primary) / .18);
+    text-decoration: none;
+    transition: background-color .25s ease, color .25s ease, box-shadow .25s ease;
+}
+
+.ef-card__cta svg {
+    width: 1.1rem;
+    height: 1.1rem;
+    transition: transform .25s ease;
+}
+
+.ef-card:hover .ef-card__cta,
+.ef-card__cta:focus-visible {
+    color: hsl(var(--primary-foreground));
+    background: linear-gradient(135deg, hsl(var(--primary)), hsl(199 89% 48%));
+    border-color: transparent;
+    box-shadow: 0 10px 22px -12px hsl(var(--primary) / .8);
+}
+
+.ef-card:hover .ef-card__cta svg {
+    transform: translateX(-3px);
+}
+
+[dir="ltr"] .ef-card:hover .ef-card__cta svg {
+    transform: translateX(3px) scaleX(-1);
+}
+
+[dir="ltr"] .ef-card__cta svg {
+    transform: scaleX(-1);
+}
+
+.ef-card a:focus-visible {
+    outline: 3px solid hsl(var(--primary) / .55);
+    outline-offset: 2px;
+    border-radius: .6rem;
+}
+
+/* ---- inside the homepage course slider ------------------------------------ */
+.home-course-slider .swiper-wrapper {
+    align-items: stretch;
+    padding-block: .35rem 1rem;
+}
+
+.home-course-slider .swiper-slide {
+    height: auto;
+}
+
+/* ---- dark theme fine-tuning --------------------------------------------- */
+.dark .ef-card {
+    background: hsl(240 10% 6%);
+    border-color: hsl(0 0% 100% / .09);
+    box-shadow: 0 10px 28px -18px #000;
+}
+
+.dark .ef-card__media-backdrop {
+    opacity: .4;
+}
+
+.dark .ef-stat {
+    background: hsl(0 0% 100% / .06);
+    color: hsl(var(--foreground) / .85);
+}
+
+.dark .ef-person img {
+    border-color: hsl(240 10% 6%);
+}
+
+/* ---- small screens -------------------------------------------------------- */
+@media (max-width: 640px) {
+    .ef-card {
+        --ef-pad: 1rem;
+        --ef-radius: 1.2rem;
+    }
+
+    .ef-card__title {
+        font-size: .98rem;
+    }
+
+    .ef-card__excerpt {
+        -webkit-line-clamp: 2;
+        min-height: calc(1.95em * 2);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ef-card,
+    .ef-card__media-img,
+    .ef-card__cta,
+    .ef-card__cta svg {
+        transition: none;
+    }
+
+    .ef-card:hover {
+        transform: none;
+    }
+
+    .ef-card:hover .ef-card__media-img {
+        transform: none;
+    }
+}
