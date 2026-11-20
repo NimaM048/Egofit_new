@@ -79,7 +79,12 @@
 
         lines.forEach(function (ln, i) {
             var kind = kinds[i];
-            if (kind === "rule") { flushPara(); flushList(); frag.appendChild(document.createElement("hr")); return; }
+            if (kind === "rule") {
+                flushPara(); flushList();
+                ln.forEach(function (n) { if (n.parentNode) n.parentNode.removeChild(n); });
+                frag.appendChild(document.createElement("hr"));
+                return;
+            }
             if (kind === "ul" || kind === "ol") {
                 flushPara();
                 if (!list || listKind !== kind) { flushList(); list = document.createElement(kind); listKind = kind; }
