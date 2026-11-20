@@ -24,13 +24,7 @@
     var NUMBERED = /^\s*(?:\d{1,2}|[۰-۹]{1,2})[.)\-]\s+/;
     var RULE = /^\s*(?:-{3,}|\*{3,}|_{3,}|—{2,})\s*$/;
 
-    function splitLines(el) {
-        var lines = [[]];
-        Array.prototype.slice.call(el.childNodes).forEach(function (node) {
-            if (node.nodeName === "BR") { lines.push([]); } else { lines[lines.length - 1].push(node); }
-        });
-        return lines;
-    }
+    var BLOCK = /^(P|DIV|UL|OL|LI|H[1-6]|BLOCKQUOTE|FIGURE|TABLE|SECTION|HR|PRE|DETAILS|ASIDE)$/;
 
     function lineText(nodes) {
         return nodes.map(function (n) { return n.textContent; }).join("");
@@ -46,46 +40,77 @@
         }
     }
 
-    function structure(el) {
-        if (!el.querySelector("br")) return;
-        var lines = splitLines(el);
-        var kinds = lines.map(function (nodes) {
-            var t = lineText(nodes);
+    /* Turn a run of inline nodes separated by <br> into paragraphs / lists / dividers.
+       Returns a fragment, or null when the run has no structure worth changing. */
+    function buildFrom(nodes) {
+        var lines = [[]], brs = [];
+        nodes.forEach(function (node) {
+            if (node.nodeName === "BR") { brs.push(node); lines.push([]); } else { lines[lines.length - 1].push(node); }
+        });
+        if (!brs.length) return null;
+        var kinds = lines.map(function (ln) {
+            var t = lineText(ln);
             if (RULE.test(t)) return "rule";
             if (MARK.test(t)) return NUMBERED.test(t) ? "ol" : "ul";
             return t.trim() === "" ? "blank" : "text";
         });
         var listLines = kinds.filter(function (k) { return k === "ul" || k === "ol"; }).length;
-        if (listLines < 2 && kinds.indexOf("rule") === -1) return;
+        if (listLines < 2 && kinds.indexOf("rule") === -1 && kinds.indexOf("blank") === -1) return null;
 
         var frag = document.createDocumentFragment();
         var para = null, list = null, listKind = null;
         var flushPara = function () { if (para && para.textContent.trim()) frag.appendChild(para); para = null; };
         var flushList = function () { if (list) frag.appendChild(list); list = null; listKind = null; };
 
-        lines.forEach(function (nodes, i) {
+        lines.forEach(function (ln, i) {
             var kind = kinds[i];
             if (kind === "rule") { flushPara(); flushList(); frag.appendChild(document.createElement("hr")); return; }
             if (kind === "ul" || kind === "ol") {
                 flushPara();
                 if (!list || listKind !== kind) { flushList(); list = document.createElement(kind); listKind = kind; }
                 var li = document.createElement("li");
-                stripMarker(nodes);
-                nodes.forEach(function (n) { li.appendChild(n); });
+                stripMarker(ln);
+                ln.forEach(function (n) { li.appendChild(n); });
                 list.appendChild(li);
                 return;
             }
             flushList();
-            if (kind === "blank") { flushPara(); return; }
+            if (kind === "blank") { flushPara(); ln.forEach(function (n) { if (n.parentNode) n.parentNode.removeChild(n); }); return; }
             if (!para) { para = document.createElement("p"); } else { para.appendChild(document.createElement("br")); }
-            nodes.forEach(function (n) { para.appendChild(n); });
+            ln.forEach(function (n) { para.appendChild(n); });
         });
         flushPara();
         flushList();
-        el.parentNode.replaceChild(frag, el);
+        brs.forEach(function (br) { if (br.parentNode) br.parentNode.removeChild(br); });
+        return frag;
     }
 
-    Array.prototype.slice.call(prose.querySelectorAll("p, div:not([class])")).forEach(structure);
+    // 1a. paragraphs that hold several "lines"
+    Array.prototype.slice.call(prose.querySelectorAll("p")).forEach(function (p) {
+        if (!p.querySelector("br") || p.closest("li, blockquote, figure, td")) return;
+        var frag = buildFrom(Array.prototype.slice.call(p.childNodes));
+        if (frag) p.parentNode.replaceChild(frag, p);
+    });
+
+    // 1b. inline runs that sit directly inside containers (sections, plain divs)
+    Array.prototype.slice.call(prose.querySelectorAll(".ef-prose__section, .ef-takeaway__body, div:not([class])")).forEach(function (box) {
+        var run = [];
+        var flush = function (before) {
+            if (run.length) {
+                var nodes = run; run = [];
+                var anchor = nodes[0];
+                var marker = document.createComment("");
+                anchor.parentNode.insertBefore(marker, anchor);
+                var frag = buildFrom(nodes);
+                if (frag) box.insertBefore(frag, marker);
+                box.removeChild(marker);
+            }
+        };
+        Array.prototype.slice.call(box.childNodes).forEach(function (node) {
+            if (node.nodeType === 1 && BLOCK.test(node.nodeName)) { flush(); } else { run.push(node); }
+        });
+        flush();
+    });
 
     /* ------------------------------------------------------------------ 2. table of contents */
     var tocBox = document.querySelector("[data-toc]");
