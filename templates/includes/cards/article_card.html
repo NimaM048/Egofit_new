@@ -29,9 +29,9 @@
                 </span>
             </div>
             {% if blog.reading_time %}
-                <span class="ef-meta">
+                <span class="ef-meta" title="{% trans 'زمان مطالعه' %}">
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
-                    {% blocktrans with reading_time=blog.reading_time %}{{ reading_time }} دقیقه مطالعه{% endblocktrans %}
+                    <span>{% blocktrans with reading_time=blog.reading_time %}{{ reading_time }} دقیقه{% endblocktrans %}</span>
                 </span>
             {% endif %}
         </div>

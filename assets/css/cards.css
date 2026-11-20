@@ -222,6 +222,7 @@ a.ef-chip:hover {
 
 .ef-person {
     display: flex;
+    flex: 1 1 auto;
     align-items: center;
     gap: .55rem;
     min-width: 0;
@@ -253,10 +254,12 @@ a.ef-chip:hover {
 .ef-person__name {
     font-size: .84rem;
     font-weight: 800;
+    line-height: 1.45;
     color: hsl(var(--foreground));
-    white-space: nowrap;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .ef-meta {
@@ -264,6 +267,9 @@ a.ef-chip:hover {
     align-items: center;
     gap: .3rem;
     flex: none;
+    padding: .28rem .55rem;
+    border-radius: 999px;
+    background: hsl(var(--secondary));
     font-size: .74rem;
     font-weight: 700;
     color: hsl(var(--muted));
@@ -365,11 +371,15 @@ a.ef-chip:hover {
 /* ---- inside the homepage course slider ------------------------------------ */
 .home-course-slider .swiper-wrapper {
     align-items: stretch;
-    padding-block: .35rem 1rem;
+    padding-block: .35rem .5rem;
 }
 
 .home-course-slider .swiper-slide {
     height: auto;
+}
+
+.home-course-slider .swiper-slide > .ef-card {
+    width: 100%;
 }
 
 /* ---- dark theme fine-tuning --------------------------------------------- */
