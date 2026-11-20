@@ -17,6 +17,7 @@
         var neg = field.getAttribute("data-polarity") === "neg";
         var optional = field.getAttribute("data-required") === "false";
         var label = field.querySelector("label");
+        if (!input.placeholder) input.placeholder = "–";
 
         var scale = document.createElement("div");
         scale.className = "mood-scale";
