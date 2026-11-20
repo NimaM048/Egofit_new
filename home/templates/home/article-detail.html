@@ -3,125 +3,202 @@
 {% load my_tags %}
 {% load i18n %}
 
+{% block title %}{{ articleblogmodel.title }} | {% trans 'ایگوفیت' %}{% endblock %}
+
 {% block page_wrapper_class %}bg-secondary{% endblock %}
 
+{% block extra_css %}
+    <link rel="stylesheet" href="{% static 'css/article.css' %}" />
+{% endblock %}
+
 {% block content %}
-    <main class="flex-auto py-5">
+    {% with article=articleblogmodel %}
+    <div class="ef-read-progress" aria-hidden="true"><span class="ef-read-progress__bar"></span></div>
+
+    <main class="flex-auto py-5 ef-article-page" data-reading-time="{{ article.reading_time|default:0 }}">
         <div class="shell-container page-stack">
-            <section class="section-card modern-surface" data-reveal>
-                <div class="detail-layout">
-                    <div class="detail-main">
-                        <div class="detail-cover">
-                            <img src="{{ articleblogmodel.image|public_media_url }}" alt="{{ articleblogmodel.title }}">
-                        </div>
+            <article class="ef-article modern-surface" itemscope itemtype="https://schema.org/Article">
 
-                        <div class="detail-body">
-                            <span class="eyebrow">{% trans 'مقاله آموزشی' %}</span>
-                            <h1 class="section-heading__title">{{ articleblogmodel.title }}</h1>
-                            <div class="detail-description content-justify">{{ articleblogmodel.article_excerpt|linebreaksbr }}</div>
-                        </div>
+                {# ---------------------------------------------------------------- header #}
+                <header class="ef-article__header">
+                    <nav class="ef-crumbs" aria-label="{% trans 'مسیر صفحه' %}">
+                        <a href="{% url 'home:home' %}">{% trans 'خانه' %}</a>
+                        <span aria-hidden="true">/</span>
+                        <a href="{% url 'home:blog' %}">{% trans 'مقالات' %}</a>
+                        {% if article.language_kinds %}
+                            <span aria-hidden="true">/</span>
+                            <a href="{% url 'home:blog' %}?category={{ article.language_kinds.title|urlencode }}">{{ article.language_kinds }}</a>
+                        {% endif %}
+                    </nav>
 
-                        <article class="content-panel modern-surface rich-content">
-                            {% if articleblogmodel.article_description %}
-                                <div class="rich-content__block">
-                                    <div class="rich-content__text article-rich-text">{{ articleblogmodel.article_description|article_content }}</div>
-                                </div>
-                            {% endif %}
+                    <h1 class="ef-article__title" itemprop="headline">{{ article.title }}</h1>
 
-                            {% if articleblogmodel.built_in %}
-                                <section class="rich-content__section">
-                                    <h2 class="rich-content__heading">{% trans 'ساختار مقاله' %}</h2>
-                                    <div class="rich-content__text article-rich-text">{{ articleblogmodel.built_in|article_content }}</div>
-                                </section>
-                            {% endif %}
+                    {% if article.article_excerpt %}
+                        <div class="ef-article__lead" itemprop="description">{{ article.article_excerpt|linebreaksbr }}</div>
+                    {% endif %}
 
-                            {% if articleblogmodel.article_extra_des1 %}
-                                <section class="rich-content__section">
-                                    <h2 class="rich-content__heading">{% trans 'جزئیات بیشتر' %}</h2>
-                                    <div class="rich-content__text article-rich-text">{{ articleblogmodel.article_extra_des1|article_content }}</div>
-                                </section>
-                            {% endif %}
+                    <div class="ef-article__meta">
+                        <span class="ef-byline" itemprop="author" itemscope itemtype="https://schema.org/Person">
+                            <img src="{{ article|author_image_url }}" alt="" loading="lazy" decoding="async">
+                            <span>
+                                <span class="ef-byline__label">{% trans 'نوشته‌ی' %}</span>
+                                <span class="ef-byline__name" itemprop="name">{{ article.author }}</span>
+                            </span>
+                        </span>
+                        <span class="ef-meta-pill">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                            {% blocktrans with minutes=article.reading_time %}{{ minutes }} دقیقه مطالعه{% endblocktrans %}
+                        </span>
+                        {% if article.language_kinds %}
+                            <span class="ef-meta-pill ef-meta-pill--accent">{{ article.language_kinds }}</span>
+                        {% endif %}
+                    </div>
+                </header>
 
-                            {% if articleblogmodel.article_extra_des2 %}
-                                <section class="rich-content__section">
-                                    <h2 class="rich-content__heading">{% trans 'جمع‌بندی' %}</h2>
-                                    <div class="rich-content__text article-rich-text">{{ articleblogmodel.article_extra_des2|article_content }}</div>
-                                </section>
-                            {% endif %}
+                <figure class="ef-article__cover">
+                    <img class="ef-article__cover-backdrop" src="{{ article.image|public_media_url }}" alt="" aria-hidden="true" decoding="async">
+                    <img class="ef-article__cover-img" src="{{ article.image|public_media_url }}" alt="{{ article.title }}" decoding="async" fetchpriority="high" itemprop="image">
+                </figure>
 
-                            {% with gallery_images=articleblogmodel.gallery_images.all article_links=articleblogmodel.article_links.all %}
-                                {% if gallery_images %}
-                                    <div class="article-gallery">
-                                        {% for gallery_image in gallery_images %}
-                                            <figure class="rich-content__figure article-gallery__item">
-                                                <img src="{{ gallery_image.image|public_media_url }}" alt="{{ gallery_image.alt_text|default:articleblogmodel.title }}" loading="lazy">
-                                                {% if gallery_image.caption %}
-                                                    <figcaption>{{ gallery_image.caption }}</figcaption>
-                                                {% endif %}
-                                            </figure>
-                                        {% endfor %}
+                {# ---------------------------------------------------------------- body #}
+                <div class="ef-article__layout">
+                    <aside class="ef-article__aside" aria-label="{% trans 'ابزار مطالعه' %}">
+                        <div class="ef-aside-sticky">
+                            <details class="ef-toc" open data-toc>
+                                <summary class="ef-toc__summary">
+                                    <span>{% trans 'در این مقاله' %}</span>
+                                    <span class="ef-toc__remaining" data-remaining hidden></span>
+                                </summary>
+                                <ol class="ef-toc__list" data-toc-list></ol>
+                            </details>
+
+                            <div class="ef-tools">
+                                <div class="ef-tools__group" role="group" aria-label="{% trans 'اندازه متن' %}">
+                                    <span class="ef-tools__label">{% trans 'اندازه متن' %}</span>
+                                    <div class="ef-size-switch">
+                                        <button type="button" data-size="sm" aria-label="{% trans 'متن کوچک‌تر' %}">آ</button>
+                                        <button type="button" data-size="md" aria-label="{% trans 'متن معمولی' %}">آ</button>
+                                        <button type="button" data-size="lg" aria-label="{% trans 'متن بزرگ‌تر' %}">آ</button>
                                     </div>
-                                {% endif %}
+                                </div>
+                                <div class="ef-tools__group">
+                                    <span class="ef-tools__label">{% trans 'اشتراک‌گذاری' %}</span>
+                                    <div class="ef-share" data-share-title="{{ article.title }}">
+                                        <button type="button" class="ef-share__btn" data-copy-link aria-label="{% trans 'کپی لینک' %}" title="{% trans 'کپی لینک' %}">
+                                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13.19 8.688a4.5 4.5 0 0 1 1.242 7.244l-4.5 4.5a4.5 4.5 0 0 1-6.364-6.364l1.757-1.757m13.35-.622 1.757-1.757a4.5 4.5 0 0 0-6.364-6.364l-4.5 4.5a4.5 4.5 0 0 0 1.242 7.244"/></svg>
+                                            <span class="ef-share__toast" data-copy-toast>{% trans 'کپی شد' %}</span>
+                                        </button>
+                                        <a class="ef-share__btn" data-share="telegram" target="_blank" rel="noopener" aria-label="{% trans 'اشتراک در تلگرام' %}" title="Telegram">
+                                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M21.94 4.66 18.9 19.01c-.23 1.01-.83 1.26-1.68.79l-4.64-3.42-2.24 2.16c-.25.25-.46.46-.94.46l.33-4.73 8.61-7.78c.37-.33-.08-.52-.58-.19L7.12 13.01l-4.58-1.43c-1-.31-1.01-1 .21-1.48l17.9-6.9c.83-.31 1.56.19 1.29 1.46Z"/></svg>
+                                        </a>
+                                        <a class="ef-share__btn" data-share="whatsapp" target="_blank" rel="noopener" aria-label="{% trans 'اشتراک در واتساپ' %}" title="WhatsApp">
+                                            <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12.04 2a9.9 9.9 0 0 0-8.5 14.98L2 22l5.16-1.5A9.9 9.9 0 1 0 12.04 2Zm0 18.1a8.2 8.2 0 0 1-4.18-1.15l-.3-.18-3.06.89.9-2.98-.2-.31a8.2 8.2 0 1 1 6.84 3.73Zm4.5-6.14c-.25-.12-1.46-.72-1.69-.8-.23-.08-.39-.12-.56.12-.16.25-.64.8-.79.97-.14.16-.29.18-.54.06-.25-.12-1.04-.38-1.98-1.22-.73-.65-1.23-1.46-1.37-1.7-.14-.25-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.41.08-.17.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.4-.41-.56-.42h-.48a.92.92 0 0 0-.66.31c-.23.25-.87.85-.87 2.07 0 1.22.89 2.4 1.01 2.57.12.16 1.75 2.67 4.24 3.74.59.26 1.05.41 1.41.52.6.19 1.14.16 1.57.1.48-.07 1.46-.6 1.67-1.18.2-.58.2-1.07.14-1.18-.06-.1-.22-.16-.47-.29Z"/></svg>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </aside>
 
+                    <div class="ef-article__main">
+                        <div class="ef-prose" data-prose data-size="md" itemprop="articleBody">
+                            {% if article.article_description %}
+                                <div class="ef-prose__section">{{ article.article_description|article_content }}</div>
+                            {% endif %}
+
+                            {% if article.built_in %}
+                                <section class="ef-prose__section">
+                                    <h2>{% trans 'ساختار مقاله' %}</h2>
+                                    {{ article.built_in|article_content }}
+                                </section>
+                            {% endif %}
+
+                            {% if article.article_extra_des1 %}
+                                <section class="ef-prose__section">
+                                    <h2>{% trans 'جزئیات بیشتر' %}</h2>
+                                    {{ article.article_extra_des1|article_content }}
+                                </section>
+                            {% endif %}
+
+                            {% if article.article_extra_des2 %}
+                                <section class="ef-takeaway">
+                                    <h2 class="ef-takeaway__title">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-3 0M14.25 18v-.192c0-.983.658-1.823 1.508-2.316a7.5 7.5 0 1 0-7.517 0c.85.493 1.509 1.333 1.509 2.316V18"/></svg>
+                                        {% trans 'جمع‌بندی' %}
+                                    </h2>
+                                    <div class="ef-takeaway__body">{{ article.article_extra_des2|article_content }}</div>
+                                </section>
+                            {% endif %}
+
+                            {% with gallery_images=article.gallery_images.all %}
+                                {% if gallery_images %}
+                                    <section class="ef-prose__section">
+                                        <h2>{% trans 'تصاویر' %}</h2>
+                                        <div class="ef-gallery">
+                                            {% for gallery_image in gallery_images %}
+                                                <figure class="ef-gallery__item">
+                                                    <a href="{{ gallery_image.image|public_media_url }}" target="_blank" rel="noopener">
+                                                        <img src="{{ gallery_image.image|public_media_url }}" alt="{{ gallery_image.alt_text|default:article.title }}" loading="lazy" decoding="async">
+                                                    </a>
+                                                    {% if gallery_image.caption %}<figcaption>{{ gallery_image.caption }}</figcaption>{% endif %}
+                                                </figure>
+                                            {% endfor %}
+                                        </div>
+                                    </section>
+                                {% endif %}
+                            {% endwith %}
+
+                            {% with article_links=article.article_links.all %}
                                 {% if article_links %}
-                                    <section class="rich-content__section article-links">
-                                        <h2 class="rich-content__heading">{% trans 'لینک‌های مرتبط' %}</h2>
-                                        <div class="article-links__list">
+                                    <section class="ef-prose__section">
+                                        <h2>{% trans 'لینک‌های مرتبط' %}</h2>
+                                        <div class="ef-linklist">
                                             {% for article_link in article_links %}
-                                                <a href="{{ article_link.url|article_link_url }}" class="article-links__item"{% if article_link.open_in_new_tab %} target="_blank" rel="noopener noreferrer"{% endif %}>
+                                                <a href="{{ article_link.url|article_link_url }}" class="ef-linklist__item"{% if article_link.open_in_new_tab %} target="_blank" rel="noopener noreferrer"{% endif %}>
                                                     <span>{{ article_link.label }}</span>
-                                                    <span aria-hidden="true">↗</span>
+                                                    <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M4.22 11.78a.75.75 0 0 1 0-1.06L9.44 5.5H5.75a.75.75 0 0 1 0-1.5h5.5a.75.75 0 0 1 .75.75v5.5a.75.75 0 0 1-1.5 0V6.56l-5.22 5.22a.75.75 0 0 1-1.06 0Z" clip-rule="evenodd"/></svg>
                                                 </a>
                                             {% endfor %}
                                         </div>
                                     </section>
                                 {% endif %}
                             {% endwith %}
-                        </article>
-                    </div>
-
-                    <aside class="detail-sidebar">
-                        <div class="instructor-card modern-surface">
-                            <div class="space-y-4">
-                                <span class="eyebrow">{% trans 'نویسنده' %}</span>
-                                <div class="instructor-head">
-                                    <img src="{{ articleblogmodel|author_image_url }}" alt="{{ articleblogmodel.author }}" loading="lazy">
-                                    <span class="flex flex-col gap-1">
-                                        <span class="font-black text-base text-foreground">{{ articleblogmodel.author }}</span>
-                                        <a href="{% url 'home:about_us' %}" class="font-semibold text-sm text-primary">{% trans 'مشاهده معرفی' %}</a>
-                                    </span>
-                                </div>
-                                <div class="bg-secondary rounded-3xl text-sm text-muted p-5 leading-7 content-justify">
-                                    {{ articleblogmodel.author_description|linebreaksbr }}
-                                </div>
-                            </div>
                         </div>
 
-                        {% if related_articles %}
-                            <div class="instructor-card modern-surface">
-                                <div class="space-y-4">
-                                    <span class="eyebrow">{% trans 'مطالب مرتبط' %}</span>
-                                    <div class="space-y-3">
-                                        {% for related in related_articles %}
-                                            <a href="{% url 'home:article_detail' related.slug %}" class="feature-point">
-                                                <span class="feature-point__icon text-primary">
-                                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" d="M17.25 6.75 6.75 17.25M8.25 6.75h9v9"/>
-                                                    </svg>
-                                                </span>
-                                                <span class="flex flex-col gap-1">
-                                                    <span class="font-bold text-sm text-foreground line-clamp-1">{{ related.title }}</span>
-                                                    <span class="text-xs text-muted">{{ related.reading_time }} {% trans 'دقیقه مطالعه' %}</span>
-                                                </span>
-                                            </a>
-                                        {% endfor %}
-                                    </div>
-                                </div>
+                        {# ------------------------------------------------------------ author #}
+                        <section class="ef-author-card" aria-label="{% trans 'درباره نویسنده' %}">
+                            <img src="{{ article|author_image_url }}" alt="" loading="lazy" decoding="async">
+                            <div class="ef-author-card__body">
+                                <span class="ef-author-card__label">{% trans 'درباره نویسنده' %}</span>
+                                <strong class="ef-author-card__name">{{ article.author }}</strong>
+                                {% if article.author_description %}
+                                    <p class="ef-author-card__bio">{{ article.author_description|linebreaksbr }}</p>
+                                {% endif %}
+                                <a href="{% url 'home:about_us' %}" class="ef-author-card__link">{% trans 'آشنایی بیشتر' %}</a>
                             </div>
-                        {% endif %}
-                    </aside>
+                        </section>
+                    </div>
                 </div>
-            </section>
+            </article>
+
+            {% if related_articles %}
+                <section class="section-card modern-surface ef-related" aria-labelledby="related-title">
+                    <div class="ef-related__head">
+                        <h2 id="related-title" class="ef-related__title">{% trans 'بیشتر بخوانید' %}</h2>
+                        <a href="{% url 'home:blog' %}" class="ef-related__all">{% trans 'همه مقالات' %}</a>
+                    </div>
+                    <div class="ef-card-grid">
+                        {% for related in related_articles|slice:":3" %}
+                            {% include 'includes/cards/article_card.html' with blog=related %}
+                        {% endfor %}
+                    </div>
+                </section>
+            {% endif %}
         </div>
     </main>
+    {% endwith %}
+{% endblock %}
+
+{% block extra_js %}
+    <script src="{% static 'js/article.js' %}" defer></script>
 {% endblock %}
