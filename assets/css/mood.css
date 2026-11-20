@@ -1,0 +1,475 @@
+/* =============================================================================
+   Athlete panel - mood & heart-rate page (profile/mood)
+   Loaded after account.css / dashboard-polish.css / account-mobile.css.
+   Layout is driven by container queries so it follows the real width of the
+   content column (sidebar open or not), not the viewport.
+   ========================================================================== */
+
+.account-app .mood-screen {
+    --mood-pos-lo: 0 84% 60%;
+    --mood-pos-mid: 38 92% 50%;
+    --mood-pos-hi: 152 69% 38%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: clamp(14px, 2vw, 20px);
+    width: 100%;
+    max-width: 1120px;
+    margin-inline: auto;
+    container-type: inline-size;
+    container-name: mood;
+}
+
+/* every card may shrink below its content (tables scroll inside the card) */
+.account-app .mood-screen > * { min-width: 0; margin: 0; }
+
+.account-app .mood-screen :is(.mood-form-card, .mood-chart-card, .mood-history-card) {
+    padding: clamp(16px, 2.6vw, 26px);
+    border-radius: 24px;
+    border: 1px solid hsl(var(--border) / .8);
+    background: hsl(var(--background) / .92);
+    box-shadow: 0 1px 2px hsl(222 47% 11% / .04), 0 18px 40px -28px hsl(222 47% 11% / .35);
+}
+
+.account-app .mood-screen .mood-section-heading { margin-bottom: 16px; }
+.account-app .mood-screen .mood-section-heading h3 { font-size: 1.12rem; font-weight: 900; }
+.account-app .mood-screen .mood-section-heading p { line-height: 1.9; }
+
+/* ---- hero ---------------------------------------------------------------- */
+.mood-hero {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: clamp(18px, 3vw, 26px);
+    overflow: hidden;
+    border-radius: 24px;
+    color: #fff;
+    background:
+        radial-gradient(120% 140% at 0% 0%, hsl(160 84% 39% / .55), transparent 55%),
+        linear-gradient(135deg, hsl(var(--primary)), hsl(250 70% 55%));
+    box-shadow: 0 22px 44px -26px hsl(var(--primary) / .75);
+}
+
+.mood-hero::after {
+    content: "";
+    position: absolute;
+    inset-inline-start: -40px;
+    bottom: -60px;
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    background: hsl(0 0% 100% / .08);
+    pointer-events: none;
+}
+
+.mood-hero__icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    background: hsl(0 0% 100% / .16);
+    border: 1px solid hsl(0 0% 100% / .25);
+    backdrop-filter: blur(8px);
+}
+
+.mood-hero__icon svg { width: 30px; height: 30px; }
+.mood-hero__text { min-width: 0; flex: 1; }
+.mood-hero__eyebrow { margin: 0 0 2px; font-size: .78rem; font-weight: 700; opacity: .85; }
+.mood-hero h2 { margin: 0; font-size: clamp(1.2rem, 1rem + 1vw, 1.55rem); font-weight: 950; color: #fff; }
+.mood-hero p:not(.mood-hero__eyebrow) { margin: 6px 0 0; font-size: .88rem; line-height: 1.9; opacity: .92; }
+
+.mood-hero__badge {
+    flex: none;
+    padding: 8px 14px;
+    border-radius: 999px;
+    font-size: .82rem;
+    font-weight: 900;
+    background: hsl(0 0% 100% / .18);
+    border: 1px solid hsl(0 0% 100% / .28);
+}
+
+/* ---- reminder card: two columns only when the card itself is wide ---------- */
+.account-app .mood-screen .mood-reminder-card {
+    container-type: inline-size;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    margin: 0;
+}
+
+.account-app .mood-screen .mood-reminder-card > * { grid-column: 1; grid-row: auto; min-width: 0; }
+.account-app .mood-screen .mood-reminder-form { grid-column: 1; grid-row: auto; gap: 16px; }
+
+.account-app .mood-screen .mood-reminder-days__grid {
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 104px), 1fr));
+    gap: 8px;
+}
+
+.account-app .mood-screen .mood-reminder-day {
+    min-height: 44px;
+    justify-content: center;
+    border-radius: 999px;
+}
+
+.account-app .mood-screen .mood-reminder-form__time input { width: min(100%, 220px); }
+
+.account-app .mood-screen .mood-reminder-card__actions button { flex: 1 1 180px; }
+
+.account-app .mood-screen .mood-reminder-summary { margin: 0; }
+
+@container (min-width: 760px) {
+    .account-app .mood-screen .mood-reminder-card.mood-reminder-card {
+        grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr);
+        column-gap: 28px;
+    }
+    .account-app .mood-screen .mood-reminder-card__topline { grid-column: 1; grid-row: 1; }
+    .account-app .mood-screen .mood-reminder-card__intro { grid-column: 1; grid-row: 2; }
+    .account-app .mood-screen .mood-reminder-form { grid-column: 2; grid-row: 1 / span 3; }
+    .account-app .mood-screen .mood-reminder-summary { grid-column: 1; grid-row: 3; align-self: end; }
+    .account-app .mood-screen .mood-reminder-card__actions button { flex: 0 1 auto; }
+}
+
+/* ---- form ---------------------------------------------------------------- */
+.account-app .mood-screen .mood-form { display: grid; gap: 18px; }
+
+.account-app .mood-screen .mood-form__date { max-width: 320px; display: grid; gap: 7px; }
+
+.account-app .mood-screen .mood-score-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 290px), 1fr));
+    gap: 12px;
+}
+
+.account-app .mood-screen .mood-score-field {
+    --tone: var(--primary);
+    display: grid;
+    gap: 10px;
+    padding: 14px;
+    border-radius: 18px;
+    border: 1px solid hsl(var(--border));
+    background: hsl(var(--secondary) / .55);
+    transition: border-color .2s ease, background-color .2s ease, box-shadow .2s ease;
+}
+
+.account-app .mood-screen .mood-score-field.has-value {
+    border-color: hsl(var(--tone) / .45);
+    background: hsl(var(--tone) / .07);
+    box-shadow: 0 10px 22px -18px hsl(var(--tone) / .9);
+}
+
+.mood-score-field__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.account-app .mood-screen .mood-score-field label {
+    font-size: .9rem;
+    font-weight: 900;
+    color: hsl(var(--foreground));
+}
+
+.mood-optional {
+    margin-inline-start: 4px;
+    padding: 1px 7px;
+    border-radius: 999px;
+    font-size: .68rem;
+    font-weight: 700;
+    color: hsl(var(--muted));
+    background: hsl(var(--background));
+}
+
+/* the number input becomes the value badge (still the real form field) */
+.account-app .mood-screen .mood-score-field input[type="number"] {
+    flex: none;
+    width: 3.4rem;
+    height: 2.6rem;
+    padding: 0;
+    border-radius: 14px;
+    border: 1px solid hsl(var(--border));
+    background: hsl(var(--background));
+    font: inherit;
+    font-size: 1.15rem;
+    font-weight: 950;
+    text-align: center;
+    color: hsl(var(--tone));
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+.account-app .mood-screen .mood-score-field input[type="number"]::-webkit-inner-spin-button,
+.account-app .mood-screen .mood-score-field input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+
+.account-app .mood-screen .mood-score-field.has-value input[type="number"] {
+    border-color: hsl(var(--tone) / .5);
+    background: hsl(var(--tone) / .12);
+}
+
+.mood-score-field__hint { font-size: .72rem; color: hsl(var(--muted)); }
+
+/* 0..10 tap scale built by mood-scale.js */
+.mood-scale {
+    display: grid;
+    grid-template-columns: repeat(11, minmax(0, 1fr));
+    gap: 4px;
+    direction: ltr;              /* 0 on the left, like a ruler */
+}
+
+.mood-scale__btn {
+    position: relative;
+    height: 38px;
+    min-width: 0;
+    border-radius: 10px;
+    border: 1px solid hsl(var(--border));
+    background: hsl(var(--background));
+    font: inherit;
+    font-size: .82rem;
+    font-weight: 800;
+    color: hsl(var(--muted));
+    cursor: pointer;
+    transition: background-color .15s ease, color .15s ease, transform .15s ease, border-color .15s ease;
+}
+
+.mood-scale__btn::before {
+    /* small tone bar under each step so the scale reads as a gradient */
+    content: "";
+    position: absolute;
+    inset-inline: 22%;
+    bottom: 4px;
+    height: 3px;
+    border-radius: 3px;
+    background: hsl(var(--step-tone));
+    opacity: .5;
+}
+
+.mood-scale__btn:hover { transform: translateY(-1px); border-color: hsl(var(--step-tone) / .6); color: hsl(var(--foreground)); }
+
+.mood-scale__btn.is-filled {
+    border-color: transparent;
+    background: hsl(var(--step-tone) / .16);
+    color: hsl(var(--foreground));
+}
+
+.mood-scale__btn[aria-checked="true"] {
+    border-color: transparent;
+    background: hsl(var(--step-tone));
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px -8px hsl(var(--step-tone));
+}
+
+.mood-scale__btn[aria-checked="true"]::before { background: #fff; opacity: .8; }
+
+.mood-scale__btn:focus-visible { outline: 3px solid hsl(var(--primary) / .45); outline-offset: 2px; }
+
+.mood-scale__clear {
+    justify-self: start;
+    padding: 2px 8px;
+    border-radius: 8px;
+    font-size: .72rem;
+    font-weight: 700;
+    color: hsl(var(--muted));
+    background: transparent;
+    cursor: pointer;
+}
+
+.mood-scale__clear:hover { color: hsl(var(--foreground)); background: hsl(var(--background)); }
+
+/* vitals (heart rate + time) */
+.mood-vitals {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: 12px;
+}
+
+.account-app .mood-screen .mood-heart-rate-field {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas: "icon text" "input input";
+    align-items: center;
+    gap: 10px 12px;
+    padding: 16px;
+    border-radius: 18px;
+    border: 1px solid hsl(0 84% 60% / .22);
+    background: linear-gradient(135deg, hsl(0 84% 60% / .07), hsl(25 95% 53% / .05));
+}
+
+.account-app .mood-screen .mood-heart-rate-field--time {
+    border-color: hsl(var(--primary) / .2);
+    background: hsl(var(--primary) / .05);
+}
+
+.mood-heart-rate-field__icon {
+    grid-area: icon;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 14px;
+    color: hsl(0 84% 60%);
+    background: hsl(0 84% 60% / .12);
+}
+
+.mood-heart-rate-field--time .mood-heart-rate-field__icon { color: hsl(var(--primary)); background: hsl(var(--primary) / .12); }
+.mood-heart-rate-field__icon svg { width: 22px; height: 22px; }
+.mood-heart-rate-field__icon svg[fill="currentColor"] { animation: mood-beat 1.6s ease-in-out infinite; }
+
+@keyframes mood-beat {
+    0%, 100% { transform: scale(1); }
+    12% { transform: scale(1.14); }
+    24% { transform: scale(1); }
+    36% { transform: scale(1.1); }
+}
+
+.mood-heart-rate-field__text { grid-area: text; display: grid; gap: 3px; min-width: 0; }
+.account-app .mood-screen .mood-heart-rate-field label { font-size: .88rem; font-weight: 900; }
+.account-app .mood-screen .mood-heart-rate-field small { font-size: .74rem; line-height: 1.8; color: hsl(var(--muted)); }
+
+.account-app .mood-screen .mood-heart-rate-field > input,
+.mood-input-suffix { grid-area: input; }
+
+.mood-input-suffix { position: relative; }
+.mood-input-suffix input { padding-inline-end: 3.6rem !important; font-weight: 800; }
+
+.mood-input-suffix > span {
+    position: absolute;
+    inset-inline-end: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: .72rem;
+    font-weight: 900;
+    color: hsl(0 84% 60%);
+    pointer-events: none;
+}
+
+.account-app .mood-screen .mood-heart-rate-field input { width: 100%; min-height: 46px; }
+
+.mood-form__footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.account-app .mood-screen .mood-form__submit { min-height: 50px; padding-inline: 28px; }
+
+@container mood (max-width: 560px) {
+    .mood-form__footer { position: sticky; bottom: calc(82px + env(safe-area-inset-bottom)); z-index: 5; }
+    .account-app .mood-screen .mood-form__submit { width: 100%; box-shadow: 0 14px 30px -14px hsl(var(--primary)); }
+    .mood-scale { gap: 3px; }
+    .mood-scale__btn { height: 36px; font-size: .76rem; border-radius: 8px; }
+    .account-app .mood-screen .mood-form__date { max-width: none; }
+}
+
+/* ---- charts -------------------------------------------------------------- */
+.account-app .mood-screen .mood-chart-wrap { height: clamp(260px, 42vw, 360px); }
+
+/* ---- history ------------------------------------------------------------- */
+.account-app .mood-screen .mood-history-table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+    border-radius: 16px;
+    border: 1px solid hsl(var(--border));
+    overscroll-behavior-x: contain;
+}
+
+.account-app .mood-screen .mood-history-table-wrap:focus-visible { outline: 3px solid hsl(var(--primary) / .4); outline-offset: 2px; }
+
+.account-app .mood-screen .mood-history-table {
+    min-width: 640px;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: .82rem;
+}
+
+.account-app .mood-screen .mood-heart-rate-table { min-width: 0; }
+
+.account-app .mood-screen .mood-history-table th {
+    position: sticky;
+    top: 0;
+    padding: 12px 10px;
+    font-size: .76rem;
+    font-weight: 900;
+    color: hsl(var(--muted));
+    background: hsl(var(--secondary));
+}
+
+.account-app .mood-screen .mood-history-table td { padding: 10px; }
+.account-app .mood-screen .mood-history-table tbody tr:nth-child(even) td { background: hsl(var(--secondary) / .45); }
+.account-app .mood-screen .mood-history-table tbody tr:hover td { background: hsl(var(--primary) / .06); }
+
+/* sticky date column (first column = right edge in RTL) */
+.account-app .mood-screen .mood-history-table :is(th, td):first-child {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 1;
+    font-weight: 800;
+    color: hsl(var(--foreground));
+    background: hsl(var(--background));
+    box-shadow: inset -1px 0 0 hsl(var(--border));
+}
+
+.account-app .mood-screen .mood-history-table th:first-child { z-index: 2; background: hsl(var(--secondary)); }
+
+.mood-chip {
+    --chip: var(--muted);
+    display: inline-grid;
+    place-items: center;
+    min-width: 2.1rem;
+    height: 1.75rem;
+    padding: 0 .45rem;
+    border-radius: 999px;
+    font-size: .8rem;
+    font-weight: 900;
+    color: hsl(var(--chip));
+    background: hsl(var(--chip) / .13);
+}
+
+/* positive metric: high is good */
+.mood-chip:is([data-v="0"], [data-v="1"], [data-v="2"], [data-v="3"]) { --chip: var(--mood-pos-lo, 0 84% 60%); }
+.mood-chip:is([data-v="4"], [data-v="5"], [data-v="6"]) { --chip: var(--mood-pos-mid, 38 92% 50%); }
+.mood-chip:is([data-v="7"], [data-v="8"], [data-v="9"], [data-v="10"]) { --chip: var(--mood-pos-hi, 152 69% 38%); }
+/* negative metric (anxiety, fatigue, soreness): high is bad */
+.mood-chip--neg:is([data-v="0"], [data-v="1"], [data-v="2"], [data-v="3"]) { --chip: var(--mood-pos-hi, 152 69% 38%); }
+.mood-chip--neg:is([data-v="7"], [data-v="8"], [data-v="9"], [data-v="10"]) { --chip: var(--mood-pos-lo, 0 84% 60%); }
+.mood-chip--empty { --chip: var(--muted); background: transparent; }
+
+.mood-legend {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px 8px;
+    margin: 12px 0 0;
+    font-size: .74rem;
+    color: hsl(var(--muted));
+}
+
+.mood-legend .mood-chip { min-width: 1.7rem; height: 1.45rem; font-size: .7rem; }
+.mood-legend .mood-chip:not(:first-child) { margin-inline-start: 8px; }
+
+.mood-bpm { font-weight: 900; color: hsl(0 84% 55%); }
+.mood-bpm small { font-size: .68rem; font-weight: 700; opacity: .75; }
+
+.account-app .mood-screen .mood-empty {
+    padding: 28px 16px;
+    border-radius: 16px;
+    border: 1px dashed hsl(var(--border));
+    background: hsl(var(--secondary) / .4);
+}
+
+/* ---- dark ---------------------------------------------------------------- */
+.dark .account-app .mood-screen :is(.mood-form-card, .mood-chart-card, .mood-history-card) {
+    background: hsl(240 10% 6% / .92);
+    border-color: hsl(0 0% 100% / .08);
+}
+
+.dark .account-app .mood-screen .mood-score-field { background: hsl(0 0% 100% / .03); border-color: hsl(0 0% 100% / .08); }
+.dark .mood-scale__btn { background: hsl(0 0% 100% / .04); border-color: hsl(0 0% 100% / .1); }
+.dark .account-app .mood-screen .mood-history-table :is(th, td):first-child { background: hsl(240 10% 7%); }
+.dark .account-app .mood-screen .mood-history-table th { background: hsl(240 10% 10%); }
+
+@media (prefers-reduced-motion: reduce) {
+    .mood-heart-rate-field__icon svg[fill="currentColor"] { animation: none; }
+    .mood-scale__btn, .account-app .mood-screen .mood-score-field { transition: none; }
+}

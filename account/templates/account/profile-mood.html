@@ -5,43 +5,148 @@
 
 {% block title %}{% trans 'روحیات و خلق‌وخو | ایگوفیت' %}{% endblock %}
 
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/mood.css' %}">
+{% endblock %}
+
 {% block account_content %}
 <section class="mood-screen">
-    <header class="mood-screen__header"><div><p class="eyebrow">{% trans 'ثبت روزانه' %}</p><h2>{% trans 'روحیات و خلق‌وخو' %}</h2><p>{% trans 'هر روز وضعیت خود را از ۰ تا ۱۰ ارزیابی کنید تا روند آن را بهتر بشناسید.' %}</p></div></header>
+    <header class="mood-hero">
+        <span class="mood-hero__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M15.182 15.182a4.5 4.5 0 0 1-6.364 0M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0ZM9.75 9.75c0 .414-.168.75-.375.75S9 10.164 9 9.75 9.168 9 9.375 9s.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Zm5.625 0c0 .414-.168.75-.375.75s-.375-.336-.375-.75.168-.75.375-.75.375.336.375.75Zm-.375 0h.008v.015h-.008V9.75Z"/></svg>
+        </span>
+        <div class="mood-hero__text">
+            <p class="mood-hero__eyebrow">{% trans 'ثبت روزانه' %}</p>
+            <h2>{% trans 'روحیات و خلق‌وخو' %}</h2>
+            <p>{% trans 'هر روز وضعیت خود را از ۰ تا ۱۰ ارزیابی کنید تا روند آن را بهتر بشناسید.' %}</p>
+        </div>
+        {% if mood_entries %}
+            <span class="mood-hero__badge">
+                {% blocktrans with n=mood_entries|length %}{{ n }} ثبت{% endblocktrans %}
+            </span>
+        {% endif %}
+    </header>
+
     {% include 'account/_mood-reminder.html' %}
-    <section class="mood-form-card">
+
+    <section class="mood-form-card" aria-labelledby="mood-form-title">
+        <div class="mood-section-heading">
+            <div>
+                <h3 id="mood-form-title">{% trans 'ارزیابی امروز' %}</h3>
+                <p>{% trans 'روی عدد هر شاخص بزنید؛ ثبت دوبارهٔ همان تاریخ، ارزیابی قبلی را به‌روزرسانی می‌کند.' %}</p>
+            </div>
+        </div>
         <form method="post" class="mood-form">
             {% csrf_token %}
             {% if form.non_field_errors %}<div class="form-errors">{{ form.non_field_errors }}</div>{% endif %}
-            <div class="mood-form__date"><label for="{{ form.entry_date.id_for_label }}">{{ form.entry_date.label }}</label>{{ form.entry_date }}{% if form.entry_date.help_text %}<small>{{ form.entry_date.help_text }}</small>{% endif %}{{ form.entry_date.errors }}</div>
+
+            <div class="mood-form__date">
+                <label for="{{ form.entry_date.id_for_label }}">{{ form.entry_date.label }}</label>
+                {{ form.entry_date }}
+                {% if form.entry_date.help_text %}<small>{{ form.entry_date.help_text }}</small>{% endif %}
+                {{ form.entry_date.errors }}
+            </div>
+
             <div class="mood-score-grid">
                 {% for field in form %}
                     {% if field.name == 'anxiety_score' or field.name == 'motivation_score' or field.name == 'sleep_quality_score' or field.name == 'training_satisfaction_score' or field.name == 'training_readiness_score' or field.name == 'fatigue_score' or field.name == 'muscle_soreness_score' %}
-                        <div class="mood-score-field"><label for="{{ field.id_for_label }}">{{ field.label }}</label>{{ field }}<small>{% trans 'امتیاز از ۰ تا ۱۰' %}</small>{{ field.errors }}</div>
+                        <div class="mood-score-field"
+                             data-mood-scale
+                             data-polarity="{% if field.name == 'anxiety_score' or field.name == 'fatigue_score' or field.name == 'muscle_soreness_score' %}neg{% else %}pos{% endif %}"
+                             data-required="{{ field.field.required|yesno:'true,false' }}">
+                            <div class="mood-score-field__head">
+                                <label for="{{ field.id_for_label }}">{{ field.label }}{% if not field.field.required %} <span class="mood-optional">{% trans 'اختیاری' %}</span>{% endif %}</label>
+                                {{ field }}
+                            </div>
+                            <small class="mood-score-field__hint">{% if field.name == 'anxiety_score' or field.name == 'fatigue_score' or field.name == 'muscle_soreness_score' %}{% trans '۰ یعنی هیچ، ۱۰ یعنی خیلی زیاد' %}{% else %}{% trans '۰ یعنی خیلی کم، ۱۰ یعنی عالی' %}{% endif %}</small>
+                            {{ field.errors }}
+                        </div>
                     {% endif %}
                 {% endfor %}
             </div>
-            <div class="mood-heart-rate-field">
-                <div><label for="{{ form.resting_heart_rate_bpm.id_for_label }}">{{ form.resting_heart_rate_bpm.label }}</label><small>{% trans 'مقدار را به‌صورت ضربان در دقیقه (BPM) وارد کنید.' %}</small></div>
-                {{ form.resting_heart_rate_bpm }}{{ form.resting_heart_rate_bpm.errors }}
+
+            <div class="mood-vitals">
+                <div class="mood-heart-rate-field">
+                    <span class="mood-heart-rate-field__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="currentColor"><path d="m11.645 20.91-.007-.003-.022-.012a15.247 15.247 0 0 1-.383-.218 25.18 25.18 0 0 1-4.244-3.17C4.688 15.36 2.25 12.174 2.25 8.25 2.25 5.322 4.714 3 7.688 3A5.5 5.5 0 0 1 12 5.052 5.5 5.5 0 0 1 16.313 3c2.973 0 5.437 2.322 5.437 5.25 0 3.925-2.438 7.111-4.739 9.256a25.175 25.175 0 0 1-4.244 3.17 15.247 15.247 0 0 1-.383.219l-.022.012-.007.004-.003.001a.752.752 0 0 1-.704 0l-.003-.001Z"/></svg>
+                    </span>
+                    <div class="mood-heart-rate-field__text">
+                        <label for="{{ form.resting_heart_rate_bpm.id_for_label }}">{{ form.resting_heart_rate_bpm.label }}</label>
+                        <small>{% trans 'مقدار را به‌صورت ضربان در دقیقه (BPM) وارد کنید.' %}</small>
+                    </div>
+                    <div class="mood-input-suffix">{{ form.resting_heart_rate_bpm }}<span aria-hidden="true">BPM</span></div>
+                    {{ form.resting_heart_rate_bpm.errors }}
+                </div>
+                <div class="mood-heart-rate-field mood-heart-rate-field--time">
+                    <span class="mood-heart-rate-field__icon" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"/></svg>
+                    </span>
+                    <div class="mood-heart-rate-field__text">
+                        <label for="{{ form.heart_rate_measured_at.id_for_label }}">{{ form.heart_rate_measured_at.label }}</label>
+                        <small>{{ form.heart_rate_measured_at.help_text }}</small>
+                    </div>
+                    {{ form.heart_rate_measured_at }}
+                    {{ form.heart_rate_measured_at.errors }}
+                </div>
             </div>
-            <div class="mood-heart-rate-field mood-heart-rate-field--time">
-                <div><label for="{{ form.heart_rate_measured_at.id_for_label }}">{{ form.heart_rate_measured_at.label }}</label><small>{{ form.heart_rate_measured_at.help_text }}</small></div>
-                {{ form.heart_rate_measured_at }}{{ form.heart_rate_measured_at.errors }}
+
+            <div class="mood-form__footer">
+                <button type="submit" class="cta-primary mood-form__submit">{% trans 'ثبت / به‌روزرسانی ارزیابی' %}</button>
             </div>
-            <button type="submit" class="cta-primary mood-form__submit">{% trans 'ثبت / به‌روزرسانی ارزیابی' %}</button>
         </form>
     </section>
 
-    <section class="mood-chart-card"><div class="mood-section-heading"><div><h3>{% trans 'روند امتیازهای خلق‌وخو' %}</h3><p>{% trans 'مقایسه امتیازهای روزانه از ۰ تا ۱۰' %}</p></div></div>{% if mood_entries %}<div class="mood-chart-wrap"><canvas data-mood-chart></canvas></div>{% else %}<div class="mood-empty">{% trans 'بعد از ثبت اولین ارزیابی، نمودار امتیازهای شما اینجا نمایش داده می‌شود.' %}</div>{% endif %}</section>
-
-    <section class="mood-chart-card mood-heart-rate-card"><div class="mood-section-heading"><div><h3>{% trans 'روند ضربان قلب' %}</h3><p>{% trans 'ضربان قلب استراحت صبحگاهی برحسب ضربان در دقیقه (BPM)' %}</p></div></div>{% if heart_rate_entries %}<div class="mood-chart-wrap mood-chart-wrap--heart-rate"><canvas data-heart-rate-chart></canvas></div>{% else %}<div class="mood-empty">{% trans 'بعد از ثبت اولین ضربان قلب، نمودار آن اینجا نمایش داده می‌شود.' %}</div>{% endif %}</section>
-
-    <section class="mood-history-card"><div class="mood-section-heading"><div><h3>{% trans 'تاریخچه ارزیابی‌ها' %}</h3><p>{% trans 'برای هر تاریخ فقط یک ارزیابی ذخیره می‌شود و ثبت دوباره همان تاریخ آن را به‌روزرسانی می‌کند.' %}</p></div></div>
-        {% if mood_entries %}<div class="mood-history-table-wrap"><table class="mood-history-table"><thead><tr><th>{% trans 'تاریخ' %}</th><th>{% trans 'اضطراب' %}</th><th>{% trans 'انگیزه' %}</th><th>{% trans 'خواب' %}</th><th>{% trans 'تمرین' %}</th><th>{% trans 'آمادگی' %}</th><th>{% trans 'خستگی' %}</th><th>{% trans 'کوفتگی' %}</th></tr></thead><tbody>{% for entry in mood_entries %}<tr><td dir="ltr">{{ entry.entry_date|to_jalali }}</td><td>{{ entry.anxiety_score }}/10</td><td>{{ entry.motivation_score }}/10</td><td>{{ entry.sleep_quality_score }}/10</td><td>{{ entry.training_satisfaction_score }}/10</td><td>{% if entry.training_readiness_score != None %}{{ entry.training_readiness_score }}/10{% else %}—{% endif %}</td><td>{% if entry.fatigue_score != None %}{{ entry.fatigue_score }}/10{% else %}—{% endif %}</td><td>{% if entry.muscle_soreness_score != None %}{{ entry.muscle_soreness_score }}/10{% else %}—{% endif %}</td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="mood-empty">{% trans 'هنوز ارزیابی‌ای ثبت نکرده‌اید.' %}</div>{% endif %}
+    <section class="mood-chart-card">
+        <div class="mood-section-heading"><div><h3>{% trans 'روند امتیازهای خلق‌وخو' %}</h3><p>{% trans 'مقایسه امتیازهای روزانه از ۰ تا ۱۰' %}</p></div></div>
+        {% if mood_entries %}<div class="mood-chart-wrap"><canvas data-mood-chart></canvas></div>{% else %}<div class="mood-empty">{% trans 'بعد از ثبت اولین ارزیابی، نمودار امتیازهای شما اینجا نمایش داده می‌شود.' %}</div>{% endif %}
     </section>
-    <section class="mood-history-card mood-heart-rate-card"><div class="mood-section-heading"><div><h3>{% trans 'تاریخچه ضربان قلب' %}</h3><p>{% trans 'مقادیر ثبت‌شده برحسب ضربان در دقیقه (BPM)' %}</p></div></div>
-        {% if heart_rate_entries %}<div class="mood-history-table-wrap"><table class="mood-history-table mood-heart-rate-table"><thead><tr><th>{% trans 'تاریخ' %}</th><th>{% trans 'ضربان در دقیقه' %}</th></tr></thead><tbody>{% for entry in heart_rate_entries %}<tr><td dir="ltr">{{ entry.entry_date|to_jalali }}</td><td>{{ entry.bpm }} BPM</td></tr>{% endfor %}</tbody></table></div>{% else %}<div class="mood-empty">{% trans 'هنوز ضربان قلبی ثبت نکرده‌اید.' %}</div>{% endif %}
+
+    <section class="mood-chart-card mood-heart-rate-card">
+        <div class="mood-section-heading"><div><h3>{% trans 'روند ضربان قلب' %}</h3><p>{% trans 'ضربان قلب استراحت صبحگاهی برحسب ضربان در دقیقه (BPM)' %}</p></div></div>
+        {% if heart_rate_entries %}<div class="mood-chart-wrap mood-chart-wrap--heart-rate"><canvas data-heart-rate-chart></canvas></div>{% else %}<div class="mood-empty">{% trans 'بعد از ثبت اولین ضربان قلب، نمودار آن اینجا نمایش داده می‌شود.' %}</div>{% endif %}
+    </section>
+
+    <section class="mood-history-card">
+        <div class="mood-section-heading"><div><h3>{% trans 'تاریخچه ارزیابی‌ها' %}</h3><p>{% trans 'برای هر تاریخ فقط یک ارزیابی ذخیره می‌شود و ثبت دوباره همان تاریخ آن را به‌روزرسانی می‌کند.' %}</p></div></div>
+        {% if mood_entries %}
+            <div class="mood-history-table-wrap" tabindex="0" role="region" aria-label="{% trans 'تاریخچه ارزیابی‌ها' %}">
+                <table class="mood-history-table">
+                    <thead><tr><th>{% trans 'تاریخ' %}</th><th>{% trans 'اضطراب' %}</th><th>{% trans 'انگیزه' %}</th><th>{% trans 'خواب' %}</th><th>{% trans 'تمرین' %}</th><th>{% trans 'آمادگی' %}</th><th>{% trans 'خستگی' %}</th><th>{% trans 'کوفتگی' %}</th></tr></thead>
+                    <tbody>
+                        {% for entry in mood_entries %}
+                            <tr>
+                                <td dir="ltr">{{ entry.entry_date|to_jalali }}</td>
+                                <td><span class="mood-chip mood-chip--neg" data-v="{{ entry.anxiety_score }}">{{ entry.anxiety_score }}</span></td>
+                                <td><span class="mood-chip" data-v="{{ entry.motivation_score }}">{{ entry.motivation_score }}</span></td>
+                                <td><span class="mood-chip" data-v="{{ entry.sleep_quality_score }}">{{ entry.sleep_quality_score }}</span></td>
+                                <td><span class="mood-chip" data-v="{{ entry.training_satisfaction_score }}">{{ entry.training_satisfaction_score }}</span></td>
+                                <td>{% if entry.training_readiness_score != None %}<span class="mood-chip" data-v="{{ entry.training_readiness_score }}">{{ entry.training_readiness_score }}</span>{% else %}<span class="mood-chip mood-chip--empty">—</span>{% endif %}</td>
+                                <td>{% if entry.fatigue_score != None %}<span class="mood-chip mood-chip--neg" data-v="{{ entry.fatigue_score }}">{{ entry.fatigue_score }}</span>{% else %}<span class="mood-chip mood-chip--empty">—</span>{% endif %}</td>
+                                <td>{% if entry.muscle_soreness_score != None %}<span class="mood-chip mood-chip--neg" data-v="{{ entry.muscle_soreness_score }}">{{ entry.muscle_soreness_score }}</span>{% else %}<span class="mood-chip mood-chip--empty">—</span>{% endif %}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <p class="mood-legend"><span class="mood-chip" data-v="9">۹</span>{% trans 'وضعیت خوب' %}<span class="mood-chip" data-v="5">۵</span>{% trans 'متوسط' %}<span class="mood-chip" data-v="1">۱</span>{% trans 'نیاز به توجه' %}</p>
+        {% else %}
+            <div class="mood-empty">{% trans 'هنوز ارزیابی‌ای ثبت نکرده‌اید.' %}</div>
+        {% endif %}
+    </section>
+
+    <section class="mood-history-card mood-heart-rate-card">
+        <div class="mood-section-heading"><div><h3>{% trans 'تاریخچه ضربان قلب' %}</h3><p>{% trans 'مقادیر ثبت‌شده برحسب ضربان در دقیقه (BPM)' %}</p></div></div>
+        {% if heart_rate_entries %}
+            <div class="mood-history-table-wrap" tabindex="0" role="region" aria-label="{% trans 'تاریخچه ضربان قلب' %}">
+                <table class="mood-history-table mood-heart-rate-table">
+                    <thead><tr><th>{% trans 'تاریخ' %}</th><th>{% trans 'ضربان در دقیقه' %}</th></tr></thead>
+                    <tbody>{% for entry in heart_rate_entries %}<tr><td dir="ltr">{{ entry.entry_date|to_jalali }}</td><td><span class="mood-bpm">{{ entry.bpm }} <small>BPM</small></span></td></tr>{% endfor %}</tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="mood-empty">{% trans 'هنوز ضربان قلبی ثبت نکرده‌اید.' %}</div>
+        {% endif %}
     </section>
     {{ mood_chart_data|json_script:'mood-trend-data' }}
 </section>
@@ -51,4 +156,5 @@
     {{ block.super }}
     {% if mood_entries or heart_rate_entries %}<script src="{% static 'js/vendor/chart.umd.min.js' %}"></script><script src="{% static 'js/mood-trends.js' %}"></script>{% endif %}
     <script src="{% static 'js/mood-reminder.js' %}"></script>
+    <script src="{% static 'js/mood-scale.js' %}" defer></script>
 {% endblock %}
