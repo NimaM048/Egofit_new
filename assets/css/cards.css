@@ -435,3 +435,12 @@ a.ef-chip:hover {
         transform: none;
     }
 }
+
+/* Filter sidebars marked "hidden md:flex" must stay hidden on phones (the
+   off-canvas "Filters" drawer is used there); .filter-panel{display:flex} in
+   home-refactor.css used to override Tailwind's .hidden. */
+@media (max-width: 767.98px) {
+    .filter-panel.hidden {
+        display: none;
+    }
+}
