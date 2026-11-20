@@ -157,7 +157,11 @@
     }
 
     function onScroll() {
-        if (!ticking) { ticking = true; window.requestAnimationFrame(update); }
+        if (ticking) return;
+        ticking = true;
+        // rAF is paused in background tabs; fall back to a timer there
+        if (document.hidden || !window.requestAnimationFrame) { window.setTimeout(update, 16); }
+        else { window.requestAnimationFrame(update); }
     }
 
     window.addEventListener("scroll", onScroll, { passive: true });
