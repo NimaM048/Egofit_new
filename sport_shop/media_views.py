@@ -2,7 +2,7 @@ import logging
 import mimetypes
 from pathlib import Path
 from typing import Dict
-from urllib.parse import quote
+from urllib.parse import quote, unquote
 
 from django.conf import settings
 from django.core.files.storage import default_storage
@@ -112,6 +112,14 @@ class ResilientMediaView(View):
 
     def get(self, request, path):
         normalized_path, local_path = self._safe_media_path(path)
+        if not local_path.exists() and "%" in normalized_path:
+            # Some servers (LiteSpeed lswsgi) hand Django the raw, still
+            # percent-encoded path, e.g. Persian file names arrive as
+            # "%D8%A7...". Decode once; _safe_media_path re-checks that the
+            # decoded name stays inside MEDIA_ROOT.
+            decoded = unquote(normalized_path)
+            if decoded != normalized_path:
+                normalized_path, local_path = self._safe_media_path(decoded)
         if local_path.exists() and local_path.is_file():
             return self._serve_file(request, local_path)
 

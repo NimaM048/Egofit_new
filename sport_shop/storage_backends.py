@@ -1,4 +1,7 @@
 import logging
+import os
+import sys
+import uuid
 from pathlib import Path
 from urllib.parse import quote
 
@@ -82,6 +85,21 @@ class ResilientMediaStorage(FileSystemStorage):
         if not name:
             return ""
         return self._proxy_url(str(name))
+
+    def get_valid_name(self, name):
+        name = super().get_valid_name(name)
+        # If the process runs with a non-UTF-8 filesystem encoding (e.g. the
+        # app server started without LANG/LC_ALL), a Persian file name cannot
+        # be created on disk and the upload fails with UnicodeEncodeError.
+        # Keep the original name when possible, otherwise fall back to a safe one.
+        try:
+            name.encode(sys.getfilesystemencoding())
+        except UnicodeEncodeError:
+            stem, ext = os.path.splitext(name)
+            ascii_ext = ext.encode("ascii", "ignore").decode("ascii")[:10]
+            name = f"file_{uuid.uuid4().hex[:12]}{ascii_ext}"
+            logger.warning("Non-encodable upload name replaced with %s (filesystem encoding %s)", name, sys.getfilesystemencoding())
+        return name
 
     def save(self, name, content, max_length=None):
         saved_name = super().save(name, content, max_length=max_length)

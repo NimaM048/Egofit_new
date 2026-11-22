@@ -135,3 +135,51 @@ class SharedMediaDeleteGuardTests(TestCase):
                 storage.delete(self.name)
             self.assertFalse(path.exists())
             remote.delete.assert_called_once_with(self.name)
+
+
+class PersianMediaNameTests(SimpleTestCase):
+    """Persian file names: served when the server passes a percent-encoded path, safe on upload."""
+
+    PERSIAN = "documents/علی_محمد_صادقی-1405.pdf"
+
+    def _media_root_with_file(self, tmp_dir):
+        media_root = Path(tmp_dir)
+        file_path = media_root / self.PERSIAN
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        file_path.write_bytes(b"%PDF-1.4 test")
+        return media_root
+
+    def test_percent_encoded_persian_path_is_decoded(self):
+        from urllib.parse import quote
+        with TemporaryDirectory() as tmp_dir:
+            media_root = self._media_root_with_file(tmp_dir)
+            raw = quote(self.PERSIAN)  # what LiteSpeed lswsgi hands to Django
+            with override_settings(MEDIA_ROOT=media_root):
+                with patch("sport_shop.media_views.default_storage") as storage:
+                    storage.fetch_remote_to_local = Mock(return_value=False)
+                    request = RequestFactory().get("/media-files/" + raw)
+                    response = ResilientMediaView.as_view()(request, path=raw)
+            self.assertEqual(response.status_code, 200)
+            response.close()
+
+    def test_encoded_traversal_is_still_blocked(self):
+        from django.http import Http404
+        with TemporaryDirectory() as tmp_dir:
+            media_root = self._media_root_with_file(tmp_dir) / "inner"
+            media_root.mkdir()
+            with override_settings(MEDIA_ROOT=media_root):
+                with patch("sport_shop.media_views.default_storage") as storage:
+                    storage.fetch_remote_to_local = Mock(return_value=False)
+                    request = RequestFactory().get("/media-files/x")
+                    with self.assertRaises(Http404):
+                        ResilientMediaView.as_view()(request, path="%2E%2E/documents/%D8%B9.pdf")
+
+    def test_upload_name_kept_when_encodable_and_replaced_when_not(self):
+        storage = ResilientMediaStorage(location="C:/tmp/media-test", base_url="/media/")
+        name = "علی_محمد_صادقی.pdf"
+        with patch("sport_shop.storage_backends.sys.getfilesystemencoding", return_value="utf-8"):
+            self.assertEqual(storage.get_valid_name(name), name)
+        with patch("sport_shop.storage_backends.sys.getfilesystemencoding", return_value="ascii"):
+            safe = storage.get_valid_name(name)
+        self.assertTrue(safe.startswith("file_") and safe.endswith(".pdf"), safe)
+        safe.encode("ascii")
