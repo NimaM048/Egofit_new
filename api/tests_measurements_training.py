@@ -388,6 +388,56 @@ class MeasurementAndTrainingApiTests(ApiTestCase):
         result = WorkoutSetResult.objects.get(session=session)
         self.assertEqual((result.actual_reps, result.actual_load_kg, result.planned_reps), (9, 22.5, "8-10"))
 
+    def test_workout_portal_saves_zero_load_without_creating_zero_weight_records(self):
+        self.client.force_login(self.user)
+        first_set = f"session_{self.item.pk}_main_1"
+        second_set = f"session_{self.item.pk}_main_2"
+        response = self.client.post(
+            reverse("register:profile_workout_program_performance", args=[self.program.pk]),
+            {
+                "day_id": self.day.pk,
+                "difficulty": "۹",
+                "session_duration_minutes": "۷۵",
+                "session_notes": "ثبت تمرین",
+                f"{first_set}_completed": "1",
+                f"{first_set}_actual_reps": "9",
+                f"{first_set}_actual_load_kg": "۰",
+                f"{second_set}_completed": "1",
+                f"{second_set}_actual_reps": "8",
+                f"{second_set}_actual_load_kg": "22.5",
+            },
+            HTTP_X_REQUESTED_WITH="XMLHttpRequest",
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertTrue(response.json()["session_saved"])
+        session = WorkoutSession.objects.get(user=self.user, program=self.program)
+        self.assertEqual(session.duration_seconds, 4500)
+        self.assertEqual(session.notes, "ثبت تمرین")
+        self.assertEqual(
+            list(session.sets.order_by("set_number").values_list("actual_load_kg", flat=True)),
+            [0, 22.5],
+        )
+        self.assertEqual(WorkoutPerformanceRecord.objects.get(user=self.user).value, 22.5)
+        self.assertEqual(WorkoutBestRecord.objects.get(user=self.user).value, 22.5)
+
+    def test_workout_movement_redirects_anonymous_user_before_lookup(self):
+        response = self.client.get(
+            reverse("register:profile_workout_movement", args=["exercise", self.exercise.pk]),
+            {"program": self.program.pk},
+        )
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(response.url.startswith("/accounts/register/?next="))
+
+    def test_library_cannot_delete_a_programs_main_exercise(self):
+        from django.db.models import ProtectedError
+
+        from account.services.gym_library_service import GymLibraryService
+
+        with self.assertRaises(ProtectedError):
+            GymLibraryService().delete_exercise(self.exercise)
+        self.assertTrue(WorkoutProgramExercise.objects.filter(pk=self.item.pk).exists())
+        self.assertTrue(Exercise.objects.filter(pk=self.exercise.pk).exists())
+
     def test_coach_analysis_hides_non_training_health_details(self):
         from account.models import UserHealthRecord
 

@@ -999,7 +999,7 @@ class ProfileWorkoutMovementView(AccountPageMixin, UserPortalRequiredMixin, Temp
     account_title = _("نمایش حرکت")
     account_description = _("ویدیوی حرکت انتخاب‌شده از کتابخانه ایگوفیت.")
 
-    def dispatch(self, request, *args, **kwargs):
+    def get(self, request, *args, **kwargs):
         self.movement_kind = kwargs.get("kind")
         self.movement_id = kwargs.get("movement_id")
         self.return_program = None
@@ -1134,7 +1134,7 @@ class ProfileWorkoutMovementView(AccountPageMixin, UserPortalRequiredMixin, Temp
                 )
         else:
             return redirect("register:profile_workout_programs")
-        return super().dispatch(request, *args, **kwargs)
+        return super().get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

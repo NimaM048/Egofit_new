@@ -69,6 +69,7 @@ class GymLibraryService:
 
     def delete_exercise(self, exercise: Exercise) -> None:
         with transaction.atomic():
+            self._protect_program_items(exercise)
             exercise.delete()
 
     def delete_corrective(self, corrective: CorrectiveExercise) -> None:
@@ -77,7 +78,16 @@ class GymLibraryService:
 
     def delete_cardio_exercise(self, exercise: CardioExercise) -> None:
         with transaction.atomic():
+            self._protect_program_items(exercise)
             exercise.delete()
+
+    @staticmethod
+    def _protect_program_items(exercise: Exercise | CardioExercise) -> None:
+        # The database requires each program item to retain its main movement.
+        type(exercise).objects.select_for_update().get(pk=exercise.pk)
+        program_items = exercise.program_items.all()
+        if program_items.exists():
+            raise ProtectedError("Movement is assigned to a workout program.", program_items)
 
     def list_lookup(self, model):
         return model.objects.all()

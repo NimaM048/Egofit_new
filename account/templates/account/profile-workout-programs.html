@@ -551,7 +551,7 @@
                 box.classList.toggle("is-success", isSuccess);
                 var title = document.createElement("div");
                 title.className = "workout-performance-feedback__title";
-                title.textContent = isSuccess ? "✓ " + (payload.message || "ثبت شد") : "⚠ لطفاً موارد زیر را اصلاح کنید";
+                title.textContent = isSuccess ? "✓ " + (payload.message || "ثبت شد") : (payload.title || "⚠ لطفاً موارد زیر را اصلاح کنید");
                 box.appendChild(title);
                 if (!isSuccess && visibleErrors.length) {
                     var listEl = document.createElement("ul");
@@ -597,6 +597,16 @@
                         credentials: "same-origin"
                     })
                         .then(function (response) {
+                            var contentType = response.headers.get("Content-Type") || "";
+                            if (response.redirected || !contentType.includes("application/json")) {
+                                var message = response.redirected || response.status === 401 || response.status === 403
+                                    ? "{% trans 'برای ثبت نتیجه، صفحه را تازه کنید و در صورت نیاز دوباره وارد شوید.' %}"
+                                    : "{% trans 'ثبت نتیجه با خطا روبه‌رو شد. دوباره تلاش کنید.' %}";
+                                return { ok: false, payload: {
+                                    title: "{% trans 'نتیجه ثبت نشد' %}",
+                                    errors: [{ message: message }]
+                                } };
+                            }
                             return response.json().then(function (payload) {
                                 return { ok: response.ok, payload: payload };
                             });
@@ -631,6 +641,7 @@
                                 button.classList.remove("is-loading");
                             }
                             showFeedback(form, {
+                                title: "{% trans 'نتیجه ثبت نشد' %}",
                                 errors: [{ message: "{% trans 'ارتباط با سرور برقرار نشد. دوباره تلاش کنید.' %}" }]
                             }, false);
                         });

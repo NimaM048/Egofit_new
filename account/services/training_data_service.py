@@ -302,7 +302,7 @@ class TrainingDataService:
             set_records.append(result)
         WorkoutSetResult.objects.bulk_create(set_records)
         for result in set_records:
-            if result.exercise_id is None or result.actual_load_kg is None or result.is_warmup:
+            if result.exercise_id is None or not result.actual_load_kg or result.is_warmup:
                 continue
             repetitions = normalize_digits(result.planned_reps or "").strip()
             performance, created = WorkoutPerformanceRecord.objects.get_or_create(
