@@ -1,4 +1,22 @@
-from api.v1.common import *
+from django.core.exceptions import ValidationError
+from django.shortcuts import get_object_or_404
+
+from api.decorators import api_auth_required, api_endpoint, api_methods
+from api.limits import rate_limit
+from api.responses import ok
+from api.utils import parse_int, request_data
+from home.forms import CommentSectionForm, ReplyForm
+from home.models import ArticleBlogModel, Episode, SeriesModel
+from home.selectors.article_selector import ArticleSelector
+from home.selectors.comment_selector import CommentSelector
+from home.selectors.course_selector import CourseSelector
+from home.services import CommentService, SearchService, VideoService
+from api.v1.common import _serialize_series, _serialize_article, _serialize_comment
+from api.v1.services import profile_service
+
+
+comment_service = CommentService()
+
 
 @api_endpoint
 @api_methods("GET")

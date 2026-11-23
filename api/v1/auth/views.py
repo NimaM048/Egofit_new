@@ -1,4 +1,20 @@
-from api.v1.common import *
+from django.contrib.auth import authenticate
+from django.utils import timezone
+
+from account.services import AuthService
+from account.validators import validate_fullname, validate_phone_number, validate_strong_password
+from api.auth import _hash_token, issue_token_pair, rotate_token_pair
+from api.decorators import api_endpoint, api_methods
+from api.limits import rate_limit
+from api.models import ApiToken
+from api.responses import error, ok
+from api.utils import request_data
+from api.v1.common import _serialize_user, _reject_unknown
+from api.v1.services import otp_service
+
+
+auth_service = AuthService()
+
 
 @api_endpoint
 @api_methods("GET")
@@ -82,4 +98,3 @@ def logout(request):
         if refresh_token:
             ApiToken.objects.filter(family_id=refresh_token.family_id, revoked_at__isnull=True).update(revoked_at=timezone.now())
     return ok({"logged_out": True})
-

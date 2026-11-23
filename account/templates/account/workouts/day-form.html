@@ -1,0 +1,143 @@
+{% load i18n my_tags %}
+<form method="post" action="{% url 'register:profile_workout_program_performance' program.pk %}" class="workout-performance-form">
+    {% csrf_token %}
+    <input type="hidden" name="day_id" value="{{ day.pk }}">
+    <details class="workout-day" {% if day.completed_count >= day.completion_weeks %}data-workout-day-complete{% endif %}>
+        <summary class="workout-day__summary">
+            <div class="workout-day__heading">
+                <div class="workout-day__title">
+                    <span class="account-eyebrow workout-day__eyebrow">{% trans 'جلسه تمرین' %} {{ forloop.counter }}</span>
+                    <h3>{{ day.name }}</h3>
+                    {% if day.scheduled_weekday %}<span>{{ day.get_scheduled_weekday_display }}</span>{% endif %}
+                    {% if day.estimated_duration_minutes %}<span>{{ day.estimated_duration_minutes }} {% trans 'دقیقه برآورد' %}</span>{% endif %}
+                </div>
+                {% if day.notes %}<p>{{ day.notes }}</p>{% endif %}
+            </div>
+            <span class="workout-day__chevron" aria-hidden="true">⌄</span>
+            <div class="workout-day-completions" aria-label="{% trans 'دفعات انجام برنامه' %}">
+                <div class="workout-day-completions__heading">
+                    <strong>{% trans 'دفعات انجام برنامه' %}</strong>
+                    <span>
+                        {{ day.completed_count }}/{{ day.completion_weeks }}
+                        {% if day.completed_count >= day.completion_weeks %}{% trans 'تکمیل شد' %}{% endif %}
+                    </span>
+                </div>
+                <div class="workout-day-completions__list">
+                    {% for completion_number in day.completion_checks %}
+                        <label for="workout-completion-{{ day.pk }}-{{ completion_number }}">
+                            <input id="workout-completion-{{ day.pk }}-{{ completion_number }}" type="checkbox" disabled {% if completion_number <= day.completed_count %}checked{% endif %}>
+                            <span>{% trans 'دفعه' %} {{ completion_number }}</span>
+                        </label>
+                    {% endfor %}
+                </div>
+            </div>
+        </summary>
+        <div class="workout-day__content">
+        <div class="workout-table-wrap">
+            <table class="workout-table" role="table">
+                <thead role="rowgroup">
+                    <tr role="row">
+                        <th scope="col" role="columnheader">{% trans 'حرکت' %}</th>
+                        <th scope="col" role="columnheader">{% trans 'ست' %}</th>
+                        <th scope="col" role="columnheader">{% trans 'تکرار' %}</th>
+                        <th scope="col" role="columnheader">{% trans 'استراحت (دقیقه)' %}</th>
+                        <th scope="col" role="columnheader">{% trans 'نکته' %}</th>
+                        <th scope="col" role="columnheader">{% trans 'نتیجه واقعی هر ست' %}</th>
+                    </tr>
+                </thead>
+                <tbody role="rowgroup">
+                    {% for row in day.workout_rows %}
+                        <tr role="row">
+                            <td role="cell" data-label="{% trans 'حرکت' %}" class="workout-table__movement">
+                                {% if row.label %}<span class="workout-superset-label">{{ row.label }}</span>{% endif %}
+                                {% if row.is_cardio %}
+                                    <span class="workout-movement-link">{{ row.exercise.name }}</span>
+                                {% else %}
+                                    <a href="{% url 'register:profile_workout_movement' 'exercise' row.exercise.pk %}?program={{ program.pk }}" class="workout-movement-link" data-workout-movement-open>{{ row.exercise.name }}</a>
+                                {% endif %}
+                            </td>
+                            <td role="cell" data-label="{% trans 'ست' %}">{{ row.sets }}</td>
+                            <td role="cell" data-label="{% trans 'تکرار' %}">{{ row.reps }}</td>
+                            <td role="cell" data-label="{% trans 'استراحت' %}">{{ row.rest|default:"—" }}</td>
+                            <td role="cell" data-label="{% trans 'نکته' %}" class="workout-table__note">{{ row.item.note|default:"—" }}</td>
+                            <td role="cell" data-label="{% trans 'نتیجه واقعی هر ست' %}" class="workout-table__performance">
+                                <details class="workout-row-entry">
+                                    <summary class="workout-row-entry__summary">
+                                        <span class="workout-row-entry__copy">
+                                            <strong>{% trans 'ثبت عملکرد' %}</strong>
+                                            <span>{{ row.set_count }} {% trans 'ست' %} · {{ row.reps|default:'—' }} {% trans 'تکرار' %}</span>
+                                        </span>
+                                        <span class="workout-row-entry__chevron" aria-hidden="true">⌄</span>
+                                    </summary>
+                                    <div class="workout-row-entry__content">
+                                        <div class="workout-set-results" role="group" aria-label="{% trans 'ثبت نتیجه ست‌ها برای' %} {{ row.exercise.name }}">
+                                            {% for set_number in row.set_numbers %}
+                                                {% with set_number_text=set_number|stringformat:'s' %}
+                                                {% with prefix=row.session_prefix|add:'_'|add:set_number_text %}
+                                                <fieldset class="workout-set-result" data-movement-name="{{ row.exercise.name }}" data-set-number="{{ set_number }}">
+                                                    <legend>{% trans 'ست' %} {{ set_number }} · {% trans 'هدف' %}: {{ row.reps|default:'—' }}</legend>
+                                                    <input type="hidden" name="{{ prefix }}_attempted" value="1">
+                                                    {% if row.is_cardio %}
+                                                        <label><span>{% trans 'مدت (ثانیه)' %}</span><input type="number" name="{{ prefix }}_duration_seconds" min="1" max="604800" inputmode="numeric"></label>
+                                                        <label><span>{% trans 'مسافت (متر)' %}</span><input type="number" name="{{ prefix }}_distance_m" min="0.01" step="0.01" inputmode="decimal"></label>
+                                                        <label><span>{% trans 'میانگین ضربان قلب' %}</span><input type="number" name="{{ prefix }}_average_heart_rate_bpm" min="30" max="240" inputmode="numeric"></label>
+                                                        <label><span>{% trans 'بیشینه ضربان قلب' %}</span><input type="number" name="{{ prefix }}_peak_heart_rate_bpm" min="30" max="240" inputmode="numeric"></label>
+                                                    {% else %}
+                                                        <label><span>{% trans 'تکرار واقعی' %}</span><input type="number" name="{{ prefix }}_actual_reps" min="0" max="1000" inputmode="numeric"></label>
+                                                        <label><span>{% trans 'وزنه (کیلوگرم)' %}</span><input type="number" name="{{ prefix }}_actual_load_kg" min="0" max="999999.99" step="0.01" inputmode="decimal" value="{{ row.default_load_kg|default_if_none:'' }}"></label>
+                                                        <label><span>{% trans 'تکرار ذخیره (RIR)' %}</span><input type="number" name="{{ prefix }}_rir" min="0" max="10" inputmode="numeric"></label>
+                                                    {% endif %}
+                                                    <label><span>{% trans 'شدت ادراک‌شده (RPE)' %}</span><input type="number" name="{{ prefix }}_rpe" min="0" max="10" inputmode="numeric"></label>
+                                                    <label class="workout-set-result__completed"><input type="checkbox" name="{{ prefix }}_completed" value="1" checked><span>{% trans 'ست انجام شد' %}</span></label>
+                                                </fieldset>
+                                                {% endwith %}
+                                                {% endwith %}
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </details>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <section class="workout-program-feedback">
+            <div class="workout-program-feedback__heading">
+                <div>
+                    <span class="account-eyebrow">{% trans 'بازخورد روز' %}</span>
+                    <h3>{% trans 'سطح دشواری این روز چقدر بود؟' %}</h3>
+                    <p>{% trans 'پس از پایان این روز، یک امتیاز از صفر تا ۱۰ به سختی تمرین بدهید.' %}</p>
+                </div>
+                <output data-difficulty-output>
+                    {% if day.user_feedback %}{{ day.user_feedback.difficulty }}{% else %}5{% endif %}/10
+                </output>
+            </div>
+            <input
+                type="range"
+                name="difficulty"
+                min="0"
+                max="10"
+                step="1"
+                value="{% if day.user_feedback %}{{ day.user_feedback.difficulty }}{% else %}5{% endif %}"
+                data-difficulty-slider
+                aria-label="{% trans 'سطح دشواری این روز از صفر تا ده' %}"
+            >
+            <div class="workout-program-feedback__scale" aria-hidden="true">
+                <span>0</span><span>5</span><span>10</span>
+            </div>
+        </section>
+
+        <section class="workout-session-meta" aria-label="{% trans 'جزئیات جلسه' %}">
+            <label><span>{% trans 'مدت کل جلسه (دقیقه)' %}</span><input type="number" name="session_duration_minutes" min="1" max="10080" inputmode="numeric"></label>
+            <label><span>{% trans 'یادداشت جلسه برای خودتان یا مربی' %}</span><textarea name="session_notes" rows="3" maxlength="4000"></textarea></label>
+        </section>
+
+        <button type="submit" class="cta-primary workout-performance-submit" aria-label="{% trans 'ثبت نتیجه ست‌ها و بازخورد این روز' %}">
+            <span aria-hidden="true">✓</span>
+            {% trans 'ثبت جلسه و نتیجه ست‌ها' %}
+        </button>
+        <div class="workout-performance-feedback" data-workout-feedback role="status" aria-live="polite" tabindex="-1"></div>
+        </div>
+    </details>
+</form>

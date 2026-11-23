@@ -1,62 +1,10 @@
+"""Serializers and validation helpers shared by API features."""
+
 from __future__ import annotations
 
-import os
-from decimal import Decimal, InvalidOperation
-
-from django.contrib.auth import authenticate
 from django.core.exceptions import ValidationError
-from django.db import transaction
-from django.http import FileResponse
-from django.shortcuts import get_object_or_404
-from django.utils import timezone
-from django.views.decorators.http import require_http_methods
 
-from account.froms import BirthDateForm, BloodGroupForm, CoachRequestForm, HeightForm, WeightForm, validate_coach_request_file
-from account.models import (
-    ClientDocument,
-    ClientDocumentPayment,
-    CoachRequest,
-    User,
-    WorkoutPerformanceRecord,
-    WorkoutProgram,
-    WorkoutProgramDay,
-    WorkoutProgramExercise,
-)
-from account.services import AuthService, NotificationService, OTPService, PasswordService, ProfileService
-from account.services.coach_request_service import CoachRequestService
-from account.services.access_payment_service import AccessPaymentService
-from account.validators import validate_fullname, validate_image_upload, validate_phone_number, validate_strong_password
-from api.auth import _hash_token, issue_token_pair, revoke_user_tokens, rotate_token_pair
-from api.decorators import api_auth_required, api_endpoint, api_methods
-from api.limits import rate_limit
-from api.models import ApiToken
-from api.responses import error, ok
-from api.utils import absolute_file_url, json_value, parse_int, request_data
-from cart.card_models import Cart, UserCart
-from cart.exceptions import PaymentProviderException, PaymentVerificationException
-from cart.providers.zarinpal_provider import ZarinPalPaymentProvider
-from cart.models import Order
-from cart.services import PaymentService, apply_discount, build_order_from_cart
-from cart.selectors.order_selector import OrderSelector
-from cart.zarinpal import build_payment_callback_url
-from home.forms import CommentSectionForm, ReplyForm
-from home.models import ArticleBlogModel, CommentSectionModel, Episode, Reply, SeriesModel
-from home.selectors.article_selector import ArticleSelector
-from home.selectors.comment_selector import CommentSelector
-from home.selectors.course_selector import CourseSelector
-from home.services import CommentService, SearchService, SeriesService, VideoService
-
-
-auth_service = AuthService()
-otp_service = OTPService()
-profile_service = ProfileService()
-password_service = PasswordService()
-comment_service = CommentService()
-coach_request_service = CoachRequestService()
-notification_service = NotificationService()
-payment_service = PaymentService()
-access_payment_service = AccessPaymentService()
-series_service = SeriesService()
+from api.utils import absolute_file_url, json_value
 
 
 def _user_data(request, user):
@@ -267,7 +215,3 @@ def _reject_unknown(data, allowed):
     unknown = set(data.keys()) - set(allowed)
     if unknown:
         raise ValidationError({"fields": [f"Unsupported fields: {', '.join(sorted(unknown))}"]})
-
-
-
-__all__ = [name for name in globals() if not name.startswith("__")]

@@ -3,6 +3,8 @@ const { test, expect } = require('@playwright/test');
 for (const [name, path, width] of [['home','/',390], ['blog','/blog/',768]]) {
   test(`${name} menu and theme debug`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
+    // Menu and theme behavior do not depend on the external trust seal.
+    await page.route('https://trustseal.enamad.ir/**', route => route.abort());
     const errors = [];
     page.on('pageerror', error => errors.push(String(error)));
     page.on('console', message => { if (message.type() === 'error' || message.type() === 'warning') errors.push(`${message.type()}: ${message.text()}`); });

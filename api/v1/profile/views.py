@@ -1,5 +1,51 @@
-from api.v1.common import *
+import os
+from decimal import Decimal, InvalidOperation
+
+from django.core.exceptions import ValidationError
+from django.db import transaction
+from django.http import FileResponse
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+
+from account.froms import (
+    BirthDateForm,
+    BloodGroupForm,
+    CoachRequestForm,
+    HeightForm,
+    WeightForm,
+    validate_coach_request_file,
+)
+from account.models import (
+    ClientDocument,
+    ClientDocumentPayment,
+    User,
+    WorkoutPerformanceRecord,
+    WorkoutProgram,
+    WorkoutProgramDay,
+    WorkoutProgramExercise,
+)
+from account.services import NotificationService, PasswordService
 from account.services.client_file_service import open_client_file
+from account.services.coach_request_service import CoachRequestService
+from account.validators import (
+    validate_image_upload,
+    validate_phone_number,
+    validate_strong_password,
+)
+from api.auth import revoke_user_tokens
+from api.decorators import api_auth_required, api_endpoint, api_methods
+from api.limits import rate_limit
+from api.responses import error, ok
+from api.utils import json_value, parse_int, request_data
+from api.v1.common import _serialize_user, _serialize_series, _serialize_program, _reject_unknown
+from api.v1.services import otp_service, profile_service, access_payment_service
+from cart.zarinpal import build_payment_callback_url
+
+
+password_service = PasswordService()
+coach_request_service = CoachRequestService()
+notification_service = NotificationService()
+
 
 @api_endpoint
 @api_methods("GET", "PATCH", "POST")
@@ -174,11 +220,11 @@ def training_insights(request):
     from datetime import timedelta
 
     from account.models import AthleteTrainingProfile, ExerciseStrengthEstimate, Muscle
-    from account.services.automatic_program_service import AutomaticProgramService
+    from account.services.program_generation.athlete import _muscle_fatigue_snapshot
     from account.services.training_adherence_service import TrainingAdherenceService
 
     profile = AthleteTrainingProfile.objects.filter(user=request.user).first()
-    fatigue = AutomaticProgramService._muscle_fatigue_snapshot(
+    fatigue = _muscle_fatigue_snapshot(
         request.user.pk,
         profile.experience_years if profile else None,
     )

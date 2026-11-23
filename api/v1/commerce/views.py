@@ -1,4 +1,24 @@
-from api.v1.common import *
+from django.shortcuts import get_object_or_404
+from django.utils import timezone
+
+from account.models import ClientDocumentPayment
+from api.decorators import api_auth_required, api_endpoint, api_methods
+from api.responses import error, ok
+from api.utils import request_data
+from cart.card_models import UserCart
+from cart.exceptions import PaymentVerificationException
+from cart.providers.zarinpal_provider import ZarinPalPaymentProvider
+from cart.models import Order
+from cart.services import PaymentService, apply_discount, build_order_from_cart
+from cart.selectors.order_selector import OrderSelector
+from cart.zarinpal import build_payment_callback_url
+from home.models import SeriesModel
+from api.v1.common import _serialize_series, _serialize_order
+from api.v1.services import profile_service, access_payment_service
+
+
+payment_service = PaymentService()
+
 
 def _cart_payload(request):
     cart = UserCart(request.user)
@@ -126,4 +146,3 @@ def document_payment_verify(request):
     payment.paid_at = timezone.now()
     payment.save(update_fields=["status", "ref_id", "paid_at"])
     return ok({"state": "paid", "document_id": payment.document_id, "ref_id": payment.ref_id})
-

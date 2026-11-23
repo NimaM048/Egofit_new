@@ -22,6 +22,16 @@ The account application keeps its public URLs under the /accounts/ path while or
 
 The existing `account/views.py`, `account/profile_views.py`, `account/workout_views.py`, `account/admin_portal_views.py`, and `account/admin_portal_gym_views.py` import paths remain available for third-party or older internal imports.
 
+### Account internals
+
+- `account/models/` is Django's model entry point. Models are grouped by domain, including identity, health, measurements, the exercise library, prescribed workouts, and logged results. `account.models` re-exports the existing model names and historical migration helpers.
+- `account/admin_forms/` separates form validation for users, measurements, files, reviews, the exercise library, and programming. The package keeps the original form imports available.
+- `account/admin_portal/staff/` owns staff account management, athlete data, recommendations, notifications, and coaching workflows. Staff access and athlete scope live in its shared mixins. `account/admin_portal/gym/` owns library and program editing, preview signing, and automatic programming.
+- `account/workouts/` uses separate handlers for the overview, PDF and movement details, and submissions. `program_context.py` owns movement grouping and display data. `submission.py` reads posted fields, and `performance.py` owns HTTP responses and atomic writes.
+- `account/services/program_generation/` contains catalog filtering, athlete evidence, prescriptions, workload, and the strength and cardio stages. `AutomaticProgramService` is the entry point for generating previews.
+- `account/services/profile_analysis/` contains analysis date windows, measurements and metric series, goals, chart formatting, and page payloads. `ProfileAnalysisService` is the service interface used by the profile and the API.
+- `account/services/program_pdf/` separates ReportLab rendering from the Pillow fallback and shares background assets, typography, and movement links. Callers still use `build_program_pdf`.
+
 ## API boundaries
 
 The root router mounts `/api/v1/` through `api/urls.py`, which delegates to `api/v1/urls.py`. Versioned endpoint groups are:
@@ -31,8 +41,9 @@ The root router mounts `/api/v1/` through `api/urls.py`, which delegates to `api
 - `api/v1/content/` contains course, article, search, comment, and video endpoint exports.
 - `api/v1/commerce/` contains cart, order, and payment endpoint exports.
 - `api/v1/library/` contains read-only exercise, muscle, corrective-exercise, and lookup endpoints.
+- `api/v1/management/` separates staff APIs for users, analysis, files, programs, transactions, content, and coaching. Shared audit, pagination, and athlete scoping helpers live in `support.py`.
 
-`api/views.py` re-exports views from the versioned modules for compatibility. New endpoint work should be placed in the matching `api/v1/<feature>/` module rather than adding code to that facade.
+`api/views.py` re-exports existing views for compatibility. New endpoints belong in the owning feature module. Import serializers from `api/v1/common.py` and shared service instances from `api/v1/services.py` by name.
 
 ## Root URL routing
 
@@ -45,6 +56,8 @@ The historical `register` namespace remains valid. The `account` namespace is al
 ## Template boundaries
 
 The shared header is split into `templates/includes/header_desktop.html` and `templates/includes/header_mobile.html`. The gym exercise form keeps its large catalog data in the main template while rendering the editable form fields through `account/templates/admin_portal/gym/partials/exercise_fields.html`.
+
+The athlete workout template delegates day forms and translated status text to `account/templates/account/workouts/`. Static scripts handle workout navigation and submissions. The staff program editors put state in `json_script` elements and translated labels in data attributes. The automatic editor separates preview markup from editor interactions, and both staff editors use the same payment field script.
 
 ## Validation
 
