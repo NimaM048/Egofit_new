@@ -1,14 +1,16 @@
 from __future__ import annotations
 
+import logging
+import re
 from collections import defaultdict
 from decimal import Decimal, InvalidOperation
-import re
+from uuid import uuid4
 
 from django.contrib import messages
-from django.core.exceptions import ValidationError
+from django.core.exceptions import PermissionDenied, SuspiciousOperation, ValidationError
 from django.db import transaction
 from django.db.models import Q
-from django.http import HttpResponse, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
@@ -37,6 +39,7 @@ from account.view_mixins import AccountPageMixin
 
 
 gym_program_service = GymProgramService()
+logger = logging.getLogger(__name__)
 
 
 def _wants_json_response(request) -> bool:
@@ -448,6 +451,70 @@ class ProfileWorkoutProgramsView(AccountPageMixin, UserPortalRequiredMixin, Temp
 class ProfileWorkoutProgramPerformanceView(UserPortalRequiredMixin, View):
     """Save workout set values and optional difficulty feedback for the owner."""
 
+    @staticmethod
+    def _error_response(code, status, *, message=None, errors=None, reference=None):
+        payload = {
+            "ok": False,
+            "code": code,
+            "errors": errors if errors is not None else [{"field": None, "message": str(message)}],
+        }
+        if reference:
+            payload["reference"] = reference
+        return JsonResponse(payload, status=status)
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.method != "POST" or not _wants_json_response(request):
+            return super().dispatch(request, *args, **kwargs)
+        if not request.user.is_authenticated:
+            return self._error_response(
+                "login_required", 401,
+                message=_("نشست شما پایان یافته است. در یک زبانهٔ دیگر وارد شوید و دوباره ثبت کنید."),
+            )
+        try:
+            response = super().dispatch(request, *args, **kwargs)
+        except Http404:
+            return self._error_response(
+                "workout_unavailable", 404,
+                message=_("این برنامه یا روز تمرین دیگر در دسترس نیست. برنامهٔ فعلی را از فهرست باز کنید."),
+            )
+        except (PermissionDenied, SuspiciousOperation):
+            raise
+        except Exception:
+            reference = uuid4().hex[:12]
+            logger.exception(
+                "Workout submission failed reference=%s program_id=%s", reference, kwargs.get("pk"),
+            )
+            return self._error_response(
+                "save_failed", 500,
+                message=_("هنگام پردازش درخواست مشکلی رخ داد. پیش از تلاش دوباره، بررسی کنید جلسه در سوابق ثبت شده باشد."),
+                reference=reference,
+            )
+        if response.status_code == 302:
+            return self._error_response(
+                "access_denied", 403, message=_("این حساب اجازهٔ ثبت نتیجه برای این برنامه را ندارد."),
+            )
+        return response
+
+    def _validation_response(self, errors):
+        return self._error_response(
+            "validation_error", 400,
+            errors=[{"field": field, "message": str(message)} for field, message in errors],
+        )
+
+    @staticmethod
+    def _read_difficulty(request, errors):
+        raw_value = (request.POST.get("difficulty") or "").strip()
+        if not raw_value:
+            return None
+        try:
+            difficulty = int(normalize_digits(raw_value))
+            if 0 <= difficulty <= 10:
+                return difficulty
+        except (TypeError, ValueError):
+            pass
+        errors.append(("difficulty", _("سطح دشواری باید عددی بین صفر تا ۱۰ باشد.")))
+        return None
+
     def post(self, request, pk):
         program = get_object_or_404(
             gym_program_service.get_program_queryset(),
@@ -456,11 +523,18 @@ class ProfileWorkoutProgramPerformanceView(UserPortalRequiredMixin, View):
             is_published=True,
         )
         if not _has_workout_program_access(request.user, program):
+            if _wants_json_response(request):
+                return self._error_response(
+                    "payment_required", 403,
+                    message=_("برای ثبت نتیجهٔ این برنامه، ابتدا پرداخت آن را کامل کنید."),
+                )
             messages.info(request, _("برای مشاهده این برنامه ابتدا هزینه آن را پرداخت کنید."))
             return redirect("register:profile_workout_programs")
-        day_id = (request.POST.get("day_id") or "").strip()
+        day_id = normalize_digits((request.POST.get("day_id") or "").strip())
         selected_day = None
         if day_id:
+            if not day_id.isdecimal() or len(day_id) > 19:
+                raise Http404
             selected_day = get_object_or_404(
                 WorkoutProgramDay,
                 pk=day_id,
@@ -624,16 +698,7 @@ class ProfileWorkoutProgramPerformanceView(UserPortalRequiredMixin, View):
             if selected_modes != original_modes[item_id]
         }
 
-        difficulty_raw = (request.POST.get("difficulty") or "").strip()
-        difficulty = None
-        if difficulty_raw:
-            try:
-                difficulty = int(normalize_digits(difficulty_raw))
-            except (TypeError, ValueError):
-                errors.append(("difficulty", _("سطح دشواری باید عددی بین صفر تا ۱۰ باشد.")))
-            else:
-                if difficulty < 0 or difficulty > 10:
-                    errors.append(("difficulty", _("سطح دشواری باید عددی بین صفر تا ۱۰ باشد.")))
+        difficulty = self._read_difficulty(request, errors)
 
         session_duration = None
         session_duration_raw = (request.POST.get("session_duration_minutes") or "").strip()
@@ -656,16 +721,7 @@ class ProfileWorkoutProgramPerformanceView(UserPortalRequiredMixin, View):
 
         if errors:
             if _wants_json_response(request):
-                return JsonResponse(
-                    {
-                        "ok": False,
-                        "errors": [
-                            {"field": field, "message": str(message)}
-                            for field, message in errors
-                        ],
-                    },
-                    status=400,
-                )
+                return self._validation_response(errors)
             for _field, error in errors:
                 messages.error(request, str(error))
             return redirect("register:profile_workout_programs")
@@ -738,9 +794,11 @@ class ProfileWorkoutProgramPerformanceView(UserPortalRequiredMixin, View):
                     if message_dict:
                         for source_field, field_messages in message_dict.items():
                             for message in field_messages:
-                                input_field = source_field
+                                input_field = {"notes": "session_notes", "duration_seconds": "session_duration_minutes"}.get(
+                                    source_field, source_field,
+                                )
                                 match = re.fullmatch(
-                                    r"sets\.(\d+)\.(rir|rpe)",
+                                    r"sets\.(\d+)\.([a-z_]+)",
                                     str(source_field or ""),
                                 )
                                 if match:
@@ -764,9 +822,8 @@ class ProfileWorkoutProgramPerformanceView(UserPortalRequiredMixin, View):
 
         if session_validation_errors:
             if _wants_json_response(request):
-                return JsonResponse(
-                    {"ok": False, "errors": session_validation_errors},
-                    status=400,
+                return self._validation_response(
+                    (error["field"], error["message"]) for error in session_validation_errors
                 )
             for error in session_validation_errors:
                 messages.error(request, error["message"])
@@ -789,9 +846,10 @@ class ProfileWorkoutProgramPerformanceView(UserPortalRequiredMixin, View):
                     "saved_count": saved_count,
                     "difficulty_saved": difficulty is not None,
                     "session_saved": bool(session_sets),
-                    "message": _("رکوردهای شما با موفقیت ثبت شد.")
-                    if saved_count
-                    else _("بازخورد سطح دشواری ثبت شد."),
+                    "message": _("جلسه و نتیجهٔ ست‌ها ثبت شد.") if session_sets else (
+                        _("رکوردهای شما با موفقیت ثبت شد.") if saved_count
+                        else _("بازخورد سطح دشواری ثبت شد.")
+                    ),
                 }
             )
         return redirect("register:profile_workout_programs")
@@ -809,6 +867,7 @@ class ProfileWorkoutProgramPerformanceView(UserPortalRequiredMixin, View):
 
         values = {}
         errors: list[tuple[str | None, str]] = []
+        difficulty = self._read_difficulty(request, errors)
         for key, raw_values in fields.items():
             try:
                 exercise_id = int(key.removeprefix("best_record_"))
@@ -845,16 +904,7 @@ class ProfileWorkoutProgramPerformanceView(UserPortalRequiredMixin, View):
 
         if errors:
             if _wants_json_response(request):
-                return JsonResponse(
-                    {
-                        "ok": False,
-                        "errors": [
-                            {"field": field, "message": str(message)}
-                            for field, message in errors
-                        ],
-                    },
-                    status=400,
-                )
+                return self._validation_response(errors)
             for _field, error in errors:
                 messages.error(request, str(error))
             return redirect("register:profile_workout_programs")
@@ -916,22 +966,12 @@ class ProfileWorkoutProgramPerformanceView(UserPortalRequiredMixin, View):
                 if performance_created or performance_updated:
                     saved_count = max(saved_count, 1)
 
-            difficulty_raw = (request.POST.get("difficulty") or "").strip()
-            difficulty = None
-            if difficulty_raw:
-                try:
-                    difficulty = int(normalize_digits(difficulty_raw))
-                except (TypeError, ValueError):
-                    messages.error(request, _("سطح دشواری باید عددی بین صفر تا ۱۰ باشد."))
-                else:
-                    if 0 <= difficulty <= 10:
-                        WorkoutProgramFeedback.objects.update_or_create(
-                            program=program,
-                            day=selected_day,
-                            defaults={"difficulty": difficulty},
-                        )
-                    else:
-                        messages.error(request, _("سطح دشواری باید عددی بین صفر تا ۱۰ باشد."))
+            if difficulty is not None:
+                WorkoutProgramFeedback.objects.update_or_create(
+                    program=program,
+                    day=selected_day,
+                    defaults={"difficulty": difficulty},
+                )
             self._mark_day_completed(selected_day, program)
 
         if saved_count:

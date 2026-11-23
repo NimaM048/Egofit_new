@@ -3030,9 +3030,21 @@ html:not(.dark) .account-dashboard .secondary-action {
     gap: 4px;
 }
 
-.workout-record-input input.is-invalid {
+.workout-record-input input.is-invalid,
+.workout-performance-form input.is-invalid,
+.workout-performance-form textarea.is-invalid {
     border-color: #dc2626 !important;
     box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.14);
+}
+
+.workout-performance-form .workout-field-error {
+    display: block;
+    color: #991b1b;
+    font-size: 0.8rem;
+}
+
+.dark .workout-performance-form .workout-field-error {
+    color: #fca5a5;
 }
 
 .workout-performance-submit.is-loading {

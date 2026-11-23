@@ -54,7 +54,7 @@ class TrainingDataService:
         except (TypeError, ValueError) as exc:
             raise ValidationError({field: _("مقدار باید عدد صحیح باشد.")}) from exc
         if not minimum <= parsed <= maximum:
-            raise ValidationError({field: _("مقدار خارج از بازه مجاز است.")})
+            raise ValidationError({field: _("مقدار باید بین %(min)s و %(max)s باشد.") % {"min": minimum, "max": maximum}})
         return parsed
 
     @staticmethod
@@ -65,8 +65,10 @@ class TrainingDataService:
             parsed = Decimal(str(normalize_digits(value)).replace(",", ".").replace("٫", "."))
         except (InvalidOperation, TypeError, ValueError) as exc:
             raise ValidationError({field: _("مقدار باید عددی باشد.")}) from exc
-        if not parsed.is_finite() or parsed < minimum or parsed > maximum:
-            raise ValidationError({field: _("مقدار خارج از بازه مجاز است.")})
+        if not parsed.is_finite():
+            raise ValidationError({field: _("مقدار باید عددی باشد.")})
+        if not minimum <= parsed <= maximum:
+            raise ValidationError({field: _("مقدار باید بین %(min)s و %(max)s باشد.") % {"min": minimum, "max": maximum}})
         return parsed
 
     @staticmethod
@@ -212,7 +214,7 @@ class TrainingDataService:
             if exercise and (average_heart_rate is not None or peak_heart_rate is not None):
                 raise ValidationError({"sets": _("ضربان ثبت‌شده در این بخش فقط برای نتیجهٔ هوازی پشتیبانی می‌شود.")})
             if average_heart_rate is not None and peak_heart_rate is not None and peak_heart_rate < average_heart_rate:
-                raise ValidationError({"sets": _("بیشینهٔ ضربان نمی‌تواند از میانگین ضربان کمتر باشد.")})
+                raise ValidationError({f"sets.{index}.peak_heart_rate_bpm": _("بیشینهٔ ضربان باید حداقل برابر با میانگین ضربان باشد.")})
             if not any(value is not None for value in outcome_values) and completed:
                 raise ValidationError({"sets": _("برای هر ست انجام‌شده دست‌کم یک نتیجه واقعی ثبت کنید.")})
             movement_slot = "cardio" if cardio_exercise else slot
@@ -295,10 +297,15 @@ class TrainingDataService:
                     return existing
             raise
         set_records = []
-        for values in normalized_sets:
+        for index, values in enumerate(normalized_sets):
             item = values.pop("item")
             result = WorkoutSetResult(session=session, program_exercise=item, **values)
-            result.full_clean()
+            try:
+                result.full_clean()
+            except ValidationError as exc:
+                raise ValidationError({
+                    f"sets.{index}.{field}": errors for field, errors in exc.error_dict.items()
+                }) from exc
             set_records.append(result)
         WorkoutSetResult.objects.bulk_create(set_records)
         for result in set_records:

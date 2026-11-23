@@ -194,7 +194,7 @@
                                                             {% for set_number in row.set_numbers %}
                                                                 {% with set_number_text=set_number|stringformat:'s' %}
                                                                 {% with prefix=row.session_prefix|add:'_'|add:set_number_text %}
-                                                                <fieldset class="workout-set-result">
+                                                                <fieldset class="workout-set-result" data-movement-name="{{ row.exercise.name }}" data-set-number="{{ set_number }}">
                                                                     <legend>{% trans 'ست' %} {{ set_number }} · {% trans 'هدف' %}: {{ row.reps|default:'—' }}</legend>
                                                                     <input type="hidden" name="{{ prefix }}_attempted" value="1">
                                                                     {% if row.is_cardio %}
@@ -257,7 +257,7 @@
                             <span aria-hidden="true">✓</span>
                             {% trans 'ثبت جلسه و نتیجه ست‌ها' %}
                         </button>
-                        <div class="workout-performance-feedback" data-workout-feedback role="status" aria-live="polite"></div>
+                        <div class="workout-performance-feedback" data-workout-feedback role="status" aria-live="polite" tabindex="-1"></div>
                         </div>
                     </details>
                 </form>
@@ -482,169 +482,275 @@
                     box.classList.remove("is-visible", "is-success");
                     box.innerHTML = "";
                 }
-                form.querySelectorAll(".is-invalid").forEach(function (input) {
-                    input.classList.remove("is-invalid");
-                });
+                form.querySelectorAll(".is-invalid").forEach(clearFieldError);
             }
 
-            function showWorkoutToast(message) {
-                if (!message) {
+            function clearFieldError(input) {
+                input.classList.remove("is-invalid");
+                input.removeAttribute("aria-invalid");
+                var fieldError = input.nextElementSibling;
+                if (fieldError?.classList.contains("workout-field-error")) {
+                    var description = (input.getAttribute("aria-describedby") || "").split(" ")
+                        .filter(function (id) { return id && id !== fieldError.id; }).join(" ");
+                    if (description) {
+                        input.setAttribute("aria-describedby", description);
+                    } else {
+                        input.removeAttribute("aria-describedby");
+                    }
+                    fieldError.remove();
+                }
+            }
+
+            function showFieldError(form, input, message) {
+                input.classList.add("is-invalid");
+                input.setAttribute("aria-invalid", "true");
+                var fieldError = input.nextElementSibling;
+                if (fieldError?.classList.contains("workout-field-error")) {
+                    fieldError.textContent += " " + message;
                     return;
                 }
-                var stack = document.querySelector(".account-toast-stack");
-                if (!stack) {
-                    var screen = document.querySelector(".workout-program-screen");
-                    if (!screen) {
-                        return;
-                    }
-                    stack = document.createElement("div");
-                    stack.className = "account-toast-stack";
-                    stack.setAttribute("aria-live", "assertive");
-                    var header = screen.querySelector(".profile-screen__header");
-                    screen.insertBefore(stack, header ? header.nextSibling : screen.firstChild);
-                }
-                var toast = document.createElement("div");
-                toast.className = "account-toast account-toast--error";
-                toast.setAttribute("role", "alert");
-                toast.textContent = message;
-                stack.appendChild(toast);
-                window.setTimeout(function () {
-                    toast.classList.add("is-dismissed");
-                    window.setTimeout(function () {
-                        toast.remove();
-                    }, 300);
-                }, 5000);
+                fieldError = document.createElement("span");
+                fieldError.className = "workout-field-error";
+                fieldError.id = "workout-error-" + form.elements.namedItem("day_id").value + "-" + input.name;
+                fieldError.textContent = message;
+                input.insertAdjacentElement("afterend", fieldError);
+                var description = input.getAttribute("aria-describedby");
+                input.setAttribute("aria-describedby", description ? description + " " + fieldError.id : fieldError.id);
             }
 
-            function isRirRpeError(error) {
-                return /(?:^|[._])(?:rir|rpe)$/i.test(String(error.field || ""));
+            function openField(input) {
+                for (var details = input.closest("details"); details; details = details.parentElement.closest("details")) {
+                    details.open = true;
+                }
             }
 
             function showFeedback(form, payload, isSuccess) {
                 var box = form.querySelector("[data-workout-feedback]");
-                var visibleErrors = [];
-                if (!isSuccess && payload.errors && payload.errors.length) {
-                    payload.errors.forEach(function (error) {
-                        if (error.field) {
-                            var input = form.querySelector('[name="' + error.field + '"]');
-                            if (input) {
-                                input.classList.add("is-invalid");
-                            }
-                        }
-                        if (isRirRpeError(error)) {
-                            var fieldName = /rpe$/i.test(String(error.field || "")) ? "RPE" : "RIR";
-                            showWorkoutToast("خطا در ثبت " + fieldName + ": " + error.message);
-                        } else {
-                            visibleErrors.push(error);
-                        }
-                    });
-                }
                 if (!box) {
                     return;
                 }
                 box.innerHTML = "";
-                if (!isSuccess && !visibleErrors.length) {
-                    box.classList.remove("is-visible", "is-success");
-                    return;
-                }
                 box.classList.add("is-visible");
                 box.classList.toggle("is-success", isSuccess);
                 var title = document.createElement("div");
                 title.className = "workout-performance-feedback__title";
-                title.textContent = isSuccess ? "✓ " + (payload.message || "ثبت شد") : (payload.title || "⚠ لطفاً موارد زیر را اصلاح کنید");
+                title.textContent = isSuccess ? "✓ " + payload.message : (
+                    payload.title || (payload.code === "validation_error"
+                        ? "{% trans 'موارد زیر را اصلاح کنید' %}"
+                        : "{% trans 'ثبت نتیجه تأیید نشد' %}")
+                );
                 box.appendChild(title);
-                if (!isSuccess && visibleErrors.length) {
-                    var listEl = document.createElement("ul");
-                    visibleErrors.forEach(function (error) {
-                        var item = document.createElement("li");
-                        item.textContent = error.message;
-                        listEl.appendChild(item);
-                    });
-                    box.appendChild(listEl);
+                if (isSuccess) {
+                    return;
+                }
+                var firstInvalid;
+                var listEl = document.createElement("ul");
+                payload.errors.forEach(function (error) {
+                    var input = error.field && form.elements.namedItem(error.field);
+                    var item = document.createElement("li");
+                    var context = [];
+                    if (input instanceof HTMLElement) {
+                        showFieldError(form, input, error.message);
+                        firstInvalid = firstInvalid || input;
+                        var set = input.closest("[data-movement-name]");
+                        var label = input.closest("label")?.querySelector("span");
+                        if (set) {
+                            context.push(set.dataset.movementName, "{% trans 'ست' %} " + set.dataset.setNumber);
+                        }
+                        if (label) {
+                            context.push(label.textContent.trim());
+                        }
+                    }
+                    item.textContent = (context.length ? context.join("، ") + " — " : "") + error.message;
+                    listEl.appendChild(item);
+                });
+                box.appendChild(listEl);
+                if (payload.reference) {
+                    var reference = document.createElement("div");
+                    reference.textContent = "{% trans 'کد پیگیری' %}" + ": " + payload.reference;
+                    box.appendChild(reference);
+                }
+                if (firstInvalid) {
+                    openField(firstInvalid);
+                    firstInvalid.focus();
+                } else {
+                    box.focus();
                 }
             }
 
-            document.querySelectorAll(".workout-performance-form").forEach(function (form) {
-                form.addEventListener("invalid", function (event) {
-                    var input = event.target;
-                    if (!input || !/(?:_rir|_rpe)$/i.test(input.name || "")) {
-                        return;
+            function submissionError(message, title) {
+                return { ok: false, title: title, errors: [{ message: message }] };
+            }
+
+            function signInError() {
+                var payload = submissionError(
+                    "{% trans 'در یک زبانهٔ دیگر وارد حساب شوید و سپس دوباره ثبت کنید.' %}",
+                    "{% trans 'ورود به حساب لازم است' %}"
+                );
+                payload.code = "login_required";
+                return payload;
+            }
+
+            async function readSubmission(response) {
+                var contentType = response.headers.get("Content-Type") || "";
+                if (contentType.includes("application/json") && !response.redirected) {
+                    var payload = await response.json().catch(function (error) {
+                        if (error.name !== "SyntaxError") {
+                            throw error;
+                        }
+                        return null;
+                    });
+                    if (response.ok && payload?.ok === true && typeof payload.message === "string") {
+                        return payload;
                     }
-                    event.preventDefault();
-                    var fieldName = /_rpe$/i.test(input.name) ? "RPE" : "RIR";
-                    showWorkoutToast("مقدار " + fieldName + " باید عددی بین ۰ تا ۱۰ باشد.");
-                    input.classList.add("is-invalid");
+                    if (!response.ok && payload?.ok === false && Array.isArray(payload.errors) &&
+                        payload.errors.length && payload.errors.every(function (error) {
+                            return error && typeof error.message === "string";
+                        })) {
+                        return payload;
+                    }
+                }
+                if (response.redirected || response.status === 401) {
+                    return signInError();
+                }
+                if (response.status === 403) {
+                    var rejected = submissionError(
+                        "{% trans 'دوباره ثبت کنید تا اعتبار فرم تازه شود. اگر خطا تکرار شد، دسترسی به برنامه را بررسی کنید.' %}",
+                        "{% trans 'درخواست ثبت تأیید نشد' %}"
+                    );
+                    rejected.code = "refresh_csrf";
+                    return rejected;
+                }
+                if (response.status === 404) {
+                    return submissionError("{% trans 'برنامهٔ فعلی را از فهرست برنامه‌های تمرینی باز کنید.' %}", "{% trans 'برنامه یا روز تمرین در دسترس نیست' %}");
+                }
+                if (response.status === 429) {
+                    return submissionError("{% trans 'کمی صبر کنید و بعد دوباره ثبت کنید.' %}", "{% trans 'درخواست‌های زیادی ارسال شده است' %}");
+                }
+                if (response.status >= 500) {
+                    return submissionError(
+                        "{% trans 'پیش از تلاش دوباره، سوابق تمرین را بررسی کنید.' %}",
+                        "{% trans 'سرور هنگام ثبت نتیجه با خطا روبه‌رو شد' %}"
+                    );
+                }
+                return submissionError(
+                    "{% trans 'پاسخ قابل تأیید نبود. پیش از تلاش دوباره، سوابق تمرین را بررسی کنید.' %}",
+                    "{% trans 'پاسخ نامعتبر از سرور' %}"
+                );
+            }
+
+            document.querySelectorAll(".workout-performance-form").forEach(function (form) {
+                var pending = false;
+                var refreshToken = false;
+                var button = form.querySelector(".workout-performance-submit");
+                form.addEventListener("invalid", function (event) {
+                    openField(event.target);
+                    event.target.classList.add("is-invalid");
+                    event.target.setAttribute("aria-invalid", "true");
                 }, true);
                 form.addEventListener("input", function (event) {
-                    if (event.target && /(?:_rir|_rpe)$/i.test(event.target.name || "") && event.target.validity.valid) {
-                        event.target.classList.remove("is-invalid");
+                    if (event.target.validity?.valid) {
+                        clearFieldError(event.target);
                     }
                 });
-                form.addEventListener("submit", function (event) {
+                form.addEventListener("submit", async function (event) {
                     event.preventDefault();
+                    if (pending) {
+                        return;
+                    }
                     clearFeedback(form);
-                    var button = form.querySelector(".workout-performance-submit");
+                    if (navigator.onLine === false) {
+                        showFeedback(form, submissionError(
+                            "{% trans 'اینترنت دستگاه را وصل کنید و دوباره ثبت کنید. اطلاعات فرم هنوز در همین صفحه است.' %}",
+                            "{% trans 'دستگاه به اینترنت متصل نیست' %}"
+                        ), false);
+                        return;
+                    }
+                    pending = true;
+                    form.setAttribute("aria-busy", "true");
                     if (button) {
+                        button.disabled = true;
                         button.classList.add("is-loading");
                     }
-                    fetch(form.action, {
-                        method: "POST",
-                        body: new FormData(form),
-                        headers: {
-                            "X-Requested-With": "XMLHttpRequest",
-                            "Accept": "application/json"
-                        },
-                        credentials: "same-origin"
-                    })
-                        .then(function (response) {
-                            var contentType = response.headers.get("Content-Type") || "";
-                            if (response.redirected || !contentType.includes("application/json")) {
-                                var message = response.redirected || response.status === 401 || response.status === 403
-                                    ? "{% trans 'برای ثبت نتیجه، صفحه را تازه کنید و در صورت نیاز دوباره وارد شوید.' %}"
-                                    : "{% trans 'ثبت نتیجه با خطا روبه‌رو شد. دوباره تلاش کنید.' %}";
-                                return { ok: false, payload: {
-                                    title: "{% trans 'نتیجه ثبت نشد' %}",
-                                    errors: [{ message: message }]
-                                } };
-                            }
-                            return response.json().then(function (payload) {
-                                return { ok: response.ok, payload: payload };
+                    var controller = new AbortController();
+                    var timeout = window.setTimeout(function () { controller.abort(); }, 30000);
+                    var payload;
+                    var submitted = false;
+                    try {
+                        if (refreshToken) {
+                            var page = await fetch(window.location.href, {
+                                cache: "no-store",
+                                credentials: "same-origin",
+                                signal: controller.signal
                             });
-                        })
-                        .then(function (result) {
+                            if (page.redirected || page.status === 401) {
+                                payload = signInError();
+                            } else if (page.ok) {
+                                var documentWithToken = new DOMParser().parseFromString(await page.text(), "text/html");
+                                var token = documentWithToken.querySelector(".workout-performance-form [name=csrfmiddlewaretoken]");
+                                if (token) {
+                                    form.elements.namedItem("csrfmiddlewaretoken").value = token.value;
+                                    refreshToken = false;
+                                }
+                            }
+                            if (refreshToken && !payload) {
+                                payload = submissionError(
+                                    "{% trans 'برنامه را در یک زبانهٔ دیگر باز کنید و دسترسی به آن را بررسی کنید.' %}",
+                                    "{% trans 'اعتبار فرم تازه نشد' %}"
+                                );
+                            }
+                        }
+                        if (!payload) {
+                            var formData = new FormData(form);
+                            submitted = true;
+                            var response = await fetch(form.action, {
+                                method: "POST",
+                                body: formData,
+                                headers: {
+                                    "X-Requested-With": "XMLHttpRequest",
+                                    "Accept": "application/json"
+                                },
+                                credentials: "same-origin",
+                                signal: controller.signal
+                            });
+                            payload = await readSubmission(response);
+                        }
+                    } catch (error) {
+                        payload = submissionError(
+                            submitted
+                                ? "{% trans 'پیش از تلاش دوباره، سوابق تمرین را بررسی کنید تا جلسه دوبار ثبت نشود.' %}"
+                                : "{% trans 'درخواست ثبت ارسال نشد. اتصال را بررسی کنید و دوباره تلاش کنید.' %}",
+                            controller.signal.aborted
+                                ? "{% trans 'پاسخ ثبت به‌موقع دریافت نشد' %}"
+                                : "{% trans 'پاسخ ثبت از سرور دریافت نشد' %}"
+                        );
+                    } finally {
+                        window.clearTimeout(timeout);
+                        form.removeAttribute("aria-busy");
+                        if (button) {
+                            button.classList.remove("is-loading");
+                        }
+                    }
+                    refreshToken = refreshToken || payload.code === "login_required" || payload.code === "refresh_csrf";
+                    showFeedback(form, payload, payload.ok);
+                    if (payload.ok) {
+                        window.setTimeout(function () {
+                            form.querySelector("details")?.removeAttribute("open");
+                            if (window.__workoutProgramShowList) {
+                                window.__workoutProgramShowList();
+                                history.pushState(null, "", window.location.pathname + window.location.search);
+                            }
+                            pending = false;
                             if (button) {
-                                button.classList.remove("is-loading");
+                                button.disabled = false;
                             }
-                            if (result.ok && result.payload.ok) {
-                                showFeedback(form, result.payload, true);
-                                var detailsEl = form.querySelector("details");
-                                window.setTimeout(function () {
-                                    if (detailsEl) {
-                                        detailsEl.open = false;
-                                    }
-                                    if (window.__workoutProgramShowList) {
-                                        window.__workoutProgramShowList();
-                                        history.pushState(null, "", window.location.pathname + window.location.search);
-                                    }
-                                }, 900);
-                                return;
-                            }
-                            showFeedback(form, result.payload, false);
-                            var firstInvalid = form.querySelector(".is-invalid");
-                            if (firstInvalid) {
-                                firstInvalid.focus();
-                                firstInvalid.scrollIntoView({ behavior: "smooth", block: "center" });
-                            }
-                        })
-                        .catch(function () {
-                            if (button) {
-                                button.classList.remove("is-loading");
-                            }
-                            showFeedback(form, {
-                                title: "{% trans 'نتیجه ثبت نشد' %}",
-                                errors: [{ message: "{% trans 'ارتباط با سرور برقرار نشد. دوباره تلاش کنید.' %}" }]
-                            }, false);
-                        });
+                        }, 900);
+                    } else {
+                        pending = false;
+                        if (button) {
+                            button.disabled = false;
+                        }
+                    }
                 });
             });
 
