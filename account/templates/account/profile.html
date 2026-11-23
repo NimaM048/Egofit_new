@@ -177,5 +177,8 @@
         <script src="{% static 'js/vendor/chart.umd.min.js' %}"></script>
         <script src="{% static 'js/profile-composition.js' %}"></script>
     {% endif %}
-    {% if mood_reminder_enabled or mood_reminder_prompt_due %}<script src="{% static 'js/mood-reminder.js' %}"></script>{% endif %}
+    {% if mood_reminder_enabled or mood_reminder_prompt_due %}
+        <script src="{% static 'js/panel-notification-request.js' %}"></script>
+        <script src="{% static 'js/mood-reminder.js' %}"></script>
+    {% endif %}
 {% endblock %}

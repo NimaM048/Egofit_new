@@ -49,6 +49,7 @@ from account.models import (
 from account.services.admin_portal_service import AdminPortalService
 from account.services.admin_financial_analytics_service import AdminFinancialAnalyticsService
 from account.services.coach_application_service import CoachApplicationService
+from account.services.client_file_service import open_client_file
 from account.services.exercise_suggestion_service import ExerciseSuggestionService
 from account.services.gym_program_service import GymProgramService
 from account.services.automatic_program_service import AutomaticProgramService
@@ -627,9 +628,12 @@ def _serve_document(request, document, *, may_manage=False):
         for payment in document.payments.all()
     ):
         return error("payment_required", "This document requires payment.", status=403)
+    try:
+        file = open_client_file(document.file)
+    except FileNotFoundError:
+        return error("file_unavailable", "The document file is unavailable.", status=404)
     _audit(request.user, "client_document.download", object_type="client_document", object_id=document.pk)
-    document.file.open("rb")
-    response = FileResponse(document.file, as_attachment=True, filename=os.path.basename(document.file.name))
+    response = FileResponse(file, as_attachment=True, filename=os.path.basename(document.file.name))
     response["Cache-Control"] = "private, no-store"
     response["X-Content-Type-Options"] = "nosniff"
     return response
@@ -648,10 +652,13 @@ def client_media_download(request, media_id, kind):
     field = media.image if kind == "image" else media.video if kind == "video" else None
     if field is None or not field:
         return error("not_found", "The requested resource was not found.", status=404)
+    try:
+        file = open_client_file(field)
+    except FileNotFoundError:
+        return error("file_unavailable", "The media file is unavailable.", status=404)
     _audit(request.user, "client_media.download", object_type="client_media", object_id=media.pk)
-    field.open("rb")
     content_type = mimetypes.guess_type(field.name)[0] or "application/octet-stream"
-    response = FileResponse(field, content_type=content_type)
+    response = FileResponse(file, content_type=content_type)
     response["Content-Disposition"] = content_disposition_header(False, os.path.basename(field.name))
     response["Cache-Control"] = "private, no-store"
     response["X-Content-Type-Options"] = "nosniff"

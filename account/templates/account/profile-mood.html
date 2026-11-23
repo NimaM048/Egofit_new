@@ -155,6 +155,7 @@
 {% block extra_js %}
     {{ block.super }}
     {% if mood_entries or heart_rate_entries %}<script src="{% static 'js/vendor/chart.umd.min.js' %}"></script><script src="{% static 'js/mood-trends.js' %}"></script>{% endif %}
+    <script src="{% static 'js/panel-notification-request.js' %}"></script>
     <script src="{% static 'js/mood-reminder.js' %}"></script>
     <script src="{% static 'js/mood-scale.js' %}" defer></script>
 {% endblock %}

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import logging
+
 import jdatetime
 from django.conf import settings
 from django.contrib import messages
@@ -942,26 +944,39 @@ class AdminUploadView(StaffUserMixin, View):
 
     def post(self, request, user_id):
         upload_kind = request.POST.get("upload_kind")
+        document_form = AdminClientDocumentForm()
+        media_form = AdminClientMediaForm()
 
         if upload_kind == "document":
             document_form = AdminClientDocumentForm(request.POST, request.FILES)
-            media_form = AdminClientMediaForm()
-            if document_form.is_valid():
-                admin_portal_service.save_document(user=self.target_user, uploaded_by=request.user, form=document_form)
-                messages.success(request, _("برنامه/فایل با موفقیت آپلود شد."))
-                return redirect("register:admin_user_hub", user_id=self.target_user.pk)
-        else:
+            form = document_form
+            save_file = admin_portal_service.save_document
+        elif upload_kind in (None, "media"):
             media_form = AdminClientMediaForm(request.POST, request.FILES)
-            document_form = AdminClientDocumentForm()
-            if media_form.is_valid():
-                if not media_form.cleaned_data.get("image") and not media_form.cleaned_data.get("video"):
-                    media_form.add_error(None, _("حداقل یک فایل تصویر یا ویدیو انتخاب کنید."))
+            form = media_form
+            save_file = admin_portal_service.save_media
+        else:
+            messages.error(request, _("نوع ارسال فایل مشخص نیست. از یکی از فرم‌های همین صفحه استفاده کنید."))
+            return render(request, self.template_name, self._context(media_form, document_form), status=400)
+
+        status = 200
+        if form.is_valid():
+            if form is media_form and not (form.cleaned_data.get("image") or form.cleaned_data.get("video")):
+                form.add_error(None, _("حداقل یک فایل تصویر یا ویدیو انتخاب کنید."))
+            else:
+                try:
+                    save_file(user=self.target_user, uploaded_by=request.user, form=form)
+                except OSError:
+                    logging.getLogger(__name__).exception("Client upload I/O failed kind=%s", upload_kind)
+                    form.add_error(None, _("در ذخیرهٔ فایل مشکلی پیش آمد. فایل را دوباره انتخاب و ارسال کنید."))
+                    status = 503
                 else:
-                    admin_portal_service.save_media(user=self.target_user, uploaded_by=request.user, form=media_form)
-                    messages.success(request, _("فایل با موفقیت آپلود شد."))
+                    messages.success(request, _("فایل با موفقیت بارگذاری شد."))
+                    if form is document_form:
+                        return redirect("register:admin_user_hub", user_id=self.target_user.pk)
                     return redirect("register:admin_search")
 
-        return render(request, self.template_name, self._context(media_form, document_form))
+        return render(request, self.template_name, self._context(media_form, document_form), status=status)
 
     def _context(self, media_form, document_form):
         return {

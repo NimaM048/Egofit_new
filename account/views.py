@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import logging
 import os
 
 from django.contrib import messages
@@ -36,6 +37,7 @@ from account.froms import (
 )
 from account.services import AuthService, OTPService, ProfileService, SessionService, create_and_send_otp
 from account.services.access_payment_service import AccessPaymentService
+from account.services.client_file_service import open_client_file
 from account.portal_mixins import UserPortalRequiredMixin, get_post_login_redirect_url
 from account.utils import format_phone_display, normalize_digits
 from account.view_mixins import AccountPageMixin
@@ -53,6 +55,7 @@ otp_service = OTPService()
 profile_service = ProfileService()
 session_service = SessionService()
 access_payment_service = AccessPaymentService()
+logger = logging.getLogger(__name__)
 
 
 def _build_verification_context(*, token: str, form):
@@ -234,8 +237,18 @@ class ClientDocumentDownloadView(UserPortalRequiredMixin, View):
         ).exists():
             messages.info(request, _("برای دریافت این فایل ابتدا هزینه آن را پرداخت کنید."))
             return redirect("register:profile_plans")
-        document.file.open("rb")
-        return FileResponse(document.file, as_attachment=True, filename=os.path.basename(document.file.name))
+        try:
+            file = open_client_file(document.file)
+        except FileNotFoundError:
+            messages.error(request, _("فایل «%(title)s» در دسترس نیست. از مربی یا پشتیبانی بخواهید دوباره آن را بارگذاری کند.") % {"title": document.title})
+            return redirect("register:profile_plans")
+        except OSError:
+            logger.exception("Could not read client document document_id=%s", document.pk)
+            messages.error(request, _("در خواندن فایل مشکلی پیش آمد. کمی بعد دوباره تلاش کنید."))
+            return redirect("register:profile_plans")
+        response = FileResponse(file, as_attachment=True, filename=os.path.basename(document.file.name))
+        response["Cache-Control"] = "private, no-store"
+        return response
 
 
 class WorkoutProgramPaymentView(UserPortalRequiredMixin, View):

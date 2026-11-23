@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 
 from django.conf import settings
-from django.contrib.auth.decorators import login_required
+from django.core.exceptions import RequestDataTooBig
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import require_GET, require_POST
@@ -16,16 +16,20 @@ from account.services.mood_reminder_service import MoodReminderService
 reminder_service = MoodReminderService()
 
 
-@login_required
 @require_POST
 @csrf_protect
 def health_alert_push_api(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({"ok": False, "message": "نشست شما پایان یافته است. دوباره وارد حساب شوید."}, status=401)
     if not (request.user.is_admin or request.user.is_coach):
         return JsonResponse({"ok": False, "message": "دسترسی به این بخش مجاز نیست."}, status=403)
-    if len(request.body) > 8192:
-        return JsonResponse({"ok": False, "message": "درخواست بیش از اندازه بزرگ است."}, status=413)
     try:
-        payload = json.loads(request.body.decode("utf-8"))
+        body = request.body
+        if len(body) > 8192:
+            raise RequestDataTooBig
+        payload = json.loads(body.decode("utf-8"))
+    except RequestDataTooBig:
+        return JsonResponse({"ok": False, "message": "درخواست بیش از اندازه بزرگ است."}, status=413)
     except (UnicodeDecodeError, json.JSONDecodeError):
         return JsonResponse({"ok": False, "message": "درخواست قابل خواندن نیست."}, status=400)
     if not isinstance(payload, dict):

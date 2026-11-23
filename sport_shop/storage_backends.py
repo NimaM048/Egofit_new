@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+import tempfile
 import uuid
 from pathlib import Path
 from urllib.parse import quote
@@ -170,20 +171,28 @@ class ResilientMediaStorage(FileSystemStorage):
         if super().exists(name) or not remote_storage:
             return super().exists(name)
 
-        try:
-            remote_file = remote_storage.open(name, "rb")
-        except Exception as exc:
-            logger.warning("Remote media fetch failed for %s: %s", name, exc)
-            return False
-
+        temporary_path = None
         try:
             local_path = Path(self.path(name))
             local_path.parent.mkdir(parents=True, exist_ok=True)
-            with local_path.open("wb") as local_file:
+            with remote_storage.open(name, "rb") as remote_file, tempfile.NamedTemporaryFile(
+                dir=local_path.parent, delete=False,
+            ) as local_file:
+                temporary_path = Path(local_file.name)
                 for chunk in remote_file.chunks():
                     local_file.write(chunk)
+            if self.file_permissions_mode is not None:
+                os.chmod(temporary_path, self.file_permissions_mode)
+            os.replace(temporary_path, local_path)
+        except Exception as exc:
+            logger.warning("Remote media fetch failed for %s: %s", name, exc)
+            return False
         finally:
-            remote_file.close()
+            if temporary_path is not None:
+                try:
+                    temporary_path.unlink(missing_ok=True)
+                except OSError:
+                    logger.warning("Could not clean up temporary media file", exc_info=True)
         return True
 
     def _mirror_to_remote(self, name):

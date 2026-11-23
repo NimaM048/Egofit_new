@@ -1,4 +1,5 @@
 from api.v1.common import *
+from account.services.client_file_service import open_client_file
 
 @api_endpoint
 @api_methods("GET", "PATCH", "POST")
@@ -540,8 +541,11 @@ def document_download(request, pk):
     document = get_object_or_404(ClientDocument, pk=pk, user=request.user)
     if document.requires_payment and not ClientDocumentPayment.objects.filter(document=document, user=request.user, status=ClientDocumentPayment.Status.PAID).exists():
         return error("payment_required", "This document requires payment.", status=403)
-    document.file.open("rb")
-    response = FileResponse(document.file, as_attachment=True, filename=os.path.basename(document.file.name))
+    try:
+        file = open_client_file(document.file)
+    except FileNotFoundError:
+        return error("file_unavailable", "The document file is unavailable.", status=404)
+    response = FileResponse(file, as_attachment=True, filename=os.path.basename(document.file.name))
     response["Cache-Control"] = "private, no-store"
     return response
 

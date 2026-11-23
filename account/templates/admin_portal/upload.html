@@ -21,16 +21,18 @@
             <label class="admin-upload-field">
                 <span>
                     <strong>{% trans 'آپلود تصویر' %}</strong>
-                    <small>JPG, PNG, WEBP</small>
+                    <small>JPG, PNG, WEBP, GIF</small>
                 </span>
                 {{ form.image }}
+                {% for error in form.image.errors %}<small class="admin-field-error">{{ error }}</small>{% endfor %}
             </label>
             <label class="admin-upload-field">
                 <span>
                     <strong>{% trans 'آپلود ویدیو' %}</strong>
-                    <small>{% trans 'MP4 یا فایل ویدیویی تمرین' %}</small>
+                    <small>MP4, WEBM, MOV, M4V, OGV</small>
                 </span>
                 {{ form.video }}
+                {% for error in form.video.errors %}<small class="admin-field-error">{{ error }}</small>{% endfor %}
             </label>
             {% if form.non_field_errors %}
                 <div class="admin-form-errors">
@@ -44,7 +46,7 @@
 
         <hr>
 
-        <p class="metric-sheet__description">{% blocktrans with fullname=target_user.fullname %}برنامه تمرینی/غذایی (PDF یا فایل دیگر) برای {{ fullname }} ارسال کنید.{% endblocktrans %}</p>
+        <p class="metric-sheet__description">{% blocktrans with fullname=target_user.fullname %}برنامهٔ تمرینی یا غذایی را به‌صورت PDF برای {{ fullname }} ارسال کنید.{% endblocktrans %}</p>
 
         <form method="post" enctype="multipart/form-data" class="admin-upload-form">
             {% csrf_token %}
@@ -58,7 +60,7 @@
             <label class="admin-upload-field">
                 <span>
                     <strong>{% trans 'فایل برنامه' %}</strong>
-                    <small>{% trans 'PDF یا هر فایل دیگر' %}</small>
+                    <small>{% trans 'فقط PDF' %}</small>
                 </span>
                 {{ document_form.file }}
             </label>

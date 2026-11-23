@@ -11,28 +11,7 @@
         return bytes;
     }
 
-    async function post(card, payload) {
-        var token = card.querySelector('input[name="csrfmiddlewaretoken"]');
-        var response = await fetch(card.dataset.apiUrl, {
-            method: "POST",
-            credentials: "same-origin",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": token ? token.value : ""
-            },
-            body: JSON.stringify(payload)
-        });
-        var result;
-        try {
-            result = await response.json();
-        } catch (error) {
-            throw new Error("پاسخ سرور قابل خواندن نیست. صفحه را تازه کنید و دوباره تلاش کنید.");
-        }
-        if (!response.ok || !result.ok) {
-            throw new Error(result.message || "ذخیره تنظیمات اعلان انجام نشد.");
-        }
-        return result;
-    }
+    var post = window.postPanelNotification;
 
     function requestNotificationPermission() {
         return new Promise(function (resolve, reject) {

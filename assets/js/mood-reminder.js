@@ -19,28 +19,7 @@
         target.hidden = false;
     }
 
-    async function post(card, payload) {
-        var token = card.querySelector('input[name="csrfmiddlewaretoken"]');
-        var response = await fetch(card.dataset.apiUrl, {
-            method: "POST",
-            credentials: "same-origin",
-            headers: {
-                "Content-Type": "application/json",
-                "X-CSRFToken": token ? token.value : ""
-            },
-            body: JSON.stringify(payload)
-        });
-        var result;
-        try {
-            result = await response.json();
-        } catch (error) {
-            throw new Error("پاسخ سرور قابل خواندن نیست. صفحه را تازه کنید و دوباره تلاش کنید.");
-        }
-        if (!response.ok || !result.ok) {
-            throw new Error(result.message || "ذخیره تنظیمات انجام نشد. دوباره تلاش کنید.");
-        }
-        return result;
-    }
+    var post = window.postPanelNotification;
 
     function getSettings(card) {
         var selectedDays = Array.prototype.slice.call(
@@ -207,8 +186,7 @@
                     });
                 }
 
-                await post(card, { action: "subscribe", subscription: subscription.toJSON() });
-                await post(card, Object.assign({ action: "save" }, config));
+                await post(card, Object.assign({ action: "save", subscription: subscription.toJSON() }, config));
                 window.location.reload();
             } catch (error) {
                 showMessage(card, error.message || "ذخیره تنظیمات انجام نشد. دوباره تلاش کنید.", true);
